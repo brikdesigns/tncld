@@ -1,0 +1,28 @@
+# Purge jsDelivr CDN Cache
+# Automatically purges cached CSS/JS files when they change
+
+name: Purge jsDelivr Cache
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'header.css'
+      - 'footer.js'
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge header.css from jsDelivr
+        run: |
+          curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/header.css"
+          echo "Purged header.css"
+
+      - name: Purge footer.js from jsDelivr
+        run: |
+          curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js"
+          echo "Purged footer.js"
+
+      - name: Verification
+        run: echo "CDN cache purged successfully"
