@@ -42,7 +42,10 @@
 /*            CUSTOM OVERRIDES                  */
 /* ============================================= */
 
-/* Add TNCLD-specific style overrides below */
+/* Fix: Mega nav dropdown appearing behind hero content */
+.navigation {
+  z-index: 1000 !important;
+}
 
 
 /* ============================================= */
