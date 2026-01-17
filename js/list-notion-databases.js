@@ -1,7 +1,7 @@
+require('dotenv').config();
 const { Client } = require('@notionhq/client');
 
-// Replace with your Notion integration token
-const notion = new Client({ auth: 'REDACTED-notion-token-brik-llm-3789' });
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 async function listDatabases() {
   try {

@@ -1,7 +1,8 @@
+require('dotenv').config();
 const axios = require('axios');
 
-const API_TOKEN = 'REDACTED-webflow-token-brik-llm-3789';
-const SITE_ID = '67c4e62250923072710d472c';
+const API_TOKEN = process.env.WEBFLOW_API_TOKEN;
+const SITE_ID = process.env.WEBFLOW_SITE_ID;
 
 const api = axios.create({
   baseURL: 'https://api.webflow.com',
