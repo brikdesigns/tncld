@@ -5,7 +5,7 @@
       "repository": "yourusername/brik-bds.webflow",
       "branch": "main",
       "path": "design-tokens",
-      "token": "figd_REajXU3piTuMf0iiVMujqwmOp93OLhCt6DXpTxmN"
+      "token": "${FIGMA_ACCESS_TOKEN}"
     }
   },
   "export": {

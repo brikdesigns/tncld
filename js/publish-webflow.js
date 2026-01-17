@@ -1,8 +1,8 @@
+require('dotenv').config();
 const axios = require('axios');
 
-// Hardcoded credentials (for testing only)
-const API_TOKEN = 'b467581adea84a392f5fb62909ba880e48649eadaab59108a1bc2df7beb496ab';
-const SITE_ID = '67c4e62250923072710d472c';
+const API_TOKEN = process.env.WEBFLOW_API_TOKEN;
+const SITE_ID = process.env.WEBFLOW_SITE_ID;
 
 const api = axios.create({
   baseURL: 'https://api.webflow.com',

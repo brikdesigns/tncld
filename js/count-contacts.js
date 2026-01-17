@@ -1,7 +1,8 @@
+require('dotenv').config();
 const { Client } = require('@notionhq/client');
 
-const notion = new Client({ auth: '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' });
-const databaseId = '1a097d34-ed28-8157-8778-ea3017a052cd';
+const notion = new Client({ auth: process.env.NOTION_TOKEN });
+const databaseId = process.env.NOTION_DATABASE_ID || '1a097d34-ed28-8157-8778-ea3017a052cd';
 
 async function countContacts() {
   let hasMore = true;
