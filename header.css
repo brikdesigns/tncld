@@ -1,0 +1,73 @@
+/* ============================================= */
+/*     TNCLD - CUSTOM CSS (HEAD CODE)          */
+/*     Tennessee Centers for Laser Dentistry    */
+/* ============================================= */
+/*     Copy to Webflow: Settings > Custom Code  */
+/*              > Head Code                      */
+/*     Wrap in <style> tags when transferring   */
+/* ============================================= */
+
+/*
+ * This file contains custom CSS for the TNCLD website.
+ * Add styles here for local development, then transfer
+ * to Webflow Custom Code > Head Code when ready.
+ *
+ * Created: January 16, 2026
+ * Last Updated: January 16, 2026
+ */
+
+/* ============================================= */
+/*              UTILITY CLASSES                 */
+/* ============================================= */
+
+/* Hide elements (for CMS empty states, etc.) */
+.hide {
+  display: none !important;
+}
+
+/* Screen reader only (accessible hiding) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================= */
+/*            CUSTOM OVERRIDES                  */
+/* ============================================= */
+
+/* Add TNCLD-specific style overrides below */
+
+
+/* ============================================= */
+/*            RESPONSIVE FIXES                  */
+/* ============================================= */
+
+/* Mobile adjustments */
+@media screen and (max-width: 767px) {
+  /* Add mobile-specific fixes here */
+}
+
+/* Tablet adjustments */
+@media screen and (max-width: 991px) {
+  /* Add tablet-specific fixes here */
+}
+
+/* ============================================= */
+/*            ANIMATION ENHANCEMENTS            */
+/* ============================================= */
+
+/* Smooth transitions for interactive elements */
+.transition-smooth {
+  transition: all 0.3s ease;
+}
+
+/* ============================================= */
+/*               END OF FILE                    */
+/* ============================================= */
