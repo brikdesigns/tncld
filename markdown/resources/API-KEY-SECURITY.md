@@ -130,6 +130,61 @@ Run with: `bash ~/.config/setup-brik-secrets.sh`
 
 ---
 
+## Pre-commit Hooks (Prevent Accidental Commits)
+
+Use `git-secrets` to automatically scan commits for API tokens before they can be pushed.
+
+### One-Time Global Setup
+
+```bash
+# Install git-secrets
+brew install git-secrets
+
+# Set up global template (applies to all new repos)
+mkdir -p ~/.git-templates/git-secrets
+git secrets --install ~/.git-templates/git-secrets
+git config --global init.templateDir ~/.git-templates/git-secrets
+
+# Add patterns to detect common tokens
+git secrets --add --global 'figd_[A-Za-z0-9_-]{20,}'      # Figma
+git secrets --add --global 'ntn_[A-Za-z0-9_-]{20,}'       # Notion
+git secrets --add --global 'AIzaSy[A-Za-z0-9_-]{30,}'     # Google
+
+# Allow placeholder patterns (prevent false positives)
+git secrets --add --global --allowed 'your_figma_token_here'
+git secrets --add --global --allowed 'your_notion_token_here'
+git secrets --add --global --allowed '\[YOUR_'
+```
+
+### Install in Existing Repos
+
+```bash
+cd /path/to/your/repo
+git secrets --install
+```
+
+### How It Works
+
+When you try to commit a file containing a pattern like `figd_ABC123...`, git-secrets will:
+1. Block the commit
+2. Show you which file and line contains the secret
+3. Suggest how to proceed (fix, allow, or override)
+
+### Test the Hook
+
+```bash
+# Create a test file with a fake token
+echo "TOKEN=figd_TESTFAKE12345678901234567890" > /tmp/test.txt
+
+# Scan it (should fail)
+git secrets --scan /tmp/test.txt
+
+# Clean up
+rm /tmp/test.txt
+```
+
+---
+
 ## Project Setup
 
 ### Required Files
