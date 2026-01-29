@@ -59,16 +59,25 @@ function initStickyNav() {
     return;
   }
 
-  let lastScrollY = window.scrollY;
-  let ticking = false;
+  let lastScrollY = 0;
 
   // Threshold before hiding nav (prevents jitter at top)
   const scrollThreshold = 100;
   // Minimum scroll delta to trigger show/hide
   const scrollDelta = 10;
 
+  function getScrollY() {
+    // Support both GSAP ScrollSmoother and regular scrolling
+    if (window.ScrollTrigger) {
+      return window.ScrollTrigger.scrollerProxy
+        ? ScrollTrigger.scrollerProxy().scrollTop
+        : window.scrollY;
+    }
+    return window.scrollY || document.documentElement.scrollTop;
+  }
+
   function updateNav() {
-    const currentScrollY = window.scrollY;
+    const currentScrollY = getScrollY();
     const scrollDiff = currentScrollY - lastScrollY;
 
     // Always show nav when near top of page
@@ -92,24 +101,35 @@ function initStickyNav() {
     }
 
     lastScrollY = currentScrollY;
-    ticking = false;
   }
 
-  // Use requestAnimationFrame for smooth performance
-  function onScroll() {
-    if (!ticking) {
-      window.requestAnimationFrame(updateNav);
-      ticking = true;
+  // Check if GSAP ScrollTrigger is available
+  if (window.ScrollTrigger) {
+    // Use GSAP ScrollTrigger for scroll events (works with ScrollSmoother)
+    ScrollTrigger.create({
+      onUpdate: updateNav,
+      start: 0,
+      end: 'max'
+    });
+    console.log('Sticky nav initialized (GSAP mode)');
+  } else {
+    // Fallback to vanilla scroll events
+    let ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateNav();
+          ticking = false;
+        });
+        ticking = true;
+      }
     }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    console.log('Sticky nav initialized (vanilla mode)');
   }
-
-  // Attach scroll listener
-  window.addEventListener('scroll', onScroll, { passive: true });
 
   // Initialize state on load
   updateNav();
-
-  console.log('Sticky nav initialized');
 }
 
 // =============================================
