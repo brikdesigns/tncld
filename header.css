@@ -42,10 +42,7 @@
 /*            CUSTOM OVERRIDES                  */
 /* ============================================= */
 
-/* Fix: Mega nav dropdown appearing behind hero content */
-.navigation {
-  z-index: 1000 !important;
-}
+/* Navigation styles moved to STICKY NAV section below */
 
 
 /* ============================================= */
@@ -69,6 +66,43 @@
 /* Smooth transitions for interactive elements */
 .transition-smooth {
   transition: all 0.3s ease;
+}
+
+/* ============================================= */
+/*         STICKY NAV - SCROLL ANIMATION        */
+/* ============================================= */
+/*
+ * Pattern: Hide on scroll-down, show on scroll-up
+ * Based on brik-bds animation library (animations.css)
+ * Triggered by JS adding/removing .nav-hidden class
+ */
+
+.navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  /* Smooth transform transition - matches --duration-normal (300ms) */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Subtle shadow when scrolled */
+  will-change: transform;
+}
+
+/* Hidden state - slides nav off screen */
+.navigation.nav-hidden {
+  transform: translateY(-100%);
+}
+
+/* Optional: Add shadow when nav is scrolled (not at top) */
+.navigation.nav-scrolled {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure body has padding to account for fixed nav height */
+body {
+  /* Adjust this value to match your nav height */
+  padding-top: 80px;
 }
 
 /* ============================================= */
