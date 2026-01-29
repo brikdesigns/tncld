@@ -17,6 +17,22 @@
  */
 
 /* ============================================= */
+/*              SMOOTH SCROLL                   */
+/* ============================================= */
+
+/* Native CSS smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ============================================= */
 /*              UTILITY CLASSES                 */
 /* ============================================= */
 
@@ -72,22 +88,35 @@
 /*         STICKY NAV - SCROLL ANIMATION        */
 /* ============================================= */
 /*
- * Pattern: Hide on scroll-down, show on scroll-up
+ * Behavior:
+ * - Utility nav: Scrolls away normally (not sticky)
+ * - Main nav: Becomes fixed, stays visible for 1.5s on scroll-down,
+ *             then slides up. Reappears immediately on scroll-up.
+ *
  * Based on brik-bds animation library (animations.css)
  * Triggered by JS adding/removing .nav-hidden class
  */
 
-/* Target the MAIN navigation (second .navigation element) */
-/* Use higher specificity to override Webflow's position: relative */
+/* UTILITY NAV - scrolls normally, sits above main nav */
+/* First .navigation element without data-doc-height attribute */
+.navigation.w-nav:not([data-doc-height]) {
+  position: relative;
+  z-index: 999 !important; /* Below main nav so main nav covers it when scrolling */
+}
+
+/* MAIN NAV - sticky with hide/show animation */
+/* Target via data-doc-height="1" attribute */
+/* JS controls the `top` value dynamically based on scroll position */
 .navigation.w-nav[data-doc-height="1"] {
   position: fixed !important;
-  top: 0;
   left: 0;
   right: 0;
   z-index: 1000 !important;
-  /* Smooth transform transition - matches --duration-normal (300ms) */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
+  /* Smooth transitions for top (position) and transform (hide/show) */
+  transition:
+    top 0.2s ease-out,
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, top;
 }
 
 /* Hidden state - slides nav off screen */
@@ -95,15 +124,9 @@
   transform: translateY(-100%) !important;
 }
 
-/* Optional: Add shadow when nav is scrolled (not at top) */
+/* Add shadow when nav is in scrolled state */
 .navigation.w-nav.nav-scrolled {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Ensure body has padding to account for fixed nav height */
-body {
-  /* Adjust this value to match your nav height */
-  padding-top: 80px;
 }
 
 /* ============================================= */
