@@ -77,25 +77,26 @@
  * Triggered by JS adding/removing .nav-hidden class
  */
 
-.navigation {
-  position: fixed;
+/* Target the MAIN navigation (second .navigation element) */
+/* Use higher specificity to override Webflow's position: relative */
+.navigation.w-nav[data-doc-height="1"] {
+  position: fixed !important;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1000 !important;
   /* Smooth transform transition - matches --duration-normal (300ms) */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  /* Subtle shadow when scrolled */
   will-change: transform;
 }
 
 /* Hidden state - slides nav off screen */
-.navigation.nav-hidden {
-  transform: translateY(-100%);
+.navigation.w-nav.nav-hidden {
+  transform: translateY(-100%) !important;
 }
 
 /* Optional: Add shadow when nav is scrolled (not at top) */
-.navigation.nav-scrolled {
+.navigation.w-nav.nav-scrolled {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 

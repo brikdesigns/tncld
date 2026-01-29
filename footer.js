@@ -52,9 +52,10 @@ function initializeModules() {
  */
 
 function initStickyNav() {
-  const nav = document.querySelector('.navigation');
+  // Target the MAIN nav (has data-doc-height), not the utility nav
+  const nav = document.querySelector('.navigation[data-doc-height="1"]');
   if (!nav) {
-    console.warn('Sticky nav: .navigation element not found');
+    console.warn('Sticky nav: Main .navigation element not found');
     return;
   }
 
