@@ -60,6 +60,41 @@ html {
 
 /* Navigation styles moved to STICKY NAV section below */
 
+/* ============================================= */
+/*         NAV DROPDOWN CHEVRON FIX             */
+/* ============================================= */
+/*
+ * Fix: Chevron icon jumps right when dropdown opens
+ * Ensure consistent spacing between nav text and chevron
+ */
+
+/* Lock the dropdown toggle to use consistent flex layout */
+.nav-dropdown-toggle.w-dropdown-toggle {
+  display: flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Ensure the nav link text doesn't change width */
+.nav-dropdown-toggle .text_label-sm.nav-link {
+  white-space: nowrap;
+}
+
+/* Keep dropdown icon in fixed position relative to text */
+.nav-dropdown-toggle .dropdown-icon {
+  position: relative !important;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+}
+
+/* Ensure icon doesn't shift when dropdown is open */
+.nav-dropdown-toggle.w--open .dropdown-icon,
+.nav_menu-dropdown.w--open .dropdown-icon {
+  position: relative !important;
+}
+
 
 /* ============================================= */
 /*            RESPONSIVE FIXES                  */
