@@ -100,17 +100,64 @@ html {
 
 
 /* ============================================= */
+/*         MEGA NAV POSITIONING FIX             */
+/* ============================================= */
+/*
+ * Fix: Gap between top nav and mega nav dropdown
+ * Fix: Mega nav falling off screen on smaller viewports
+ */
+
+/* Remove gap between nav and mega dropdown */
+.mega-nav-wrapper.w--open {
+  margin-top: 0 !important;
+  padding-top: 1.5rem !important; /* Reduced from 4rem */
+  top: 100% !important; /* Position directly below nav toggle */
+  left: 0 !important;
+  right: 0 !important;
+  max-width: 100vw !important;
+  overflow-x: hidden;
+}
+
+/* Ensure dropdown list has no gap */
+.nav_menu-dropdown .w-dropdown-list.w--open,
+.nav_menu-dropdown .mega-nav-wrapper.w--open {
+  margin-top: 0 !important;
+}
+
+/* Keep mega nav within viewport on smaller screens */
+@media screen and (max-width: 1280px) {
+  .mega-nav-wrapper.w--open {
+    width: 100vw !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+  }
+}
+
+/* ============================================= */
 /*            RESPONSIVE FIXES                  */
 /* ============================================= */
 
-/* Mobile adjustments */
-@media screen and (max-width: 767px) {
-  /* Add mobile-specific fixes here */
+/* Tablet - show utility nav */
+@media screen and (max-width: 991px) {
+  /* Force utility nav visible on tablet if hidden */
+  .navigation.w-nav:not([data-doc-height]) {
+    display: flex !important;
+  }
 }
 
-/* Tablet adjustments */
-@media screen and (max-width: 991px) {
-  /* Add tablet-specific fixes here */
+/* Mobile adjustments */
+@media screen and (max-width: 767px) {
+  /* Force utility nav visible on mobile if hidden */
+  .navigation.w-nav:not([data-doc-height]) {
+    display: flex !important;
+  }
+
+  /* Adjust utility nav layout for mobile */
+  .navigation.w-nav:not([data-doc-height]) .container-lg {
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+  }
 }
 
 /* ============================================= */
