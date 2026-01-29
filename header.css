@@ -72,12 +72,13 @@ html {
 .nav-dropdown-toggle.w-dropdown-toggle {
   display: flex !important;
   align-items: center;
-  gap: 4px;
+  gap: 12px; /* Gap between text and chevron */
 }
 
-/* Ensure the nav link text doesn't change width */
+/* Remove extra padding from nav link text */
 .nav-dropdown-toggle .text_label-sm.nav-link {
   white-space: nowrap;
+  padding-right: 0 !important; /* Remove 24px padding */
 }
 
 /* Keep dropdown icon in fixed position relative to text */
@@ -86,13 +87,15 @@ html {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  margin-left: 4px;
+  margin-left: 0; /* Remove margin, using gap instead */
+  margin-right: 0;
 }
 
 /* Ensure icon doesn't shift when dropdown is open */
 .nav-dropdown-toggle.w--open .dropdown-icon,
 .nav_menu-dropdown.w--open .dropdown-icon {
   position: relative !important;
+  margin-left: 0;
 }
 
 
