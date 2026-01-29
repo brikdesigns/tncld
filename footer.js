@@ -54,6 +54,13 @@ function initializeModules() {
  */
 
 function initStickyNav() {
+  // Skip sticky nav on tablet/mobile - let Webflow handle it
+  const TABLET_BREAKPOINT = 991;
+  if (window.innerWidth <= TABLET_BREAKPOINT) {
+    console.log('Sticky nav: Skipping on mobile/tablet viewport');
+    return;
+  }
+
   // Get both navigation elements
   const utilityNav = document.querySelector('.navigation.w-nav:not([data-doc-height])');
   const mainNav = document.querySelector('.navigation[data-doc-height="1"]');
