@@ -31,8 +31,10 @@ function initializeModules() {
   // Initialize sticky navigation
   initStickyNav();
 
+  // Initialize smooth scrolling for anchor links
+  initSmoothScroll();
+
   // Add additional module initializations here
-  // Example: initSmoothScroll();
   // Example: initFormEnhancements();
   // Example: initAccessibility();
 }
@@ -52,107 +54,139 @@ function initializeModules() {
  */
 
 function initStickyNav() {
-  // Target the MAIN nav (has data-doc-height), not the utility nav
-  const nav = document.querySelector('.navigation[data-doc-height="1"]');
-  if (!nav) {
-    console.warn('Sticky nav: Main .navigation element not found');
+  // Get both navigation elements
+  const utilityNav = document.querySelector('.navigation.w-nav:not([data-doc-height])');
+  const mainNav = document.querySelector('.navigation[data-doc-height="1"]');
+
+  if (!mainNav) {
+    console.warn('Sticky nav: .navigation[data-doc-height="1"] not found');
     return;
   }
 
-  let lastScrollY = 0;
+  // Get utility nav height (or 0 if not present)
+  const utilityNavHeight = utilityNav ? utilityNav.offsetHeight : 0;
 
-  // Threshold before hiding nav (prevents jitter at top)
-  const scrollThreshold = 100;
-  // Minimum scroll delta to trigger show/hide
-  const scrollDelta = 10;
+  let hideTimer = null;
+  let lastDirection = 0;
 
-  function getScrollY() {
-    // Support both GSAP ScrollSmoother and regular scrolling
-    if (window.ScrollTrigger) {
-      return window.ScrollTrigger.scrollerProxy
-        ? ScrollTrigger.scrollerProxy().scrollTop
-        : window.scrollY;
-    }
-    return window.scrollY || document.documentElement.scrollTop;
+  // Configuration
+  const hideDelay = 2000; // 2 seconds before hiding on scroll down
+
+  // Set initial position below utility nav
+  mainNav.style.top = utilityNavHeight + 'px';
+
+  function hideNav() {
+    mainNav.classList.add('nav-hidden');
   }
 
-  function updateNav() {
-    const currentScrollY = getScrollY();
-    const scrollDiff = currentScrollY - lastScrollY;
+  function showNav() {
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+    mainNav.classList.remove('nav-hidden');
+  }
 
-    // Always show nav when near top of page
-    if (currentScrollY < scrollThreshold) {
-      nav.classList.remove('nav-hidden');
-      nav.classList.remove('nav-scrolled');
+  function handleScroll(self) {
+    const scrollY = self.scroll();
+    const direction = self.direction; // 1 = down, -1 = up
+
+    // Calculate main nav top position based on scroll
+    // As user scrolls, main nav moves up until it reaches top: 0
+    if (scrollY < utilityNavHeight) {
+      // Utility nav still partially visible - position main nav below it
+      mainNav.style.top = (utilityNavHeight - scrollY) + 'px';
+      mainNav.classList.remove('nav-scrolled');
+      showNav();
+      lastDirection = 0;
     } else {
-      // Add scrolled state (for shadow)
-      nav.classList.add('nav-scrolled');
+      // Utility nav scrolled out - fix main nav at top
+      mainNav.style.top = '0px';
+      mainNav.classList.add('nav-scrolled');
 
-      // Only toggle if scroll delta is significant
-      if (Math.abs(scrollDiff) > scrollDelta) {
-        if (scrollDiff > 0) {
-          // Scrolling DOWN - hide nav
-          nav.classList.add('nav-hidden');
-        } else {
-          // Scrolling UP - show nav
-          nav.classList.remove('nav-hidden');
+      // Handle hide/show based on scroll direction
+      if (direction !== lastDirection) {
+        lastDirection = direction;
+
+        if (direction === 1) {
+          // Scrolling DOWN - schedule hide after delay
+          if (hideTimer) clearTimeout(hideTimer);
+          hideTimer = setTimeout(hideNav, hideDelay);
+        } else if (direction === -1) {
+          // Scrolling UP - show immediately
+          showNav();
         }
       }
     }
-
-    lastScrollY = currentScrollY;
   }
 
-  // Check if GSAP ScrollTrigger is available
-  if (window.ScrollTrigger) {
-    // Use GSAP ScrollTrigger for scroll events (works with ScrollSmoother)
+  // Wait for GSAP ScrollTrigger to be ready
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
     ScrollTrigger.create({
-      onUpdate: updateNav,
       start: 0,
-      end: 'max'
+      end: 'max',
+      onUpdate: handleScroll
     });
-    console.log('Sticky nav initialized (GSAP mode)');
-  } else {
-    // Fallback to vanilla scroll events
-    let ticking = false;
-    function onScroll() {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          updateNav();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    console.log('Sticky nav initialized (vanilla mode)');
-  }
 
-  // Initialize state on load
-  updateNav();
+    console.log('Sticky nav initialized (GSAP), utility nav height:', utilityNavHeight);
+  } else {
+    // Fallback for vanilla JS (no GSAP)
+    let lastScrollY = 0;
+
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const direction = scrollY > lastScrollY ? 1 : -1;
+
+      handleScroll({
+        scroll: () => scrollY,
+        direction: direction
+      });
+
+      lastScrollY = scrollY;
+    }, { passive: true });
+
+    console.log('Sticky nav initialized (vanilla), utility nav height:', utilityNavHeight);
+  }
 }
 
 // =============================================
-// MODULE 2: SMOOTH SCROLL (Example)
+// MODULE 2: SMOOTH SCROLL
 // =============================================
+/*
+ * Smooth scrolling for anchor links with fixed nav offset
+ * Uses native CSS scroll-behavior: smooth (set in header.css)
+ */
 
 function initSmoothScroll() {
-  // Smooth scroll for anchor links
+  // Offset for fixed navigation height
+  const navOffset = 80;
+
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
       const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
+
+      // Skip if just "#" or empty
+      if (targetId === '#' || targetId === '') return;
 
       const targetElement = document.querySelector(targetId);
-      if (targetElement) {
-        e.preventDefault();
-        targetElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
+      if (!targetElement) return;
+
+      e.preventDefault();
+
+      // Calculate position with nav offset
+      const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - navOffset;
+
+      // Smooth scroll (uses CSS scroll-behavior: smooth)
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
     });
   });
+
+  console.log('Smooth scroll initialized');
 }
 
 // =============================================
