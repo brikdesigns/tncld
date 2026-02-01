@@ -46,15 +46,11 @@ tncld/
 ├── cms/                         # CMS data exports (if applicable)
 │   └── [Collection exports].csv
 │
-├── markdown/                    # Documentation & workflows
-│   ├── GLOBAL-WEBFLOW-WORKFLOW.md  # Universal workflow standards
-│   ├── QUICK-START.md              # Quick reference guide
-│   ├── workflows/                  # CMS & development workflows
-│   ├── naming/                     # Naming conventions
-│   ├── positioning/                # CSS positioning guides
-│   ├── quality-assurance/          # QA checklists & audits
-│   ├── resources/                  # Additional guides
-│   └── templates/                  # Project templates
+├── markdown/                    # Project-specific documentation
+│   ├── figma-page-structures.md    # Figma page analysis for rebuild
+│   ├── new-patients-page-spec.md   # New Patients page specification
+│   ├── webflow-custom-code-transfer.md # Custom code transfer (TNCLD verified)
+│   └── archive/                    # Historical audits
 │
 └── updates/                     # Webflow export staging area
     └── tndlc.webflow/          # Latest Webflow export (Jan 16, 2026)
@@ -110,7 +106,7 @@ To update CMS bindings, simply say:
 "update cms"
 ```
 
-The automated workflow will handle everything. See [markdown/QUICK-START.md](markdown/QUICK-START.md) for details.
+The automated workflow will handle everything. See [_newclient/markdown/quick-start.md](../_newclient/markdown/quick-start.md) for workflow details.
 
 ### Syncing Latest Webflow Changes
 
@@ -167,7 +163,7 @@ See [Workflow 3: Webflow Updates Sync](#workflow-3-webflow-updates-sync) below.
    - Verify styles load correctly
    - Test any interactive features
 
-**See Also:** [markdown/GLOBAL-WEBFLOW-WORKFLOW.md](markdown/GLOBAL-WEBFLOW-WORKFLOW.md) - Workflow 1
+**See Also:** [brik-bds/markdown/global-webflow-workflow.md](../brik-bds/markdown/global-webflow-workflow.md) - Universal workflow standards
 
 ---
 
@@ -186,9 +182,7 @@ See [Workflow 3: Webflow Updates Sync](#workflow-3-webflow-updates-sync) below.
 - Adds script references to all pages
 - Tests all bindings
 
-**See Also:**
-- [markdown/QUICK-START.md](markdown/QUICK-START.md) - CMS update guide
-- [markdown/workflows/cms-update-workflow.md](markdown/workflows/cms-update-workflow.md) - Detailed workflow
+**See Also:** [_newclient/markdown/](../_newclient/markdown/) - CMS binding workflows (universal standards)
 
 ---
 
@@ -204,7 +198,7 @@ See [Workflow 3: Webflow Updates Sync](#workflow-3-webflow-updates-sync) below.
 5. Re-add script references if needed
 6. Test everything
 
-**See Also:** [markdown/GLOBAL-WEBFLOW-WORKFLOW.md](markdown/GLOBAL-WEBFLOW-WORKFLOW.md) - Workflow 3
+**See Also:** [brik-bds/markdown/global-webflow-workflow.md](../brik-bds/markdown/global-webflow-workflow.md)
 
 ---
 
@@ -229,9 +223,7 @@ See [Workflow 3: Webflow Updates Sync](#workflow-3-webflow-updates-sync) below.
 "Show me the manual transfer steps for Webflow"
 ```
 
-**See Also:**
-- [markdown/GLOBAL-WEBFLOW-WORKFLOW.md](markdown/GLOBAL-WEBFLOW-WORKFLOW.md) - Workflow 4
-- [markdown/workflows/WEBFLOW-CUSTOM-CODE-TRANSFER.md](markdown/workflows/WEBFLOW-CUSTOM-CODE-TRANSFER.md) - Detailed transfer guide
+**See Also:** [markdown/webflow-custom-code-transfer.md](markdown/webflow-custom-code-transfer.md) - Detailed transfer guide (TNCLD verified)
 
 ---
 
@@ -248,7 +240,7 @@ See [Workflow 3: Webflow Updates Sync](#workflow-3-webflow-updates-sync) below.
 "Rollback to previous version"
 ```
 
-**See Also:** [markdown/workflows/GITHUB-WEBFLOW-SYNC.md](markdown/workflows/GITHUB-WEBFLOW-SYNC.md)
+**See Also:** [_newclient/markdown/archive/github-webflow-sync.md](../_newclient/markdown/archive/github-webflow-sync.md)
 
 ---
 
@@ -265,7 +257,7 @@ See [Workflow 3: Webflow Updates Sync](#workflow-3-webflow-updates-sync) below.
 "Generate content gap report"
 ```
 
-**See Also:** [markdown/workflows/NOTION-WEBFLOW-CONTENT-SYNC.md](markdown/workflows/NOTION-WEBFLOW-CONTENT-SYNC.md)
+**See Also:** [_newclient/markdown/archive/notion-webflow-content-sync.md](../_newclient/markdown/archive/notion-webflow-content-sync.md)
 
 ---
 
@@ -331,23 +323,23 @@ npm test          # Run tests (if configured)
 
 ## 📝 Documentation Reference
 
-### Core Guides
-- **[markdown/GLOBAL-WEBFLOW-WORKFLOW.md](markdown/GLOBAL-WEBFLOW-WORKFLOW.md)** - Universal workflow standards
-- **[markdown/QUICK-START.md](markdown/QUICK-START.md)** - Quick reference for common tasks
+### Project-Specific (in this repo)
 
-### Workflows
-- **[markdown/workflows/cms-update-workflow.md](markdown/workflows/cms-update-workflow.md)** - CMS binding workflow
-- **[markdown/workflows/local-cms-binding.md](markdown/workflows/local-cms-binding.md)** - Technical CMS patterns
-- **[markdown/workflows/CMS-DATA-MANAGEMENT.md](markdown/workflows/CMS-DATA-MANAGEMENT.md)** - CMS data management
+- **[markdown/figma-page-structures.md](markdown/figma-page-structures.md)** - Figma page analysis for rebuild
+- **[markdown/new-patients-page-spec.md](markdown/new-patients-page-spec.md)** - New Patients page specification
+- **[markdown/webflow-custom-code-transfer.md](markdown/webflow-custom-code-transfer.md)** - Custom code transfer (TNCLD verified)
 
-### Standards
-- **[markdown/naming/naming-framework.md](markdown/naming/naming-framework.md)** - Naming conventions
-- **[markdown/naming/naming-quick-reference.md](markdown/naming/naming-quick-reference.md)** - Naming cheat sheet
+### Global Standards (in brik-bds)
 
-### Quality Assurance
-- **[markdown/quality-assurance/qa-checklist.md](markdown/quality-assurance/qa-checklist.md)** - 101-item QA checklist
-- **[markdown/quality-assurance/AUDIT-README.md](markdown/quality-assurance/AUDIT-README.md)** - Audit overview
-- **[markdown/quality-assurance/framework-audit.md](markdown/quality-assurance/framework-audit.md)** - Framework audit details
+- **[brik-bds/markdown/global-webflow-workflow.md](../brik-bds/markdown/global-webflow-workflow.md)** - Universal workflow standards
+- **[brik-bds/markdown/naming-framework.md](../brik-bds/markdown/naming-framework.md)** - Naming conventions
+- **[brik-bds/markdown/qa-checklist.md](../brik-bds/markdown/qa-checklist.md)** - QA checklist
+
+### CMS Workflows (in _newclient template)
+
+- **[_newclient/markdown/quick-start.md](../_newclient/markdown/quick-start.md)** - CMS update commands
+- **[_newclient/markdown/cms-update-workflow.md](../_newclient/markdown/cms-update-workflow.md)** - Full CMS workflow
+- **[_newclient/markdown/local-cms-binding.md](../_newclient/markdown/local-cms-binding.md)** - Technical patterns
 
 ---
 
@@ -371,8 +363,9 @@ npm test          # Run tests (if configured)
 - [ ] Performance monitoring
 
 ### QA Resources
-- **Checklist:** [markdown/quality-assurance/qa-checklist.md](markdown/quality-assurance/qa-checklist.md)
-- **Audit Template:** [markdown/quality-assurance/QA-AUDIT-REPORT-TEMPLATE.md](markdown/quality-assurance/QA-AUDIT-REPORT-TEMPLATE.md)
+
+- **Checklist:** [brik-bds/markdown/qa-checklist.md](../brik-bds/markdown/qa-checklist.md)
+- **Positioning Reference:** [brik-bds/markdown/positioning-quick-reference.md](../brik-bds/markdown/positioning-quick-reference.md)
 
 ---
 
@@ -395,9 +388,10 @@ npm test          # Run tests (if configured)
 ## 📞 Support & Resources
 
 ### Documentation
-- **Quick Start:** [markdown/QUICK-START.md](markdown/QUICK-START.md)
-- **CMS Help:** [markdown/workflows/cms-update-workflow.md](markdown/workflows/cms-update-workflow.md)
-- **Troubleshooting:** [markdown/workflows/CMS-BINDING-TROUBLESHOOTING.md](markdown/workflows/CMS-BINDING-TROUBLESHOOTING.md)
+
+- **Quick Start:** [_newclient/markdown/quick-start.md](../_newclient/markdown/quick-start.md)
+- **CMS Help:** [_newclient/markdown/cms-update-workflow.md](../_newclient/markdown/cms-update-workflow.md)
+- **Custom Code Transfer:** [markdown/webflow-custom-code-transfer.md](markdown/webflow-custom-code-transfer.md)
 
 ### Common Issues
 - **Navigation not working?** → Ensure `local-cms.js` is in ALL pages
@@ -456,5 +450,5 @@ npm test          # Run tests (if configured)
 - [Webflow Site](#) (TBD)
 - [Style Guide](style-guide.html)
 - [Component Library](components.html)
-- [Documentation](markdown/)
-- [QA Checklist](markdown/quality-assurance/qa-checklist.md)
+- [Project Docs](markdown/)
+- [QA Checklist](../brik-bds/markdown/qa-checklist.md)

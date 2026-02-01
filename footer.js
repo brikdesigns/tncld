@@ -34,6 +34,9 @@ function initializeModules() {
   // Initialize smooth scrolling for anchor links
   initSmoothScroll();
 
+  // Fix responsive image sizes attribute
+  initResponsiveImages();
+
   // Add additional module initializations here
   // Example: initFormEnhancements();
   // Example: initAccessibility();
@@ -197,7 +200,47 @@ function initSmoothScroll() {
 }
 
 // =============================================
-// MODULE 2: FORM ENHANCEMENTS
+// MODULE 3: RESPONSIVE IMAGES - SIZES FIX
+// =============================================
+/*
+ * Fix: Webflow auto-generates incorrect sizes attribute
+ * causing browser to select lower-res srcset variants
+ *
+ * This overrides the sizes attribute to ensure proper
+ * image resolution on large viewports and retina displays
+ */
+
+function initResponsiveImages() {
+  // Target full-width image frames
+  const fullWidthSelectors = [
+    '.img-frame-16-9-wide img',
+    '.img-frame-portrait img',
+    '.img-frame-landscape img',
+    '.container-full img'
+  ];
+
+  // Target contained images (within container-lg)
+  const containedSelectors = [
+    '.container-lg .img-frame-landscape.sm img',
+    '.mega-nav-wrapper img'
+  ];
+
+  // Set full-width images to 100vw
+  document.querySelectorAll(fullWidthSelectors.join(', ')).forEach(img => {
+    img.setAttribute('sizes', '100vw');
+  });
+
+  // Set contained images to container max-width
+  // Accounts for ~1200px max-width container
+  document.querySelectorAll(containedSelectors.join(', ')).forEach(img => {
+    img.setAttribute('sizes', '(max-width: 1200px) 100vw, 1200px');
+  });
+
+  console.log('Responsive images sizes fixed');
+}
+
+// =============================================
+// MODULE 4: FORM ENHANCEMENTS
 // =============================================
 
 function initFormEnhancements() {
