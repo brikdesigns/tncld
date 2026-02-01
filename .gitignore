@@ -29,3 +29,8 @@ logs/
 # Uncomment if you don't need these in version control:
 # updates/*.zip
 # updates/*/
+
+# Webflow exports (auto-generated)
+js/webflow.js
+updates/
+*.DS_Store
