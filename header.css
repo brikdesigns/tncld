@@ -72,7 +72,7 @@ html {
 .nav-dropdown-toggle.w-dropdown-toggle {
   display: flex !important;
   align-items: center;
-  gap: 4px; /* Gap between text and chevron */
+  gap: 0; /* No gap between text and chevron */
 }
 
 /* Remove extra padding from nav link text */
@@ -85,9 +85,9 @@ html {
 .nav-dropdown-toggle .dropdown-icon {
   position: relative !important;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  margin-left: 0; /* Remove margin, using gap instead */
+  width: 12px;
+  height: 12px;
+  margin-left: 0;
   margin-right: 0;
 }
 
