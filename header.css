@@ -148,10 +148,10 @@ html {
   margin-left: calc(-50vw + 50%) !important; /* Center full-width on viewport */
 }
 
-/* Mega nav inner content - constrain to container-lg (1080px) */
+/* Mega nav inner content - match Webflow's container-lg (1280px) */
 .mega-nav-wrapper > .container-lg,
 .mega-nav-wrapper .container-lg {
-  max-width: 1080px !important;
+  max-width: 1280px !important;
   width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
