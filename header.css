@@ -133,19 +133,18 @@ html {
 .mega-nav-wrapper {
   position: absolute !important;
   top: 100% !important; /* Directly below the nav bar */
-  left: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
   width: 100vw !important;
   margin: 0 !important;
   padding: 0 !important;
-  transform: none !important;
   z-index: 999 !important;
   box-sizing: border-box !important;
 }
 
-/* Ensure mega nav starts at viewport edge */
+/* Ensure mega nav displays correctly when open */
 .mega-nav-wrapper.w--open {
   display: block !important;
-  margin-left: calc(-50vw + 50%) !important; /* Center full-width on viewport */
 }
 
 /* Mega nav inner content - match Webflow's container-lg (1280px) */
