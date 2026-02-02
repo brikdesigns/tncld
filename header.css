@@ -109,38 +109,59 @@ html {
 /*         MEGA NAV POSITIONING FIX             */
 /* ============================================= */
 /*
- * Fix: Gap between top nav and mega nav dropdown
- * Fix: Mega nav falling off screen on smaller viewports
+ * Mega nav should appear as seamless extension of top nav bar
+ * - Positioned directly below the nav, no gap
+ * - Full-width background, centered content
+ * - Does not overlay the nav bar
  */
 
-/* Remove gap between nav and mega dropdown */
-.mega-nav-wrapper.w--open {
-  position: fixed !important;
-  top: auto !important; /* Position directly below nav toggle */
-  margin-top: 0 !important;
-  padding-top: 0 !important; /* No gap above content */
+/* Parent dropdown needs relative positioning */
+.nav_menu-dropdown {
+  position: static !important; /* Allow mega nav to position relative to nav container */
+}
+
+/* The dropdown toggle stays in flow */
+.nav_menu-dropdown .nav-dropdown-toggle {
+  position: relative;
+}
+
+/* Mega nav wrapper - full width, positioned below nav */
+.mega-nav-wrapper {
+  position: absolute !important;
+  top: 100% !important; /* Directly below the nav bar */
   left: 0 !important;
   right: 0 !important;
   width: 100vw !important;
-  transform: none !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-}
-
-/* Ensure dropdown list has no gap */
-.nav_menu-dropdown .w-dropdown-list.w--open,
-.nav_menu-dropdown .mega-nav-wrapper.w--open {
   margin-top: 0 !important;
   padding-top: 0 !important;
+  transform: none !important;
+  z-index: 999 !important;
+}
+
+/* When open, ensure proper positioning */
+.mega-nav-wrapper.w--open {
+  display: block !important;
 }
 
 /* Mega nav inner content - constrain to container-lg (1080px) */
+.mega-nav-wrapper > .container-lg,
 .mega-nav-wrapper .container-lg {
   max-width: 1080px !important;
+  width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 1.5rem !important;
   padding-right: 1.5rem !important;
+}
+
+/* Ensure the main nav container allows full-width dropdowns */
+.navigation.w-nav[data-doc-height="1"] .nav_menu {
+  position: static !important;
+}
+
+/* Layout nav needs static positioning for mega nav to escape */
+.layout_nav {
+  position: static !important;
 }
 
 /* ============================================= */
