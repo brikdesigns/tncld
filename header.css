@@ -115,32 +115,37 @@ html {
  * - Does not overlay the nav bar
  */
 
-/* Parent dropdown needs relative positioning */
+/* Main nav is the positioning context for mega nav */
+.navigation.w-nav[data-doc-height="1"] {
+  position: relative !important;
+}
+
+/* All intermediate containers need static positioning */
+.navigation.w-nav[data-doc-height="1"] .container-lg,
+.navigation.w-nav[data-doc-height="1"] .layout_nav,
+.navigation.w-nav[data-doc-height="1"] .col_nav,
+.navigation.w-nav[data-doc-height="1"] .nav_menu,
 .nav_menu-dropdown {
-  position: static !important; /* Allow mega nav to position relative to nav container */
+  position: static !important;
 }
 
-/* The dropdown toggle stays in flow */
-.nav_menu-dropdown .nav-dropdown-toggle {
-  position: relative;
-}
-
-/* Mega nav wrapper - full width, positioned below nav */
+/* Mega nav wrapper - full viewport width, positioned below entire nav */
 .mega-nav-wrapper {
   position: absolute !important;
   top: 100% !important; /* Directly below the nav bar */
   left: 0 !important;
-  right: 0 !important;
   width: 100vw !important;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   transform: none !important;
   z-index: 999 !important;
+  box-sizing: border-box !important;
 }
 
-/* When open, ensure proper positioning */
+/* Ensure mega nav starts at viewport edge */
 .mega-nav-wrapper.w--open {
   display: block !important;
+  margin-left: calc(-50vw + 50%) !important; /* Center full-width on viewport */
 }
 
 /* Mega nav inner content - constrain to container-lg (1080px) */
@@ -150,18 +155,8 @@ html {
   width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
-  padding-left: 1.5rem !important;
-  padding-right: 1.5rem !important;
-}
-
-/* Ensure the main nav container allows full-width dropdowns */
-.navigation.w-nav[data-doc-height="1"] .nav_menu {
-  position: static !important;
-}
-
-/* Layout nav needs static positioning for mega nav to escape */
-.layout_nav {
-  position: static !important;
+  padding: 1.5rem !important;
+  box-sizing: border-box !important;
 }
 
 /* ============================================= */
