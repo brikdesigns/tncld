@@ -71,9 +71,14 @@ curl -s "https://api.webflow.com/v2/collections/{collection_id}/items" \
 
 1. Edit `header.css` or `footer.js` locally
 2. Commit and push to `main` branch
-3. jsDelivr CDN serves the updated file automatically
+3. Purge jsDelivr cache (required for immediate updates):
+   ```bash
+   curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/header.css"
+   curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js"
+   ```
+4. Publish Webflow site (if needed)
 
-**Cache busting:** Increment `?v=X` parameter when pushing breaking changes that need immediate propagation.
+**Note:** jsDelivr caches aggressively. Always purge after pushing to see changes immediately.
 
 ---
 
