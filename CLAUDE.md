@@ -58,13 +58,12 @@ curl -s "https://api.webflow.com/v2/collections/{collection_id}/items" \
 
 **Head Code:**
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/header.css?v=2">
-<script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js?v=2"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/header.css?v=3">
 ```
 
 **Footer Code:**
 ```html
-<script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js?v=3"></script>
 ```
 
 ### Deployment Workflow
