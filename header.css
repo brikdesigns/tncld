@@ -116,12 +116,12 @@ html {
 /* Remove gap between nav and mega dropdown */
 .mega-nav-wrapper.w--open {
   position: fixed !important;
+  top: auto !important; /* Position directly below nav toggle */
   margin-top: 0 !important;
-  padding-top: 1.5rem !important;
+  padding-top: 0 !important; /* No gap above content */
   left: 0 !important;
   right: 0 !important;
   width: 100vw !important;
-  max-width: 100vw !important;
   transform: none !important;
   overflow-x: hidden !important;
   box-sizing: border-box !important;
@@ -131,13 +131,16 @@ html {
 .nav_menu-dropdown .w-dropdown-list.w--open,
 .nav_menu-dropdown .mega-nav-wrapper.w--open {
   margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 
-/* Mega nav inner content - prevent overflow */
-.mega-nav-wrapper .mega-nav_content,
+/* Mega nav inner content - constrain to container-lg (1080px) */
 .mega-nav-wrapper .container-lg {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
+  max-width: 1080px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
 }
 
 /* ============================================= */
