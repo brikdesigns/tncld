@@ -43,17 +43,15 @@ function initializeModules() {
 }
 
 // =============================================
-// MODULE 1: STICKY NAV - SCROLL ANIMATION
+// MODULE 1: STICKY NAV - NO OVERLAP FIX
 // =============================================
 /*
- * Pattern: Hide on scroll-down, show on scroll-up
- * Based on brik-bds animation library patterns
+ * Updated Behavior (NO OVERLAP):
+ * - Utility nav: Fixed at top, always visible
+ * - Main nav: Sticky below utility nav, never overlaps
  *
- * Behavior:
- * - Nav hides when scrolling down (user reading content)
- * - Nav shows when scrolling up (user wants to navigate)
- * - Nav always visible at top of page
- * - Adds shadow when scrolled past threshold
+ * This replaces the previous hide/show behavior with a
+ * simpler sticky approach that prevents overlap.
  */
 
 function initStickyNav() {
@@ -73,92 +71,44 @@ function initStickyNav() {
     return;
   }
 
-  // Get utility nav height (or 0 if not present)
+  // Calculate utility nav height
   const utilityNavHeight = utilityNav ? utilityNav.offsetHeight : 0;
 
-  let hideTimer = null;
-  let lastDirection = 0;
-
-  // Configuration
-  const hideDelay = 2000; // 2 seconds before hiding on scroll down
-
-  // Set initial position below utility nav
+  // Set main nav sticky position to be below utility nav
   mainNav.style.top = utilityNavHeight + 'px';
 
-  function hideNav() {
-    mainNav.classList.add('nav-hidden');
-  }
+  // Add body padding to prevent content from going under fixed utility nav
+  document.body.style.paddingTop = utilityNavHeight + 'px';
 
-  function showNav() {
-    if (hideTimer) {
-      clearTimeout(hideTimer);
-      hideTimer = null;
-    }
-    mainNav.classList.remove('nav-hidden');
-  }
+  console.log('Sticky nav initialized (no overlap), utility nav height:', utilityNavHeight);
 
-  function handleScroll(self) {
-    const scrollY = self.scroll();
-    const direction = self.direction; // 1 = down, -1 = up
+  // Simple scroll handler - just adds shadow when scrolled
+  function handleScroll() {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
 
-    // Calculate main nav top position based on scroll
-    // As user scrolls, main nav moves up until it reaches top: 0
-    if (scrollY < utilityNavHeight) {
-      // Utility nav still partially visible - position main nav below it
-      mainNav.style.top = (utilityNavHeight - scrollY) + 'px';
-      mainNav.classList.remove('nav-scrolled');
-      showNav();
-      lastDirection = 0;
-    } else {
-      // Utility nav scrolled out - fix main nav at top
-      mainNav.style.top = '0px';
+    // Add shadow class when scrolled past utility nav
+    if (scrollY > utilityNavHeight) {
       mainNav.classList.add('nav-scrolled');
-
-      // Handle hide/show based on scroll direction
-      if (direction !== lastDirection) {
-        lastDirection = direction;
-
-        if (direction === 1) {
-          // Scrolling DOWN - schedule hide after delay
-          if (hideTimer) clearTimeout(hideTimer);
-          hideTimer = setTimeout(hideNav, hideDelay);
-        } else if (direction === -1) {
-          // Scrolling UP - show immediately
-          showNav();
-        }
-      }
+    } else {
+      mainNav.classList.remove('nav-scrolled');
     }
   }
 
-  // Wait for GSAP ScrollTrigger to be ready
-  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
+  // Use native scroll listener (no GSAP dependency)
+  window.addEventListener('scroll', handleScroll, { passive: true });
 
-    ScrollTrigger.create({
-      start: 0,
-      end: 'max',
-      onUpdate: handleScroll
-    });
+  // Handle resize - recalculate heights if nav size changes
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > TABLET_BREAKPOINT && utilityNav) {
+      const newHeight = utilityNav.offsetHeight;
+      mainNav.style.top = newHeight + 'px';
+      document.body.style.paddingTop = newHeight + 'px';
+      console.log('Sticky nav: Heights recalculated on resize:', newHeight);
+    }
+  });
 
-    console.log('Sticky nav initialized (GSAP), utility nav height:', utilityNavHeight);
-  } else {
-    // Fallback for vanilla JS (no GSAP)
-    let lastScrollY = 0;
-
-    window.addEventListener('scroll', () => {
-      const scrollY = window.scrollY;
-      const direction = scrollY > lastScrollY ? 1 : -1;
-
-      handleScroll({
-        scroll: () => scrollY,
-        direction: direction
-      });
-
-      lastScrollY = scrollY;
-    }, { passive: true });
-
-    console.log('Sticky nav initialized (vanilla), utility nav height:', utilityNavHeight);
-  }
+  // Run initial check
+  handleScroll();
 }
 
 // =============================================
