@@ -322,45 +322,100 @@ html {
 /*         STICKY NAV - SCROLL ANIMATION        */
 /* ============================================= */
 /*
- * Behavior:
- * - Utility nav: Scrolls away normally (not sticky)
- * - Main nav: Becomes fixed, stays visible for 1.5s on scroll-down,
- *             then slides up. Reappears immediately on scroll-up.
+ * Updated Behavior (NO OVERLAP):
+ * - Utility nav: Fixed at top, always visible
+ * - Main nav: Sticky below utility nav, never overlaps
  *
- * Based on brik-bds animation library (animations.css)
- * Triggered by JS adding/removing .nav-hidden class
+ * This replaces the previous hide/show behavior with a
+ * simpler sticky approach that prevents overlap.
  */
 
-/* UTILITY NAV - scrolls normally, sits above main nav */
+/* UTILITY NAV - Fixed at top of viewport */
 /* First .navigation element without data-doc-height attribute */
 .navigation.w-nav:not([data-doc-height]) {
-  position: relative;
-  z-index: 999 !important; /* Below main nav so main nav covers it when scrolling */
-}
-
-/* MAIN NAV - sticky with hide/show animation */
-/* Target via data-doc-height="1" attribute */
-/* JS controls the `top` value dynamically based on scroll position */
-.navigation.w-nav[data-doc-height="1"] {
   position: fixed !important;
+  top: 0 !important;
   left: 0;
   right: 0;
-  z-index: 1000 !important;
-  /* Smooth transitions for top (position) and transform (hide/show) */
+  z-index: 1001 !important; /* ABOVE main nav to prevent overlap */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* MAIN NAV - Sticky below utility nav */
+/* Target via data-doc-height="1" attribute */
+.navigation.w-nav[data-doc-height="1"] {
+  position: sticky !important;
+  top: 0 !important; /* Will be updated by JS to utility nav height */
+  left: 0;
+  right: 0;
+  z-index: 1000 !important; /* Below utility nav */
+  /* Smooth transitions */
   transition:
     top 0.2s ease-out,
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform, top;
+    box-shadow 0.3s ease;
+  will-change: top;
 }
 
-/* Hidden state - slides nav off screen */
-.navigation.w-nav.nav-hidden {
-  transform: translateY(-100%) !important;
-}
-
-/* Add shadow when nav is in scrolled state */
+/* Add shadow when nav is scrolled/sticky */
+.navigation.w-nav[data-doc-height="1"].nav-scrolled,
 .navigation.w-nav.nav-scrolled {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Add top padding to body to account for fixed utility nav */
+body {
+  padding-top: 0; /* Will be set by JS to match utility nav height */
+}
+
+/* ============================================= */
+/*      MEGA NAV - EQUAL HEIGHT GRID ITEMS      */
+/* ============================================= */
+/*
+ * Fix: Make mega nav menu items proportionate
+ * - All cards in the grid should have same height and width
+ * - Use CSS Grid with equal columns and stretch alignment
+ */
+
+/* Grid container - ensure equal column widths */
+.layout-nav-services-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  align-items: stretch !important;
+}
+
+/* Nav items stretch to fill grid cell */
+.layout-nav-services-grid .nav-item {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+/* List item cards - equal heights within each nav-item */
+.layout-nav-services-grid .list-item.row {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  min-height: 120px !important;
+  height: 100% !important;
+}
+
+/* Image frames - consistent sizing */
+.layout-nav-services-grid .img-frame-landscape.sm {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  height: 90px !important;
+  min-height: 90px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Content wrapper - fill remaining space */
+.layout-nav-services-grid .list-item.row .content-wrapper {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
 }
 
 /* ============================================= */
