@@ -345,7 +345,7 @@ html {
 /* Target via data-doc-height="1" attribute */
 .navigation.w-nav[data-doc-height="1"] {
   position: sticky !important;
-  top: 0 !important; /* Will be updated by JS to utility nav height */
+  top: 0; /* Will be updated by JS to utility nav height - NO !important so JS can override */
   left: 0;
   right: 0;
   z-index: 1000 !important; /* Below utility nav */
