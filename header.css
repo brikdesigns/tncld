@@ -410,5 +410,25 @@ html {
 }
 
 /* ============================================= */
+/*      FORM SELECT CHEVRON - MATCH NAV STYLE   */
+/* ============================================= */
+/*
+ * Replace browser default select chevron with
+ * the same rounded-stroke chevron used in nav dropdowns
+ */
+
+.dropdown-button.w-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px 20px;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+/* ============================================= */
 /*               END OF FILE                    */
 /* ============================================= */
