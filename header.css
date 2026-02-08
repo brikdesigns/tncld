@@ -430,18 +430,5 @@ html {
 }
 
 /* ============================================= */
-/*      FULL-WIDTH MAP SECTION                  */
-/* ============================================= */
-/*
- * Override Webflow's .w-container max-width so the
- * map stretches edge-to-edge on wide viewports
- */
-
-.section-map .container-full.w-container {
-  max-width: 100% !important;
-  padding: 0 !important;
-}
-
-/* ============================================= */
 /*               END OF FILE                    */
 /* ============================================= */
