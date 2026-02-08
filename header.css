@@ -13,7 +13,7 @@
  * to Webflow Custom Code > Head Code when ready.
  *
  * Created: January 16, 2026
- * Last Updated: January 16, 2026
+ * Last Updated: February 8, 2026
  */
 
 /* ============================================= */
@@ -157,157 +157,6 @@ html {
 }
 
 /* ============================================= */
-/*            RESPONSIVE FIXES                  */
-/* ============================================= */
-
-/* Utility nav - always visible on all breakpoints */
-/* Override Webflow's nav collapse behavior for utility nav only */
-.navigation.w-nav:not([data-doc-height]) .w-nav-menu {
-  display: flex !important;
-  position: static !important;
-  height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  background: transparent !important;
-}
-
-/* Tablet - nav adjustments */
-@media screen and (max-width: 991px) {
-  /* Force utility nav container visible */
-  .navigation.w-nav:not([data-doc-height]) {
-    display: flex !important;
-    position: relative !important;
-  }
-
-  /* Force all utility nav parent elements visible */
-  .navigation.w-nav:not([data-doc-height]) .layout_nav-utility,
-  .navigation.w-nav:not([data-doc-height]) .col_nav {
-    display: flex !important;
-    width: 100% !important;
-    height: auto !important;
-    overflow: visible !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-
-  /* Force utility nav MENU visible - override ALL Webflow collapse styles */
-  .navigation.w-nav:not([data-doc-height]) .nav_submenu.w-nav-menu {
-    display: flex !important;
-    position: static !important; /* Critical: prevent dropdown positioning */
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Main nav on tablet - reset to Webflow behavior for mobile menu */
-  .navigation.w-nav[data-doc-height="1"] {
-    position: relative !important;
-    top: 0 !important;
-    transform: none !important;
-  }
-
-  /* Ensure no gap between utility and main nav */
-  .navigation.w-nav:not([data-doc-height]),
-  .navigation.w-nav[data-doc-height="1"] {
-    margin: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 767px) {
-  /* Force utility nav container visible */
-  .navigation.w-nav:not([data-doc-height]) {
-    display: flex !important;
-    position: relative !important;
-  }
-
-  /* Force all utility nav parent elements visible */
-  .navigation.w-nav:not([data-doc-height]) .layout_nav-utility,
-  .navigation.w-nav:not([data-doc-height]) .col_nav {
-    display: flex !important;
-    flex-direction: column;
-    width: 100% !important;
-    height: auto !important;
-    overflow: visible !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-
-  /* Force utility nav MENU visible - override ALL Webflow collapse styles */
-  .navigation.w-nav:not([data-doc-height]) .nav_submenu.w-nav-menu {
-    display: flex !important;
-    position: static !important; /* Critical: prevent dropdown positioning */
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Utility nav buttons stack vertically on mobile */
-  .navigation.w-nav:not([data-doc-height]) .button_ghost.small {
-    display: flex !important;
-    justify-content: center;
-    width: 100%;
-  }
-
-  /* Main nav on mobile - reset to Webflow behavior */
-  .navigation.w-nav[data-doc-height="1"] {
-    position: relative !important;
-    top: 0 !important;
-    transform: none !important;
-  }
-
-  /* Adjust utility nav layout for mobile */
-  .navigation.w-nav:not([data-doc-height]) .container-lg {
-    display: flex !important;
-    flex-direction: column;
-    padding: 0.5rem 1rem;
-  }
-
-  /* Remove gap above nav */
-  body {
-    padding-top: 0 !important;
-  }
-}
-
-/* ============================================= */
 /*            ANIMATION ENHANCEMENTS            */
 /* ============================================= */
 
@@ -320,7 +169,7 @@ html {
 /*         STICKY NAV - SCROLL ANIMATION        */
 /* ============================================= */
 /*
- * Behavior:
+ * Behavior (desktop only, JS skips tablet/mobile):
  * - Utility nav: Static in document flow, scrolls away naturally
  * - Main nav: Fixed at top once user scrolls past utility nav
  * - Main nav hides after 2s of scrolling down
@@ -427,6 +276,181 @@ html {
   background-size: 24px 24px !important;
   padding-right: 52px !important;
   cursor: pointer;
+}
+
+/* ============================================= */
+/*        RESPONSIVE - TABLET & MOBILE          */
+/* ============================================= */
+/*
+ * IMPORTANT: These must come AFTER the sticky nav section
+ * so the position:relative overrides win over position:fixed.
+ *
+ * On tablet/mobile:
+ * - Main nav reverts to position:relative (Webflow handles mobile menu)
+ * - Utility nav stays visible
+ * - Mobile menu goes edge-to-edge
+ */
+
+/* Utility nav - always visible on all breakpoints */
+/* Override Webflow's nav collapse behavior for utility nav only */
+.navigation.w-nav:not([data-doc-height]) .w-nav-menu {
+  display: flex !important;
+  position: static !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  background: transparent !important;
+}
+
+/* Tablet (991px and below) */
+@media screen and (max-width: 991px) {
+  /* Main nav - revert to relative so it doesn't overlap utility nav */
+  .navigation.w-nav[data-doc-height="1"] {
+    position: relative !important;
+    top: 0 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  /* Force utility nav container visible */
+  .navigation.w-nav:not([data-doc-height]) {
+    display: flex !important;
+    position: relative !important;
+  }
+
+  /* Force all utility nav parent elements visible */
+  .navigation.w-nav:not([data-doc-height]) .layout_nav-utility,
+  .navigation.w-nav:not([data-doc-height]) .col_nav {
+    display: flex !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Force utility nav MENU visible - override ALL Webflow collapse styles */
+  .navigation.w-nav:not([data-doc-height]) .nav_submenu.w-nav-menu {
+    display: flex !important;
+    position: static !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure no gap between utility and main nav */
+  .navigation.w-nav:not([data-doc-height]),
+  .navigation.w-nav[data-doc-height="1"] {
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Mobile menu overlay - edge-to-edge */
+  .navigation.w-nav[data-doc-height="1"] .w-nav-overlay {
+    width: 100vw !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* Mobile menu content - full width, no max-width constraint */
+  .navigation.w-nav[data-doc-height="1"] .nav_menu.w-nav-menu {
+    width: 100% !important;
+  }
+}
+
+/* Mobile (767px and below) */
+@media screen and (max-width: 767px) {
+  /* Main nav - revert to relative */
+  .navigation.w-nav[data-doc-height="1"] {
+    position: relative !important;
+    top: 0 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  /* Force utility nav container visible */
+  .navigation.w-nav:not([data-doc-height]) {
+    display: flex !important;
+    position: relative !important;
+  }
+
+  /* Force all utility nav parent elements visible */
+  .navigation.w-nav:not([data-doc-height]) .layout_nav-utility,
+  .navigation.w-nav:not([data-doc-height]) .col_nav {
+    display: flex !important;
+    flex-direction: column;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Force utility nav MENU visible - override ALL Webflow collapse styles */
+  .navigation.w-nav:not([data-doc-height]) .nav_submenu.w-nav-menu {
+    display: flex !important;
+    position: static !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Utility nav buttons stack vertically on mobile */
+  .navigation.w-nav:not([data-doc-height]) .button_ghost.small {
+    display: flex !important;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Adjust utility nav layout for mobile */
+  .navigation.w-nav:not([data-doc-height]) .container-lg {
+    display: flex !important;
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+  }
+
+  /* Remove gap above nav */
+  body {
+    padding-top: 0 !important;
+  }
 }
 
 /* ============================================= */
