@@ -116,9 +116,7 @@ html {
  */
 
 /* Main nav is the positioning context for mega nav */
-.navigation.w-nav[data-doc-height="1"] {
-  position: relative !important;
-}
+/* NOTE: position:fixed (set in sticky nav section) also creates a containing block */
 
 /* All intermediate containers need static positioning */
 .navigation.w-nav[data-doc-height="1"] .container-lg,
@@ -322,68 +320,42 @@ html {
 /*         STICKY NAV - SCROLL ANIMATION        */
 /* ============================================= */
 /*
- * Updated Behavior (NO OVERLAP):
- * - Utility nav: Fixed at top, always visible
- * - Main nav: Sticky below utility nav, never overlaps
+ * Behavior:
+ * - Utility nav: Static in document flow, scrolls away naturally
+ * - Main nav: Fixed at top once user scrolls past utility nav
+ * - Main nav hides after 2s of scrolling down
+ * - Main nav reappears immediately on scroll-up
+ * - Main nav stops at utility nav bottom edge (never overlaps)
  *
- * This replaces the previous hide/show behavior with a
- * simpler sticky approach that prevents overlap.
+ * JS controls: top position, .nav-hidden, .nav-scrolled classes
  */
 
-/* UTILITY NAV - Fixed at top of viewport */
-/* First .navigation element without data-doc-height attribute */
+/* UTILITY NAV - normal document flow, scrolls away */
 .navigation.w-nav:not([data-doc-height]) {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0;
-  right: 0;
-  z-index: 1001 !important; /* ABOVE main nav to prevent overlap */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  height: auto !important;
-  overflow: visible !important;
+  position: relative;
+  z-index: 999;
 }
 
-/* Ensure utility nav container is visible */
-.navigation.w-nav:not([data-doc-height]) .container-lg {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Ensure utility nav layout is visible */
-.navigation.w-nav:not([data-doc-height]) .layout_nav-utility {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* MAIN NAV - Sticky below utility nav */
-/* Target via data-doc-height="1" attribute */
+/* MAIN NAV - fixed positioning, JS controls top value */
 .navigation.w-nav[data-doc-height="1"] {
-  position: sticky !important;
-  top: 0; /* Will be updated by JS to utility nav height - NO !important so JS can override */
+  position: fixed !important;
   left: 0;
   right: 0;
-  z-index: 1000 !important; /* Below utility nav */
-  /* Smooth transitions */
+  z-index: 1000;
   transition:
     top 0.2s ease-out,
-    box-shadow 0.3s ease;
-  will-change: top;
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, top;
 }
 
-/* Add shadow when nav is scrolled/sticky */
-.navigation.w-nav[data-doc-height="1"].nav-scrolled,
+/* Hidden state - slides nav up off screen */
+.navigation.w-nav.nav-hidden {
+  transform: translateY(-100%) !important;
+}
+
+/* Shadow when nav is in scrolled/fixed state */
 .navigation.w-nav.nav-scrolled {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Add top padding to body to account for fixed utility nav */
-body {
-  padding-top: 0; /* Will be set by JS to match utility nav height */
 }
 
 /* ============================================= */

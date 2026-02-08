@@ -43,72 +43,111 @@ function initializeModules() {
 }
 
 // =============================================
-// MODULE 1: STICKY NAV - NO OVERLAP FIX
+// MODULE 1: STICKY NAV - HIDE/SHOW ON SCROLL
 // =============================================
 /*
- * Updated Behavior (NO OVERLAP):
- * - Utility nav: Fixed at top, always visible
- * - Main nav: Sticky below utility nav, never overlaps
- *
- * This replaces the previous hide/show behavior with a
- * simpler sticky approach that prevents overlap.
+ * Behavior:
+ * - Utility nav: Static, scrolls away with the page
+ * - Main nav: position:fixed, JS sets `top` dynamically
+ *   - While utility nav visible: top = utilityNavHeight - scrollY (sits below it)
+ *   - Once scrolled past utility nav: top = 0 (flush with viewport top)
+ * - Scrolling down: after 2s delay, nav slides up (hidden)
+ * - Scrolling up: nav slides down immediately (visible)
+ * - At top of page: nav always visible, positioned below utility nav
  */
 
 function initStickyNav() {
-  // Skip sticky nav on tablet/mobile - let Webflow handle it
-  const TABLET_BREAKPOINT = 991;
+  // Skip on tablet/mobile - let Webflow handle it
+  var TABLET_BREAKPOINT = 991;
   if (window.innerWidth <= TABLET_BREAKPOINT) {
-    console.log('Sticky nav: Skipping on mobile/tablet viewport');
+    console.log('Sticky nav: Skipping on mobile/tablet');
     return;
   }
 
-  // Get both navigation elements
-  const utilityNav = document.querySelector('.navigation.w-nav:not([data-doc-height])');
-  const mainNav = document.querySelector('.navigation[data-doc-height="1"]');
+  var utilityNav = document.querySelector('.navigation.w-nav:not([data-doc-height])');
+  var mainNav = document.querySelector('.navigation[data-doc-height="1"]');
 
   if (!mainNav) {
-    console.warn('Sticky nav: .navigation[data-doc-height="1"] not found');
+    console.warn('Sticky nav: main nav not found');
     return;
   }
 
-  // Calculate utility nav height
-  const utilityNavHeight = utilityNav ? utilityNav.offsetHeight : 0;
+  var utilityNavHeight = utilityNav ? utilityNav.offsetHeight : 0;
+  var mainNavHeight = mainNav.offsetHeight;
 
-  // Set main nav sticky position to be below utility nav
+  // Insert spacer after main nav to fill the gap left by position:fixed
+  var spacer = document.createElement('div');
+  spacer.style.height = mainNavHeight + 'px';
+  spacer.className = 'nav-spacer';
+  mainNav.parentNode.insertBefore(spacer, mainNav.nextSibling);
+
+  // Set initial position below utility nav
   mainNav.style.top = utilityNavHeight + 'px';
 
-  // Add body padding to prevent content from going under fixed utility nav
-  document.body.style.paddingTop = utilityNavHeight + 'px';
+  var lastScrollY = 0;
+  var lastDirection = 0;
+  var hideTimer = null;
+  var HIDE_DELAY = 2000; // 2 seconds before hiding on scroll-down
 
-  console.log('Sticky nav initialized (no overlap), utility nav height:', utilityNavHeight);
-
-  // Simple scroll handler - just adds shadow when scrolled
-  function handleScroll() {
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-
-    // Add shadow class when scrolled past utility nav
-    if (scrollY > utilityNavHeight) {
-      mainNav.classList.add('nav-scrolled');
-    } else {
-      mainNav.classList.remove('nav-scrolled');
+  function showNav() {
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
     }
+    mainNav.classList.remove('nav-hidden');
   }
 
-  // Use native scroll listener (no GSAP dependency)
+  function hideNav() {
+    mainNav.classList.add('nav-hidden');
+  }
+
+  function handleScroll() {
+    var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    var direction = scrollY > lastScrollY ? 1 : -1; // 1 = down, -1 = up
+
+    // Zone 1: Utility nav still visible - position main nav below it
+    if (scrollY < utilityNavHeight) {
+      mainNav.style.top = (utilityNavHeight - scrollY) + 'px';
+      mainNav.classList.remove('nav-scrolled');
+      showNav();
+      lastDirection = 0; // Reset so next scroll triggers direction change
+    }
+    // Zone 2: Past utility nav - main nav at viewport top
+    else {
+      mainNav.style.top = '0px';
+      mainNav.classList.add('nav-scrolled');
+
+      if (direction !== lastDirection) {
+        lastDirection = direction;
+
+        if (direction === 1) {
+          // Scrolling DOWN - hide after delay
+          if (hideTimer) clearTimeout(hideTimer);
+          hideTimer = setTimeout(hideNav, HIDE_DELAY);
+        } else {
+          // Scrolling UP - show immediately
+          showNav();
+        }
+      }
+    }
+
+    lastScrollY = scrollY;
+  }
+
   window.addEventListener('scroll', handleScroll, { passive: true });
 
-  // Handle resize - recalculate heights if nav size changes
+  // Recalculate on resize
   window.addEventListener('resize', function() {
     if (window.innerWidth > TABLET_BREAKPOINT && utilityNav) {
-      const newHeight = utilityNav.offsetHeight;
-      mainNav.style.top = newHeight + 'px';
-      document.body.style.paddingTop = newHeight + 'px';
-      console.log('Sticky nav: Heights recalculated on resize:', newHeight);
+      utilityNavHeight = utilityNav.offsetHeight;
+      mainNavHeight = mainNav.offsetHeight;
+      spacer.style.height = mainNavHeight + 'px';
     }
   });
 
   // Run initial check
   handleScroll();
+  console.log('Sticky nav initialized, utility nav height:', utilityNavHeight);
 }
 
 // =============================================
