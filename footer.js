@@ -37,6 +37,9 @@ function initializeModules() {
   // Fix responsive image sizes attribute
   initResponsiveImages();
 
+  // Prevent Google Maps embeds from hijacking scroll
+  initMapScrollFix();
+
   // Add additional module initializations here
   // Example: initFormEnhancements();
   // Example: initAccessibility();
@@ -153,7 +156,37 @@ function initStickyNav() {
 }
 
 // =============================================
-// MODULE 2: SMOOTH SCROLL
+// MODULE 2: GOOGLE MAPS SCROLL FIX
+// =============================================
+/*
+ * Prevents Google Maps iframes from capturing scroll events.
+ * CSS sets pointer-events: none by default. Click to activate,
+ * click outside or mouse-leave to deactivate.
+ */
+
+function initMapScrollFix() {
+  var mapWrappers = document.querySelectorAll('.card-tour, .card-video');
+
+  mapWrappers.forEach(function(wrapper) {
+    var iframe = wrapper.querySelector('iframe[src*="google.com/maps"]');
+    if (!iframe) return;
+
+    // Click on wrapper activates the map
+    wrapper.addEventListener('click', function() {
+      wrapper.classList.add('map-active');
+    });
+
+    // Mouse leaving the wrapper deactivates
+    wrapper.addEventListener('mouseleave', function() {
+      wrapper.classList.remove('map-active');
+    });
+  });
+
+  console.log('Map scroll fix initialized');
+}
+
+// =============================================
+// MODULE 3: SMOOTH SCROLL
 // =============================================
 /*
  * Smooth scrolling for anchor links with fixed nav offset
