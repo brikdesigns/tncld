@@ -171,12 +171,13 @@ html {
 /*
  * Behavior (desktop only, JS skips tablet/mobile):
  * - Utility nav: Static in document flow, scrolls away naturally
- * - Main nav: Fixed at top once user scrolls past utility nav
- * - Main nav hides after 2s of scrolling down
+ * - Main nav: position:sticky — sits below utility nav in flow,
+ *   sticks to viewport top once utility nav scrolls away
+ * - Main nav hides after 2s of scrolling down (transform)
  * - Main nav reappears immediately on scroll-up
- * - Main nav stops at utility nav bottom edge (never overlaps)
+ * - Overlap is impossible: sticky respects document flow
  *
- * JS controls: top position, .nav-hidden, .nav-scrolled classes
+ * JS controls: .nav-hidden, .nav-scrolled, .nav-animate classes
  */
 
 /* UTILITY NAV - normal document flow, scrolls away */
@@ -185,16 +186,18 @@ html {
   z-index: 999;
 }
 
-/* MAIN NAV - fixed positioning, JS controls top value */
+/* MAIN NAV - sticky positioning, sticks at top: 0 when scrolled */
 .navigation.w-nav[data-doc-height="1"] {
-  position: fixed !important;
+  position: sticky !important;
+  top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  transition:
-    top 0.2s ease-out,
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform, top;
+}
+
+/* Transition class - only added by JS during hide/show animations */
+.navigation.w-nav.nav-animate {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Hidden state - slides nav up off screen */
@@ -202,7 +205,7 @@ html {
   transform: translateY(-100%) !important;
 }
 
-/* Shadow when nav is in scrolled/fixed state */
+/* Shadow when nav is scrolled past its natural position */
 .navigation.w-nav.nav-scrolled {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
