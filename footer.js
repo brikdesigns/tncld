@@ -13,7 +13,7 @@
  * to Webflow Custom Code > Footer Code when ready.
  *
  * Created: January 16, 2026
- * Last Updated: January 16, 2026
+ * Last Updated: February 9, 2026
  */
 
 // =============================================
@@ -37,9 +37,8 @@ function initializeModules() {
   // Fix responsive image sizes attribute
   initResponsiveImages();
 
-  // Add additional module initializations here
-  // Example: initFormEnhancements();
-  // Example: initAccessibility();
+  // Auto-play/pause videos in modals
+  initVideoModals();
 }
 
 // =============================================
@@ -231,35 +230,94 @@ function initResponsiveImages() {
 }
 
 // =============================================
-// MODULE 4: FORM ENHANCEMENTS
+// MODULE 4: VIDEO MODALS - AUTO-PLAY/PAUSE
+// =============================================
+/*
+ * Auto-play mux-player videos when their parent modal opens,
+ * pause and reset when the modal closes.
+ *
+ * How it works:
+ * - Finds all <mux-player> elements inside modal wrappers
+ * - Loads the mux-player web component script if not present
+ * - Uses MutationObserver to detect Webflow interaction
+ *   show/hide (display or class changes on the modal)
+ * - Modal opens → auto-play after 300ms (animation settle)
+ * - Modal closes → pause + reset to start
+ *
+ * Requirements in Webflow Designer:
+ * - Modal wrapper class must contain "modal" (e.g. modal-video)
+ * - Add HTML Embed inside modal with <mux-player> element
+ * - Webflow interaction toggles modal display (show/hide)
+ */
+
+function initVideoModals() {
+  var players = document.querySelectorAll('mux-player');
+  if (!players.length) return;
+
+  // Load mux-player web component if not already on page
+  if (!document.querySelector('script[src*="mux-player"]')) {
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@mux/mux-player';
+    script.async = true;
+    document.head.appendChild(script);
+  }
+
+  players.forEach(function(player) {
+    // Find closest ancestor with "modal" in its class name
+    var modal = player.closest('[class*="modal"]');
+    if (!modal) return;
+
+    var wasVisible = false;
+
+    var observer = new MutationObserver(function() {
+      var style = window.getComputedStyle(modal);
+      var isVisible = style.display !== 'none' && style.visibility !== 'hidden';
+
+      if (isVisible && !wasVisible) {
+        // Modal just opened — auto-play
+        wasVisible = true;
+        setTimeout(function() {
+          if (typeof player.play === 'function') player.play();
+        }, 300);
+      } else if (!isVisible && wasVisible) {
+        // Modal just closed — pause and reset
+        wasVisible = false;
+        if (typeof player.pause === 'function') player.pause();
+        if (typeof player.currentTime !== 'undefined') player.currentTime = 0;
+      }
+    });
+
+    observer.observe(modal, {
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    });
+  });
+
+  console.log('Video modals initialized:', players.length, 'player(s)');
+}
+
+// =============================================
+// MODULE 5: FORM ENHANCEMENTS (PLACEHOLDER)
 // =============================================
 
 function initFormEnhancements() {
   // Add form validation and enhancements here
-  // Example: Custom validation messages
-  // Example: Input formatting (phone numbers, etc.)
 }
 
 // =============================================
-// MODULE 3: ACCESSIBILITY HELPERS
+// MODULE 6: ACCESSIBILITY HELPERS (PLACEHOLDER)
 // =============================================
 
 function initAccessibility() {
   // Add accessibility enhancements here
-  // Example: Skip links
-  // Example: Focus management
-  // Example: ARIA live regions
 }
 
 // =============================================
-// MODULE 4: ANALYTICS & TRACKING
+// MODULE 7: ANALYTICS & TRACKING (PLACEHOLDER)
 // =============================================
 
 function initAnalytics() {
   // Add analytics event tracking here
-  // Example: Button click tracking
-  // Example: Form submission tracking
-  // Example: Scroll depth tracking
 }
 
 // =============================================
