@@ -296,6 +296,25 @@ html {
 }
 
 /* ============================================= */
+/*      GOOGLE MAPS EMBED - SCROLL FIX          */
+/* ============================================= */
+/*
+ * Prevent Google Maps iframe from hijacking scroll.
+ * Pointer events are disabled by default so users can
+ * scroll past the map. Clicking activates the map.
+ */
+
+.card-tour iframe,
+.card-video iframe[src*="google.com/maps"] {
+  pointer-events: none;
+}
+
+.card-tour.map-active iframe,
+.card-video.map-active iframe[src*="google.com/maps"] {
+  pointer-events: auto;
+}
+
+/* ============================================= */
 /*      FORM SELECT CHEVRON - MATCH NAV STYLE   */
 /* ============================================= */
 /*
