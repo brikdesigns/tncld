@@ -17,6 +17,7 @@
     "dev": "python3 -m http.server 8000",
     "serve": "python3 -m http.server 8000",
     "deploy": "webflow deploy",
+    "deploy:cdn": "bash deploy.sh",
     "export": "webflow export",
     "sync-figma": "node scripts/sync-figma.js",
     "transform-tokens": "node scripts/transform-tokens.js",

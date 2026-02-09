@@ -56,28 +56,52 @@ curl -s "https://api.webflow.com/v2/collections/{collection_id}/items" \
 
 ### Webflow Custom Code Setup
 
-**Head Code:**
+**Head Code** (in Webflow Settings > Custom Code > Head Code):
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/header.css?v=3">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/header.css">
 ```
 
-**Footer Code:**
+**Footer Code** (in Webflow Settings > Custom Code > Footer Code):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js?v=3"></script>
+<script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js"></script>
 ```
 
-### Deployment Workflow
+### Deploy Command
 
-1. Edit `header.css` or `footer.js` locally
-2. Commit and push to `main` branch
-3. Purge jsDelivr cache (required for immediate updates):
-   ```bash
-   curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/header.css"
-   curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js"
+Use the deploy script for the full cycle (push, purge, verify):
+
+```bash
+bash deploy.sh
+# or
+npm run deploy:cdn
+```
+
+The script will:
+1. Detect uncommitted changes to `header.css` / `footer.js`
+2. Commit and push to `main`
+3. Purge jsDelivr CDN cache
+4. Verify the CDN is serving the new version
+5. Optionally publish the Webflow site via API
+
+### Caching: Two Layers to Know About
+
+| Layer | TTL | Cleared by |
+|-------|-----|------------|
+| **jsDelivr CDN** | 12 hours | `deploy.sh` purge + GitHub Actions auto-purge on push |
+| **Browser cache** | 7 days | **Hard refresh (Cmd+Shift+R)** — always do this after deploying |
+
+The deploy script handles CDN purging automatically. But your **browser** will still serve its cached copy unless you hard-refresh.
+
+### Troubleshooting: Changes Not Appearing
+
+1. **Hard-refresh the browser**: Cmd+Shift+R (this fixes 90% of cases)
+2. **Verify CDN content**: Run `bash deploy.sh` — it checks if CDN matches local
+3. **Test with raw GitHub URL** (bypasses all caching):
    ```
-4. Publish Webflow site (if needed)
-
-**Note:** jsDelivr caches aggressively. Always purge after pushing to see changes immediately.
+   https://raw.githubusercontent.com/brikdesigns/tncld/main/header.css
+   ```
+   Temporarily swap this into Webflow head code to confirm the CSS is correct, then switch back to jsDelivr.
+4. **Wait and retry**: jsDelivr edge propagation can take 30-60 seconds after purge
 
 ---
 
