@@ -208,36 +208,62 @@ html {
 }
 
 /* ============================================= */
-/*      MEGA NAV - EQUAL HEIGHT GRID ITEMS      */
+/*      MEGA NAV - LAYOUT & PROPORTIONS         */
 /* ============================================= */
 /*
- * Fix: Make mega nav menu items proportionate
- * - All cards in the grid should have same height and width
- * - Use CSS Grid with equal columns and stretch alignment
+ * Fix: Mega nav spacing, proportions, and text clipping
+ * - Left column (inner-padding) and right card share equal height
+ * - Grid items have consistent gaps and stretch proportionately
+ * - Body text displays fully without clipping
  */
 
-/* Grid container - ensure equal column widths */
+/* Container inside mega nav - equal-height columns with gap */
+.mega-nav-wrapper .container-lg {
+  align-items: stretch !important;
+  gap: var(--_spacing---gap--lg) !important;
+}
+
+/* Left column fills available height */
+.mega-nav-wrapper > .container-lg > .inner-padding.stacked {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Right card stretches to match left column */
+.mega-nav-wrapper .layout-card.secondary {
+  align-self: stretch !important;
+}
+
+/* Prevent mega nav overflow from clipping content */
+.mega-nav-wrapper.w--open {
+  overflow: visible !important;
+}
+
+/* Grid container - equal columns, consistent gap */
 .layout-nav-services-grid {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
   align-items: stretch !important;
+  gap: var(--_spacing---gap--lg) !important;
+  flex: 1 !important;
 }
 
-/* Nav items stretch to fill grid cell */
+/* Nav item columns - gap between cards, fill grid cell */
 .layout-nav-services-grid .nav-item {
   display: flex !important;
   flex-direction: column !important;
+  gap: var(--_spacing---gap--md) !important;
   height: 100% !important;
 }
 
-/* List item cards - equal heights within each nav-item */
+/* List item cards - stretch proportionately, no fixed height */
 .layout-nav-services-grid .list-item.row {
   flex: 1 !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  min-height: 120px !important;
-  height: 100% !important;
+  overflow: visible !important;
 }
 
 /* Image frames - consistent sizing */
@@ -250,12 +276,20 @@ html {
   flex-shrink: 0 !important;
 }
 
-/* Content wrapper - fill remaining space */
+/* Content wrapper - fill remaining space, no clipping */
 .layout-nav-services-grid .list-item.row .content-wrapper {
   flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
+  overflow: visible !important;
+  min-width: 0 !important;
+}
+
+/* Body text - ensure full display */
+.layout-nav-services-grid .text_body-sm {
+  overflow: visible !important;
+  margin: 0 !important;
 }
 
 /* ============================================= */
