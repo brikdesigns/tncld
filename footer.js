@@ -238,62 +238,87 @@ function initResponsiveImages() {
  *
  * How it works:
  * - Finds all <mux-player> elements inside modal wrappers
- * - Loads the mux-player web component script if not present
- * - Uses MutationObserver to detect Webflow interaction
- *   show/hide (display or class changes on the modal)
+ * - Waits for the mux-player custom element to be registered
+ *   (embeds load the script; this code just waits for it)
+ * - Uses MutationObserver to detect Webflow IX2 interaction
+ *   show/hide (style or class changes on the modal)
  * - Modal opens → auto-play after 300ms (animation settle)
  * - Modal closes → pause + reset to start
  *
- * Requirements in Webflow Designer:
- * - Modal wrapper class must contain "modal" (e.g. modal-video)
- * - Add HTML Embed inside modal with <mux-player> element
- * - Webflow interaction toggles modal display (show/hide)
+ * Live structure (patient-stories page):
+ * - modal-1, modal-2, modal-3 (section elements)
+ * - Each contains: .modal-container > .video-frame-wide > .vid > mux-player
+ * - Webflow IX2 toggles display on the modal section
  */
 
 function initVideoModals() {
-  var players = document.querySelectorAll('mux-player');
-  if (!players.length) return;
+  // Target modals that contain mux-player embeds
+  var modals = document.querySelectorAll('[class*="modal-"]');
+  if (!modals.length) return;
 
-  // Load mux-player web component if not already on page
-  if (!document.querySelector('script[src*="mux-player"]')) {
-    var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/@mux/mux-player';
-    script.async = true;
-    document.head.appendChild(script);
-  }
-
-  players.forEach(function(player) {
-    // Find closest ancestor with "modal" in its class name
-    var modal = player.closest('[class*="modal"]');
-    if (!modal) return;
-
-    var wasVisible = false;
-
-    var observer = new MutationObserver(function() {
-      var style = window.getComputedStyle(modal);
-      var isVisible = style.display !== 'none' && style.visibility !== 'hidden';
-
-      if (isVisible && !wasVisible) {
-        // Modal just opened — auto-play
-        wasVisible = true;
-        setTimeout(function() {
-          if (typeof player.play === 'function') player.play();
-        }, 300);
-      } else if (!isVisible && wasVisible) {
-        // Modal just closed — pause and reset
-        wasVisible = false;
-        if (typeof player.pause === 'function') player.pause();
-        if (typeof player.currentTime !== 'undefined') player.currentTime = 0;
-      }
-    });
-
-    observer.observe(modal, {
-      attributes: true,
-      attributeFilter: ['style', 'class']
-    });
+  // Filter to only modals that actually contain a mux-player
+  var videoModals = [];
+  modals.forEach(function(modal) {
+    var player = modal.querySelector('mux-player');
+    if (player) videoModals.push({ modal: modal, player: player });
   });
 
-  console.log('Video modals initialized:', players.length, 'player(s)');
+  if (!videoModals.length) return;
+
+  // Wait for mux-player custom element to be registered
+  // (the embeds load the script; we just need to wait for it)
+  function setupObservers() {
+    videoModals.forEach(function(item) {
+      var modal = item.modal;
+      var player = item.player;
+      var wasVisible = false;
+
+      var observer = new MutationObserver(function() {
+        var style = window.getComputedStyle(modal);
+        var isVisible = style.display !== 'none' &&
+                        style.visibility !== 'hidden' &&
+                        style.opacity !== '0';
+
+        if (isVisible && !wasVisible) {
+          wasVisible = true;
+          // Delay to let modal animation settle + mux-player render
+          setTimeout(function() {
+            try { player.play(); } catch(e) {}
+          }, 400);
+        } else if (!isVisible && wasVisible) {
+          wasVisible = false;
+          try {
+            player.pause();
+            player.currentTime = 0;
+          } catch(e) {}
+        }
+      });
+
+      observer.observe(modal, {
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      });
+    });
+
+    console.log('Video modals initialized:', videoModals.length, 'player(s)');
+  }
+
+  // mux-player is a custom element — wait for it to be defined
+  if (window.customElements && customElements.get('mux-player')) {
+    setupObservers();
+  } else if (window.customElements && customElements.whenDefined) {
+    customElements.whenDefined('mux-player').then(setupObservers);
+    // Fallback timeout in case script never loads
+    setTimeout(function() {
+      if (!customElements.get('mux-player')) {
+        console.warn('Video modals: mux-player not defined after 10s');
+        setupObservers(); // Set up observers anyway
+      }
+    }, 10000);
+  } else {
+    // No customElements API — set up immediately
+    setupObservers();
+  }
 }
 
 // =============================================
