@@ -46,17 +46,23 @@ function initializeModules() {
 // MODULE 1: STICKY NAV - HIDE/SHOW ON SCROLL
 // =============================================
 /*
- * Behavior:
- * - Utility nav: Static, scrolls away with the page
- * - Main nav: position:fixed, JS sets `top` dynamically
- *   - While utility nav visible: top = utilityNavHeight - scrollY (sits below it)
- *   - Once scrolled past utility nav: top = 0 (flush with viewport top)
- * - Scrolling down: after 2s delay, nav slides up (hidden)
+ * Behavior (desktop only, JS skips tablet/mobile):
+ * - Utility nav: Static in document flow, scrolls away naturally
+ * - Main nav: position:sticky (CSS), sticks at top:0 when scrolled
+ *   - Overlap is impossible — sticky respects document flow
+ *   - No JS positioning needed, no spacer div needed
+ * - Scrolling down: after 2s delay, nav slides up (hidden via transform)
  * - Scrolling up: nav slides down immediately (visible)
- * - At top of page: nav always visible, positioned below utility nav
+ * - At top of page: nav always visible, sitting below utility nav
+ *
+ * JS only controls: .nav-hidden, .nav-scrolled, .nav-animate classes
  */
 
 function initStickyNav() {
+  // Prevent double initialization
+  if (window._stickyNavInitialized) return;
+  window._stickyNavInitialized = true;
+
   // Skip on tablet/mobile - let Webflow handle it
   var TABLET_BREAKPOINT = 991;
   if (window.innerWidth <= TABLET_BREAKPOINT) {
@@ -72,52 +78,50 @@ function initStickyNav() {
     return;
   }
 
+  // Calculate threshold: scroll position where utility nav is fully off-screen
   var utilityNavHeight = utilityNav ? utilityNav.offsetHeight : 0;
-  var mainNavHeight = mainNav.offsetHeight;
 
-  // Insert spacer after main nav to fill the gap left by position:fixed
-  var spacer = document.createElement('div');
-  spacer.style.height = mainNavHeight + 'px';
-  spacer.className = 'nav-spacer';
-  mainNav.parentNode.insertBefore(spacer, mainNav.nextSibling);
-
-  // Set initial position below utility nav
-  mainNav.style.top = utilityNavHeight + 'px';
-
-  var lastScrollY = 0;
+  var lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
   var lastDirection = 0;
   var hideTimer = null;
-  var HIDE_DELAY = 2000; // 2 seconds before hiding on scroll-down
+  var isHidden = false;
+  var HIDE_DELAY = 2000;
 
   function showNav() {
     if (hideTimer) {
       clearTimeout(hideTimer);
       hideTimer = null;
     }
-    mainNav.classList.remove('nav-hidden');
+    if (isHidden) {
+      mainNav.classList.add('nav-animate');
+      mainNav.classList.remove('nav-hidden');
+      isHidden = false;
+    }
   }
 
   function hideNav() {
-    mainNav.classList.add('nav-hidden');
+    if (!isHidden) {
+      mainNav.classList.add('nav-animate');
+      mainNav.classList.add('nav-hidden');
+      isHidden = true;
+    }
   }
 
   function handleScroll() {
     var scrollY = window.pageYOffset || document.documentElement.scrollTop;
-    var direction = scrollY > lastScrollY ? 1 : -1; // 1 = down, -1 = up
+    var direction = scrollY > lastScrollY ? 1 : (scrollY < lastScrollY ? -1 : 0);
 
-    // Zone 1: Utility nav still visible - position main nav below it
+    // When utility nav is still visible, always show nav, no shadow
     if (scrollY < utilityNavHeight) {
-      mainNav.style.top = (utilityNavHeight - scrollY) + 'px';
       mainNav.classList.remove('nav-scrolled');
       showNav();
-      lastDirection = 0; // Reset so next scroll triggers direction change
+      lastDirection = 0;
     }
-    // Zone 2: Past utility nav - main nav at viewport top
+    // Past utility nav — handle hide/show behavior
     else {
-      mainNav.style.top = '0px';
       mainNav.classList.add('nav-scrolled');
 
-      if (direction !== lastDirection) {
+      if (direction !== 0 && direction !== lastDirection) {
         lastDirection = direction;
 
         if (direction === 1) {
@@ -136,18 +140,16 @@ function initStickyNav() {
 
   window.addEventListener('scroll', handleScroll, { passive: true });
 
-  // Recalculate on resize
+  // Recalculate utility nav height on resize
   window.addEventListener('resize', function() {
     if (window.innerWidth > TABLET_BREAKPOINT && utilityNav) {
       utilityNavHeight = utilityNav.offsetHeight;
-      mainNavHeight = mainNav.offsetHeight;
-      spacer.style.height = mainNavHeight + 'px';
     }
   });
 
   // Run initial check
   handleScroll();
-  console.log('Sticky nav initialized, utility nav height:', utilityNavHeight);
+  console.log('Sticky nav initialized (position:sticky), utility nav height:', utilityNavHeight);
 }
 
 // =============================================
