@@ -77,6 +77,27 @@
 }
 
 /* ============================================= */
+/*     FONT AWESOME — LIGATURE RENDERING FIX    */
+/* ============================================= */
+/*
+ * Safari doesn't activate OpenType ligatures by default
+ * for web fonts. These properties force ligature rendering
+ * so FA icon names (e.g., "arrow-up-right") display as glyphs.
+ */
+
+.icon-sm,
+.icon-md,
+.icon-lg,
+.icon-xl {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga" 1, "clig" 1;
+}
+
+/* ============================================= */
 /*              SMOOTH SCROLL                   */
 /* ============================================= */
 
