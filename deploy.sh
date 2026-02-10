@@ -98,9 +98,13 @@ done
 if [ "$ALL_VERIFIED" = false ]; then
   echo ""
   echo -e "${YELLOW}Some files may still be cached. Options:${NC}"
-  echo "  1. Wait 30s and re-run: bash deploy.sh"
+  echo "  1. Wait 30-60s and re-run: bash deploy.sh"
   echo "  2. Test with raw GitHub URL (no caching):"
   echo "     https://raw.githubusercontent.com/${REPO}/${BRANCH}/header.css"
+  echo ""
+  echo -e "${RED}${BOLD}DO NOT change the @main URLs in Webflow to a commit hash.${NC}"
+  echo "  The CDN will catch up. Pinning to a commit hash causes stale code"
+  echo "  that's easy to forget about."
 fi
 
 # ---- Step 5: Optional Webflow publish ----

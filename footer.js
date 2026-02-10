@@ -346,10 +346,12 @@ function initIconFix() {
     'phone':          '\uf095',
     'map-pin':        '\uf3c5',
     'message':        '\uf27a',
-    'star':           '\uf005'
+    'star':           '\uf005',
+    'check-circle':   '\uf058',
+    'circle-check':   '\uf058'
   };
 
-  var els = document.querySelectorAll('.icon-sm, .icon-md, .icon-lg, .icon-xl');
+  var els = document.querySelectorAll('.icon-sm, .icon-md, .icon-lg, .icon-xl, .icon-huge');
   var count = 0;
 
   els.forEach(function(el) {
