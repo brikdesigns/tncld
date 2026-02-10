@@ -13,8 +13,68 @@
  * to Webflow Custom Code > Head Code when ready.
  *
  * Created: January 16, 2026
- * Last Updated: February 8, 2026
+ * Last Updated: February 10, 2026
  */
+
+/* ============================================= */
+/*     FONT AWESOME 6 PRO — WOFF2 OVERRIDE     */
+/* ============================================= */
+/*
+ * Webflow uploads FA Pro fonts as OTF, which Safari
+ * renders poorly (broken ligatures). These @font-face
+ * rules override with WOFF2 format served from jsDelivr.
+ *
+ * Also removes the need for the FA Kit script (which
+ * was loading the free version and adding 50KB of bloat).
+ */
+
+@font-face {
+  font-family: "Font Awesome 6 Pro Solid 900";
+  src: url("fonts/Font-Awesome-6-Pro-Solid-900.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro 400";
+  src: url("fonts/Font-Awesome-6-Pro-Regular-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro 300";
+  src: url("fonts/Font-Awesome-6-Pro-Light-300.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro 100";
+  src: url("fonts/Font-Awesome-6-Pro-Thin-100.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Brands 400";
+  src: url("fonts/Font-Awesome-6-Brands-Regular-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Free Solid 900";
+  src: url("fonts/Font-Awesome-6-Free-Solid-900.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ============================================= */
 /*              SMOOTH SCROLL                   */
