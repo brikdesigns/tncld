@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeModules() {
+  // Fix FA icon ligatures for Safari (run first for fastest visual fix)
+  initIconFix();
+
   // Initialize sticky navigation
   initStickyNav();
 
@@ -322,11 +325,46 @@ function initVideoModals() {
 }
 
 // =============================================
-// MODULE 5: FORM ENHANCEMENTS (PLACEHOLDER)
+// MODULE 5: FA ICON LIGATURE FIX (SAFARI)
 // =============================================
+/*
+ * Safari doesn't render Font Awesome ligature icons in web fonts.
+ * This replaces ligature text (e.g. "arrow-up-right") with Unicode
+ * codepoints (e.g. "\ue09f") which render correctly in all browsers.
+ *
+ * Only targets elements with .icon-sm, .icon-md, .icon-lg, .icon-xl
+ *
+ * To add a new icon: find its Unicode at fontawesome.com/icons,
+ * then add to the map below as 'ligature-name': '\uXXXX'
+ */
 
-function initFormEnhancements() {
-  // Add form validation and enhancements here
+function initIconFix() {
+  // FA6 Pro ligature name → Unicode codepoint
+  var icons = {
+    'arrow-up-right': '\ue09f',
+    'xmark':          '\uf00d',
+    'phone':          '\uf095',
+    'map-pin':        '\uf3c5',
+    'message':        '\uf27a',
+    'star':           '\uf005'
+  };
+
+  var els = document.querySelectorAll('.icon-sm, .icon-md, .icon-lg, .icon-xl');
+  var count = 0;
+
+  els.forEach(function(el) {
+    var text = el.textContent.trim();
+    if (!text) return;
+    var unicode = icons[text.toLowerCase()];
+    if (unicode) {
+      el.textContent = unicode;
+      count++;
+    }
+  });
+
+  if (count) {
+    console.log('FA icon fix: replaced ' + count + ' ligature(s) with Unicode');
+  }
 }
 
 // =============================================
