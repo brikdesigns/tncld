@@ -398,6 +398,20 @@ html {
 }
 
 /* ============================================= */
+/*       IMAGE POSITION FIXES (SPECIFIC)        */
+/* ============================================= */
+/*
+ * Targeted fixes for specific images where object-fit: cover
+ * crops important content (e.g., heads in portrait photos).
+ * Uses filename selectors to avoid affecting components globally.
+ */
+
+/* Doctor photo - New Patients page "Meet the Doctors" section */
+.img[src*="tncld-landscape-4x-22"] {
+  object-position: center 30% !important;
+}
+
+/* ============================================= */
 /*        RESPONSIVE - TABLET & MOBILE          */
 /* ============================================= */
 /*
