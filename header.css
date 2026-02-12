@@ -114,6 +114,35 @@ html {
 }
 
 /* ============================================= */
+/*       TYPOGRAPHY — ORPHAN/WIDOW PREVENTION   */
+/* ============================================= */
+/*
+ * text-wrap: balance — equalizes line lengths in headings
+ *   so no line is dramatically shorter than others.
+ * text-wrap: pretty — prevents orphan words (single word
+ *   alone on the last line) in body text.
+ *
+ * Progressive enhancement: browsers without support
+ * render normally. Supported in Chrome 114+, Firefox 121+,
+ * Safari 17.5+.
+ */
+
+/* Headings — balanced line lengths */
+h1, h2, h3, h4, h5, h6,
+[class*="text_heading-"],
+[class*="text_label-xxl"],
+[class*="text_label-xl"] {
+  text-wrap: balance;
+}
+
+/* Body text — prevent orphans */
+p,
+li,
+[class*="text_body-"] {
+  text-wrap: pretty;
+}
+
+/* ============================================= */
 /*              UTILITY CLASSES                 */
 /* ============================================= */
 
