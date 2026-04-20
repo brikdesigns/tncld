@@ -42,6 +42,98 @@ function initializeModules() {
 
   // Auto-play/pause videos in modals
   initVideoModals();
+
+  // WCAG 2.1 AA remediation — added 2026-04-20
+  initAccessibility();
+}
+
+// =============================================
+// MODULE: ACCESSIBILITY (WCAG 2.1 AA)
+// =============================================
+/*
+ * Remediates issues flagged by Lighthouse/axe:
+ *   - Missing <main> landmark         (landmark-one-main)
+ *   - Links without accessible name   (link-name: logo, social icons)
+ *   - Heading order violations        (heading-order: eyebrow h6s)
+ *
+ * Runs after DOM ready. Safe to run on every page — each fix
+ * checks for existing correct markup before making changes.
+ *
+ * Audit report: markdown/legal-drafts/README.md
+ */
+
+function initAccessibility() {
+  try {
+    addMainLandmark();
+    labelLogoLinks();
+    labelSocialIcons();
+    demoteEyebrowHeadings();
+  } catch (err) {
+    console.warn('a11y init error:', err);
+  }
+}
+
+// Add role="main" to the primary content container if no <main> exists.
+// Finds the first non-modal <section> and marks its direct parent (or itself)
+// as the main landmark. role="main" is equivalent to a <main> element for AT.
+function addMainLandmark() {
+  if (document.querySelector('main, [role="main"]')) return;
+  var firstSection = document.querySelector(
+    'section:not([id^="modal-"]):not(.modal-1):not(.modal-2):not(.modal-3):not(.modal-form-new)'
+  );
+  if (!firstSection) return;
+  firstSection.setAttribute('role', 'main');
+}
+
+// Add aria-label to logo links — they wrap an SVG/img with no text node.
+function labelLogoLinks() {
+  var logos = document.querySelectorAll('a.logo');
+  logos.forEach(function(a) {
+    if (a.getAttribute('aria-label') || a.textContent.trim()) return;
+    a.setAttribute('aria-label', 'Tennessee Center for Laser Dentistry — Home');
+  });
+}
+
+// Add aria-labels to social icon links based on their href.
+function labelSocialIcons() {
+  var map = [
+    { match: 'facebook.com', label: 'TNCLD on Facebook' },
+    { match: 'linkedin.com', label: 'TNCLD on LinkedIn' },
+    { match: 'yelp.com', label: 'TNCLD on Yelp' },
+    { match: 'youtube.com', label: 'TNCLD on YouTube' },
+    { match: 'instagram.com', label: 'TNCLD on Instagram' },
+    { match: 'tiktok.com', label: 'TNCLD on TikTok' },
+    { match: 'twitter.com', label: 'TNCLD on Twitter' },
+    { match: 'x.com', label: 'TNCLD on X' }
+  ];
+  var icons = document.querySelectorAll(
+    '.social-wrapper a, a.icon-md[target="_blank"], a.icon-sm[target="_blank"]'
+  );
+  icons.forEach(function(a) {
+    if (a.getAttribute('aria-label') || a.textContent.trim()) return;
+    var href = a.getAttribute('href') || '';
+    var entry = map.find(function(m) { return href.indexOf(m.match) !== -1; });
+    if (entry) {
+      a.setAttribute('aria-label', entry.label);
+    } else if (href) {
+      a.setAttribute('aria-label', 'External link: ' + href.replace(/^https?:\/\//, '').split('/')[0]);
+    }
+  });
+}
+
+// Eyebrow/kicker text is styled as <h6 class="text_label-md"> in the theme
+// but is not a real heading — it precedes an h2/h3 and breaks heading order.
+// role="presentation" removes it from the heading outline while preserving
+// the text for screen readers. Proper fix is changing the tag in Webflow
+// Designer to <p> or <div>, but this prevents the axe violation in the
+// meantime without visual change.
+function demoteEyebrowHeadings() {
+  var eyebrows = document.querySelectorAll('h6.text_label-md, h6.brand, h4.subtitle');
+  eyebrows.forEach(function(h) {
+    if (!h.hasAttribute('role')) {
+      h.setAttribute('role', 'presentation');
+    }
+  });
 }
 
 // =============================================
