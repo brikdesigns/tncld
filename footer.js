@@ -462,14 +462,6 @@ function initIconFix() {
 }
 
 // =============================================
-// MODULE 6: ACCESSIBILITY HELPERS (PLACEHOLDER)
-// =============================================
-
-function initAccessibility() {
-  // Add accessibility enhancements here
-}
-
-// =============================================
 // MODULE 7: ANALYTICS & TRACKING (PLACEHOLDER)
 // =============================================
 
