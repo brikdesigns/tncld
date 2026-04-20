@@ -1,7 +1,7 @@
 # Terms and Conditions
 
-**Last Updated:** [PUBLISH DATE]
-**Effective Date:** [PUBLISH DATE]
+**Last Updated:** April 20, 2026
+**Effective Date:** April 20, 2026
 
 By accessing or using [tncld.com](https://tncld.com) (the "Website"), you agree to these Terms and Conditions ("Terms"). If you do not agree, please discontinue use of the Website.
 
@@ -76,7 +76,7 @@ We may update these Terms at any time by posting the revised version on this pag
 
 ## 11. Governing Law
 
-These Terms are governed by the laws of the **State of Tennessee**, without regard to conflict-of-law principles. Any dispute arising from your use of this Website or these Terms shall be resolved exclusively in the state or federal courts located in **[COUNTY], Tennessee**, and you consent to the jurisdiction of those courts.
+These Terms are governed by the laws of the **State of Tennessee**, without regard to conflict-of-law principles. Any dispute arising from your use of this Website or these Terms shall be resolved exclusively in the state or federal courts located in **Williamson County, Tennessee**, and you consent to the jurisdiction of those courts.
 
 ---
 
@@ -91,6 +91,7 @@ If any provision of these Terms is found to be unenforceable, the remaining prov
 Questions about these Terms?
 
 **Tennessee Center for Laser Dentistry**
-[PRACTICE ADDRESS]
+204 Miller Springs Ct., Suite 200
+Franklin, TN 37064
 Email: info@tncld.com
 Phone: (615) 595-8070
