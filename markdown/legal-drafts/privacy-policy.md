@@ -1,7 +1,7 @@
 # Privacy Policy
 
-**Last Updated:** [PUBLISH DATE]
-**Effective Date:** [PUBLISH DATE]
+**Last Updated:** April 20, 2026
+**Effective Date:** April 20, 2026
 
 Tennessee Center for Laser Dentistry ("TNCLD," "we," "us," or "our") respects your privacy and is committed to protecting the information you share with us. This Privacy Policy explains how we collect, use, and safeguard information collected through our website, [tncld.com](https://tncld.com).
 
@@ -147,11 +147,12 @@ We may update this Privacy Policy periodically. Changes are effective when poste
 Questions about this Privacy Policy, or to exercise any privacy rights:
 
 **Tennessee Center for Laser Dentistry**
-[PRACTICE ADDRESS]
+204 Miller Springs Ct., Suite 200
+Franklin, TN 37064
 Email: privacy@tncld.com
 Phone: (615) 595-8070
 
-**HIPAA Privacy Officer:** [NAME], reachable at the contact above.
+**HIPAA Privacy Officer:** The Practice Manager, reachable at the contact above. _(A specific named Privacy Officer must be designated per 45 CFR § 164.530; TNCLD will update this line with the individual's name.)_
 
 ---
 

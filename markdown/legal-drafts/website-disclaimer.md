@@ -1,7 +1,7 @@
 # Website Disclaimer
 
-**Last Updated:** [PUBLISH DATE]
-**Effective Date:** [PUBLISH DATE]
+**Last Updated:** April 20, 2026
+**Effective Date:** April 20, 2026
 
 ---
 

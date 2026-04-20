@@ -1,7 +1,7 @@
 # Notice of Privacy Practices
 
-**Last Updated:** [PUBLISH DATE]
-**Effective Date:** [PUBLISH DATE]
+**Last Updated:** April 20, 2026
+**Effective Date:** April 20, 2026
 
 > **THIS NOTICE DESCRIBES HOW MEDICAL INFORMATION ABOUT YOU MAY BE USED AND DISCLOSED, AND HOW YOU CAN GET ACCESS TO THIS INFORMATION. PLEASE REVIEW IT CAREFULLY.**
 
@@ -92,9 +92,10 @@ You have the right to be notified in the event of a breach of your unsecured PHI
 
 To exercise any of these rights, contact our Privacy Officer:
 
-**Privacy Officer:** [NAME]
+**Privacy Officer:** The Practice Manager _(TNCLD will replace with the designated individual's name per 45 CFR § 164.530)_
 **Tennessee Center for Laser Dentistry**
-[PRACTICE ADDRESS]
+204 Miller Springs Ct., Suite 200
+Franklin, TN 37064
 Phone: (615) 595-8070
 Email: privacy@tncld.com
 
@@ -106,7 +107,8 @@ If you believe your privacy rights have been violated, you may file a complaint 
 
 **Tennessee Center for Laser Dentistry**
 Attn: Privacy Officer
-[PRACTICE ADDRESS]
+204 Miller Springs Ct., Suite 200
+Franklin, TN 37064
 privacy@tncld.com | (615) 595-8070
 
 **or**

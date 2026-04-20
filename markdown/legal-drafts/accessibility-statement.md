@@ -1,6 +1,6 @@
 # Accessibility Statement
 
-**Last Updated:** [PUBLISH DATE]
+**Last Updated:** April 20, 2026
 
 Tennessee Center for Laser Dentistry (TNCLD) is committed to ensuring our website is accessible to people with disabilities. We believe every patient and prospective patient deserves an equal opportunity to learn about our care and reach out to our practice.
 
@@ -23,7 +23,7 @@ Our efforts include:
 
 We are actively working to bring all areas of our website into full conformance with WCAG 2.1 Level AA. Some content may not yet meet the standard in all areas; remediation is in progress.
 
-Most recent audit: **[AUDIT DATE]**
+Most recent audit: **April 20, 2026**
 
 ---
 
@@ -39,7 +39,7 @@ If you encounter a barrier to accessing any part of our website, or would like t
 
 **Email:** accessibility@tncld.com
 **Phone:** (615) 595-8070
-**Mail:** Tennessee Center for Laser Dentistry, [PRACTICE ADDRESS]
+**Mail:** Tennessee Center for Laser Dentistry, 204 Miller Springs Ct., Suite 200, Franklin, TN 37064
 
 Please include:
 
