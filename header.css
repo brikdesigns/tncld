@@ -441,6 +441,69 @@ li,
 }
 
 /* ============================================= */
+/*        ACCESSIBILITY (WCAG 2.1 AA)           */
+/* ============================================= */
+/*
+ * Added 2026-04-20 after Lighthouse a11y audit.
+ * Full audit context: markdown/legal-drafts/README.md
+ * Paired with accessibility fixes in footer.js.
+ */
+
+/* Button primary — fix text contrast on #0065ff background.
+   Dark text (#181818) on brand blue = 3.64:1 (fails AA 4.5:1).
+   White text = 5.2:1 (passes AA). */
+.button-primary,
+.button-primary .text_label-md,
+.button-primary .text_body-md,
+input.button-primary[type="submit"] {
+  color: #ffffff !important;
+}
+
+/* Tab headers — text inside .tab-wrapper on blue bg needs same fix. */
+.tab-wrapper a .text_body-md,
+.tab-wrapper a .text_label-md {
+  color: #ffffff !important;
+}
+
+/* Footer legal links — WCAG 2.2 AA requires 24x24px min touch target.
+   Current footer links are ~14px tall. Padding expands clickable area
+   without changing visual size of the text. */
+.text_body-tiny[href^="/legal/"] {
+  display: inline-block;
+  padding: 6px 4px;
+  margin: -6px -4px;
+  min-height: 24px;
+}
+
+/* Focus indicators — ensure visible keyboard focus on all interactive
+   elements. Webflow's default outline is sometimes removed by theme CSS. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #0065ff !important;
+  outline-offset: 2px !important;
+  border-radius: 2px;
+}
+
+/* Screen-reader-only utility class — hides text visually while keeping
+   it accessible to assistive tech. Used by footer.js for logo labels. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ============================================= */
 /*        RESPONSIVE - TABLET & MOBILE          */
 /* ============================================= */
 /*
