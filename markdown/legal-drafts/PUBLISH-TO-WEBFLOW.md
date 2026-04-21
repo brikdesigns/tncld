@@ -82,6 +82,14 @@ Search for "Miler" across the site — may appear in multiple places (contact pa
 2. Check if address appears in a **symbol/component** (footer, nav) — if yes, edit the component once and it updates everywhere
 3. Google Maps embed uses the aria-label — update that too
 
+### While on /contact: add ADA Title III effective-communication elements
+
+ADA Title III (28 CFR § 36.303) requires dental practices to offer auxiliary aids and effective communication. Add to the contact page below the address/phone block:
+
+> **Accessibility:** Our office is wheelchair-accessible with ADA parking available. For sign-language interpreters, alternative formats, or other accommodations, please call (615) 595-8070 or email accessibility@tncld.com. **TTY users: dial 711 (Tennessee Relay Service).**
+
+This mirrors commitments in the new Accessibility Statement page and gives the content a second touchpoint (contact is higher-traffic than /legal/accessibility).
+
 ---
 
 ## Step 4 — Update footer legal links
