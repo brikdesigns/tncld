@@ -4,6 +4,30 @@ This file provides project-specific context for Claude Code.
 
 ---
 
+## Compliance Profile
+
+TNCLD is a dental practice in Franklin, TN. Regulatory regimes that apply:
+
+| Regime | Applies? | Why |
+|---|---|---|
+| **HIPAA Privacy + Security Rules** | Yes | Covered entity (dental provider handling PHI) |
+| **ADA Title III** (28 CFR § 36) | Yes | Public accommodation — professional office of a health care provider |
+| **Tennessee Human Rights Act** (T.C.A. § 4-21-501) | Yes | State-level disability non-discrimination in public accommodations |
+| **Section 1557 of ACA** | No | Confirmed 2026-04-20 — TNCLD does not accept Medicare/Medicaid |
+| **Section 504 Rehab Act** | No | Same rationale as 1557 — no federal financial assistance received |
+
+**Accessibility target:** WCAG 2.1 Level AA (the standard DOJ applies under Title III). No AAA bump.
+
+**Canonical accessibility + compliance standard:** [markdown/legal-drafts/BRIK-HEALTHCARE-ADA-STANDARDS.md](markdown/legal-drafts/BRIK-HEALTHCARE-ADA-STANDARDS.md) — staging for promotion to `brik/brik-bds/content-system/compliance/healthcare-ada.md`. Every content or design change to this site must honor that standard.
+
+**Required roles at TNCLD:**
+- **HIPAA Privacy Officer** (45 CFR § 164.530) — must be a named individual; appears in Privacy Policy + NPP
+- **Accessibility Coordinator** — responds to auxiliary-aids requests and accessibility grievances; appears in Accessibility Statement
+
+Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-drafts/). Current state + next steps in [NEXT-STEPS.md](markdown/legal-drafts/NEXT-STEPS.md).
+
+---
+
 ## Project Credentials
 
 | Item | Value |

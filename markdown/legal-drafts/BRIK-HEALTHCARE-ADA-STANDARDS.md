@@ -1,16 +1,16 @@
 # Brik Healthcare Accessibility & Compliance Standards
 
-**Status:** Draft 2026-04-20 — pending adoption across Brik projects.
+**Status:** Draft 2026-04-20 — staging for promotion to BDS.
 **Scope:** Marketing sites AND product portals for healthcare clients.
+**Owner:** Nick Stanerson (`nick@brikdesigns.com`) — single decision-maker for rule changes, cadence, and enforcement.
 **Authors:** Derived from TNCLD (`web/tncld`) remediation work; generalized for all Brik healthcare clients.
 
 ---
 
-## Intended home for this document
+## Document location
 
-This draft lives in `web/tncld/markdown/legal-drafts/` for immediate use on the TNCLD project. Once reviewed and approved, it should be promoted to the canonical location so every future build inherits it.
-
-**Recommended canonical location:** `brik/brik-bds/content-system/compliance/healthcare-ada.md`
+**Current (staging):** `web/tncld/markdown/legal-drafts/BRIK-HEALTHCARE-ADA-STANDARDS.md`
+**Canonical (after promotion):** `brik/brik-bds/content-system/compliance/healthcare-ada.md`
 
 **Why BDS content-system:**
 
@@ -19,7 +19,9 @@ This draft lives in `web/tncld/markdown/legal-drafts/` for immediate use on the 
 - Versioned alongside components — updates propagate on `npm update`
 - Avoids the "each repo has its own CLAUDE.md copy of the rules" drift problem
 
-**Secondary:** A short "Compliance" section in each product repo's `CLAUDE.md` pointing to this document. Project-specific overrides go in the project's CLAUDE.md; the canonical rules stay in BDS.
+**Promotion path (separate BDS session):** copy to the canonical path in a dedicated BDS session, bump the BDS package version, sync consumers. See Step 7 for the rollout order. Do **not** mix BDS edits with consumer work — per `CLAUDE.md`, BDS is a one-concern-per-session repo.
+
+**Secondary:** A short "Compliance Profile" section in each consumer repo's `CLAUDE.md` pointing to this document. Project-specific overrides go in the project's CLAUDE.md; the canonical rules stay in BDS.
 
 ---
 
@@ -80,20 +82,19 @@ Enforced via:
 - axe-core CI check on marketing sites (0 violations at `serious`/`critical`)
 - Manual keyboard + VoiceOver pass before any new flow ships
 
-### Higher bar for patient portals and product apps
+### Patient portal and product app requirements
 
-Portal builds (`product/brik-client-portal`, `product/renew-pms`, `product/freedom-client-portal`) handle PHI, authentication, forms, and records. These get stricter rules:
+Portal builds (`product/brik-client-portal`, `product/renew-pms`, `product/freedom-client-portal`) handle PHI, authentication, forms, and records. Same WCAG 2.1 AA standard as marketing sites — **no AAA bump** — but portal-specific implementation details matter because the flows involve irrevocable actions (record export, bill pay, auth):
 
-- WCAG 2.1 AA on all public-facing pages
-- **WCAG 2.1 AAA on patient-critical flows**: login/auth, appointment scheduling, record access, record download, bill pay, message composition
+- WCAG 2.1 AA on every page (portal + marketing, same floor)
 - Every form field: visible label + `aria-label` backup + `aria-describedby` for hint text + `aria-invalid` + `aria-live` region for error announcements
 - Every modal: focus trap, focus return on close, Escape to dismiss, scrollable content keyboard-navigable
 - Session timeout: ARIA-announced warning ≥ 60 seconds before expiry, one-click session extension (no password re-entry)
 - File uploads: accessible error messages, progress announcements, accepted-format info exposed to screen readers
 - PDF exports of patient records: tagged, readable by screen readers (not image-only), with heading structure
-- Color contrast: 4.5:1 minimum for normal text, 7:1 for critical status indicators (appointments, billing status)
+- Color contrast: WCAG 2.1 AA (4.5:1 normal, 3:1 large text) — no stricter bump
 - Color never the sole indicator: always pair with icon + text label
-- Keyboard-navigable from landing to checkout without mouse for every core flow
+- Keyboard-navigable end-to-end without mouse for every core flow (auth, scheduling, records, bill pay, messaging)
 - `prefers-reduced-motion` respected
 - `prefers-contrast` respected where practical
 
@@ -161,8 +162,11 @@ Documents which regimes apply. Example (for renew-pms, a dental PMS — almost c
 ### 6b. Wire accessibility checks into CI
 
 - Add `@axe-core/playwright` (or similar) check on every PR that modifies UI
-- Fail build on any `serious` or `critical` violation
+- **Fail build on any `serious` or `critical` violation — blocks merge**
+- Warn-only (non-blocking) for `moderate` and `minor`
 - Generate a report artifact attached to each PR so reviewers can see results
+
+Rationale: blocking on `serious`/`critical` is the lowest bar that catches real lawsuit exposure without creating developer friction on borderline issues. Moderate/minor are flagged in the PR for the author's judgement.
 
 ### 6c. Extend BDS component types with accessibility-required props
 
@@ -207,9 +211,13 @@ Flexible — can compress or extend based on other priorities. The only truly ur
 
 ---
 
-## Open questions for review
+## Decisions log
 
-1. **Is `brik/brik-bds/content-system/compliance/` the right canonical location**, or would the team prefer a dedicated `brik-compliance` repo or Notion SOP database?
-2. **Who owns this document going forward** — Brik owner (Nick) for decisions + updates, or does it get distributed ownership (e.g., a11y-specialist role)?
-3. **For the portal builds, is the proposed WCAG AAA on "patient-critical flows" too aggressive?** AAA is hard to sustain and may slow shipping. A more pragmatic bar is "AA everywhere, AAA where the flow involves irrevocable actions" (record export, bill pay).
-4. **Enforcement teeth:** how strict should CI be? Recommend failing on `serious`/`critical` (blocks merge) and warning on `moderate`. Too strict = developer friction; too loose = back to manual review only.
+Resolved 2026-04-20 in TNCLD remediation session:
+
+| Decision | Resolution |
+|---|---|
+| Canonical location | `brik/brik-bds/content-system/compliance/healthcare-ada.md` — ships via BDS to all consumers |
+| Ownership | Nick Stanerson — single owner for rule changes, cadence, and enforcement |
+| AAA on patient-critical flows | Rejected. WCAG 2.1 AA is the floor everywhere, no AAA bump for portals |
+| CI enforcement strictness | Fail build on `serious`/`critical` (blocks merge). Warn-only for `moderate`/`minor` |
