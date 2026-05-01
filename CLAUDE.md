@@ -131,38 +131,38 @@ The deploy script handles CDN purging automatically. But your **browser** will s
 
 ## Website Build Workflow
 
-**Scripts Location:** `/Users/nickstanerson/Documents/GitHub/brik-llm/websites/`
+**Scripts Location:** `/Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/`
 
-Full workflow documentation: [brik-llm/websites/README.md](../brik-llm/websites/README.md)
+Full workflow documentation: [brik-llm/CLAUDE.md](../../brik/brik-llm/CLAUDE.md)
 
 ### Phase Scripts
 
 | Phase | Script | Trigger |
 | ----- | ------ | ------- |
-| 01 Discovery | `discovery_cache.py` | "Cache discovery data for TNCLD" |
-| 02 Content | `website_scraper.py` | "Scrape content from tncld.com" |
-| 03 Design | `page_generator.py` | "Generate HTML mockups for TNCLD" |
-| 04 Development | `webflow_builder.py` | "Build TNCLD website in Webflow" |
+| 01 Discovery | `audit-inspiration-site.py` | "Cache discovery data for TNCLD" |
+| 02 Content | `website-scraper.py` | "Scrape content from tncld.com" |
+| 03 Design | `page-generator.py` | "Generate HTML mockups for TNCLD" |
+| 04 Development | `webflow-builder.py` | "Build TNCLD website in Webflow" |
 
 ### Quick Commands
 
 ```bash
 # Scrape existing site content
-python /Users/nickstanerson/Documents/GitHub/brik-llm/websites/02-content-strategy/website_scraper.py --url "https://tncld.com"
+python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/02-content-strategy/website-scraper.py --url "https://tncld.com"
 
 # Compress photos before upload
-python /Users/nickstanerson/Documents/GitHub/brik-llm/websites/03-design/compress_photos.py --input ./assets/photos
+python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/03-design/compress-photos.py --input ./assets/photos
 
 # Sync Notion → Webflow (uses Direct API)
-python /Users/nickstanerson/Documents/GitHub/brik-llm/websites/04-development/webflow_builder.py
+python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/04-development/webflow-builder.py
 ```
 
 ### Fallback Scripts (when MCP fails)
 
 | Service | Script | Usage |
 | ------- | ------ | ----- |
-| Webflow | `brik-llm/scripts/wf` | `../brik-llm/scripts/wf pages` |
-| Notion | `brik-llm/websites/shared/notion_cli.py` | Direct API queries |
+| Webflow | `brik-llm/scripts/webflow/wf` | `../../brik/brik-llm/scripts/webflow/wf pages` |
+| Notion | `brik-llm/scripts/notion/notion-query.py` | Direct API queries |
 
 ---
 
@@ -217,10 +217,8 @@ For standards that apply to all client projects, reference these authoritative s
 
 | Standard | Location |
 |----------|----------|
-| **Naming Conventions** | [brik-bds/BDS-CROSS-PLATFORM-REFERENCE.md](../brik-llm/foundations/brik-bds/BDS-CROSS-PLATFORM-REFERENCE.md) |
-| **Webflow Workflows** | [brik-llm/scripts/webflow/](../brik-llm/scripts/webflow/) |
-| **Content Style Guide** | [brik-llm/websites/02-content-strategy/CONTENT-STYLE-GUIDE.md](../brik-llm/websites/02-content-strategy/CONTENT-STYLE-GUIDE.md) |
-| **QA Checklist** | [_newclient/markdown/quality-assurance/qa-checklist.md](../_newclient/markdown/quality-assurance/qa-checklist.md) |
+| **Naming Conventions** | [brik-bds/CLAUDE.md](../../brik/brik-bds/CLAUDE.md) + [design.brikdesigns.com](https://design.brikdesigns.com) |
+| **Webflow Workflows** | [brik-llm/scripts/webflow/](../../brik/brik-llm/scripts/webflow/) |
 
 **Do not duplicate global standards in this repo.** Reference the authoritative sources above.
 
