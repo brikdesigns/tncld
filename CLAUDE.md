@@ -28,15 +28,30 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ---
 
-## Project Credentials
+## Project References
+
+> **Renamed 2026-05-05.** This section was previously titled "Project Credentials" — that was a misnomer. The values below are project IDs (Webflow Site ID, Notion DB ID) which are public per the canonical token registry. None of these are secrets. Actual credential discipline is in § Security below.
 
 | Item | Value |
 |------|-------|
 | **Client** | Tennessee Center for Laser Dentistry (TNCLD) |
-| **Webflow Site ID** | `694f1891a016a6340049f761` |
-| **Notion Services DB** | `2ca97d34-ed28-8040-80eb-000b9234418f` |
+| **Stack** | Webflow (legacy — see cross-repo CLAUDE.md § "Stack by surface") |
+| **Webflow Site ID** | `694f1891a016a6340049f761` (public Webflow site ref, not a secret) |
+| **Notion Services DB** | `2ca97d34-ed28-8040-80eb-000b9234418f` (public Notion DB ref, not a secret) |
 
-**Token Source:** [Notion API Keys](https://www.notion.so/API-Keys-2ec97d34ed2880e2a4b5d65f61a93208)
+## Security — read the canonical 5 before any credential work
+
+> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN` (1P entry: `Development:TNCLD - Webflow API Token`), used by build automation in `brik-llm/scripts/04-development/webflow-builder.py` and `brik-llm/scripts/webflow/`. The token is consumed by brik-llm, not by this repo directly.
+>
+> Read the canonical 5 doctrine docs before doing anything credential-related:
+>
+> 1. **Human entry point:** [Notion — Security Best Practices](https://www.notion.so/Security-Best-Practices-35797d34ed2880b49446e2d93497a487)
+> 2. **Per-repo lookup:** [`brik-llm/operations/security/repo-token-map.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/repo-token-map.md) — see § "Marketing sites — Webflow (legacy)"
+> 3. **Per-secret destinations:** [`brik-llm/operations/security/auth-surfaces.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/auth-surfaces.md)
+> 4. **Rotation doctrine:** [`brik-llm/operations/security/when-to-rotate.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/when-to-rotate.md) — **HARD RULE: agents never initiate rotation.**
+> 5. **Manual procedure:** [`brik-llm/operations/macos/openclaw/runbooks/token-rotation.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/macos/openclaw/runbooks/token-rotation.md)
+>
+> **Source-of-truth for all credentials: 1Password Development vault** (NOT the legacy "Notion API Keys" Notion page that was previously linked here). Never paste secrets into chat or commits. Reference 1P items by ID, not title.
 
 ---
 
