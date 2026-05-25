@@ -503,6 +503,33 @@ select:focus-visible,
   border: 0 !important;
 }
 
+/* Per-field form error messages injected by footer.js
+   initFormErrorAnnouncements. Uses a non-color cue (warning glyph) in
+   addition to red text, so users who can't perceive color still get
+   the error signal. #b91c1c is 6.4:1 against #ffffff (passes AA). */
+.field-error {
+  display: block;
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.field-error::before {
+  content: "⚠ ";
+  font-weight: 700;
+}
+.field-error[hidden] {
+  display: none;
+}
+/* Visible field-level error treatment on the input itself */
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: #b91c1c !important;
+  box-shadow: 0 0 0 1px #b91c1c;
+}
+
 /* ============================================= */
 /*        RESPONSIVE - TABLET & MOBILE          */
 /* ============================================= */

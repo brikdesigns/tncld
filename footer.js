@@ -68,6 +68,7 @@ function initAccessibility() {
     labelLogoLinks();
     labelSocialIcons();
     demoteEyebrowHeadings();
+    initFormErrorAnnouncements();
   } catch (err) {
     console.warn('a11y init error:', err);
   }
@@ -134,6 +135,214 @@ function demoteEyebrowHeadings() {
       h.setAttribute('role', 'presentation');
     }
   });
+}
+
+// Per-field error announcement for /contact + /request-appointment forms.
+// Webflow's native form UX shows a single generic .w-form-fail banner
+// ("Oops! Something went wrong...") which is too vague for healthcare
+// users and not announced by screen readers. This wires:
+//   - role="alert" + aria-live="polite" on .w-form-fail and .w-form-done
+//   - Per-field error containers linked via aria-describedby
+//   - Plain-language messages from HTML5 Constraint Validation
+//   - novalidate on the form to suppress duelling browser-native popups
+//   - Capture-phase submit handler so validation runs before Webflow's
+//     own jQuery submit handler (we preventDefault if invalid, otherwise
+//     pass through unchanged)
+//   - Focus moves to first invalid field on submit failure
+//   - Errors auto-clear when the user starts correcting the field
+// Targets only the two known healthcare forms by ID; safe no-op elsewhere.
+function initFormErrorAnnouncements() {
+  var forms = document.querySelectorAll(
+    '#wf-form-Contact-Us-Form, #wf-form-Request-Appointment-Form'
+  );
+  if (!forms.length) return;
+  forms.forEach(enhanceFormErrors);
+  console.log('Form error announcements initialized:', forms.length, 'form(s)');
+}
+
+function enhanceFormErrors(form) {
+  if (form.dataset.a11yEnhanced === 'true') return;
+  form.dataset.a11yEnhanced = 'true';
+
+  // Suppress browser-native validity popups so our custom messages win
+  form.setAttribute('novalidate', '');
+
+  // Mark Webflow's success + failure regions as live so SR announces them
+  var wrapper = form.closest('.w-form');
+  if (wrapper) {
+    var failDiv = wrapper.querySelector('.w-form-fail');
+    if (failDiv) {
+      failDiv.setAttribute('role', 'alert');
+      failDiv.setAttribute('aria-live', 'polite');
+    }
+    var doneDiv = wrapper.querySelector('.w-form-done');
+    if (doneDiv) {
+      doneDiv.setAttribute('role', 'status');
+      doneDiv.setAttribute('aria-live', 'polite');
+    }
+  }
+
+  // Build per-field error containers + wire aria-describedby
+  var fields = collectValidatableFields(form);
+  fields.forEach(function(field) {
+    ensureErrorContainer(form, field);
+    field.addEventListener('input', function() { clearFieldError(field); });
+    field.addEventListener('change', function() { clearFieldError(field); });
+  });
+
+  // Capture-phase submit handler — runs before Webflow's jQuery handler
+  form.addEventListener('submit', function(e) {
+    var invalid = validateFormFields(form);
+    if (invalid.length > 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      invalid.forEach(function(item) {
+        showFieldError(item.field, item.message);
+      });
+      // Move focus to the first invalid field for keyboard + SR users
+      try { invalid[0].field.focus({ preventScroll: false }); } catch (err) {}
+    }
+  }, true);
+}
+
+function collectValidatableFields(form) {
+  var nodes = form.querySelectorAll('input, textarea, select');
+  var fields = [];
+  for (var i = 0; i < nodes.length; i++) {
+    var f = nodes[i];
+    var type = (f.type || '').toLowerCase();
+    if (type === 'submit' || type === 'button' || type === 'hidden' || type === 'reset') continue;
+    if (!f.id) continue;
+    fields.push(f);
+  }
+  return fields;
+}
+
+function ensureErrorContainer(form, field) {
+  var errorId = field.id + '-error';
+  var existing = form.querySelector('#' + cssEscape(errorId));
+  if (existing) {
+    appendDescribedBy(field, errorId);
+    return;
+  }
+  var errorEl = document.createElement('div');
+  errorEl.id = errorId;
+  errorEl.className = 'field-error';
+  errorEl.setAttribute('aria-live', 'polite');
+  errorEl.hidden = true;
+  // Insert directly after the field — keeps the error inside the field's
+  // wrapper for layout, and right after the input in DOM order for SR.
+  if (field.nextSibling) {
+    field.parentNode.insertBefore(errorEl, field.nextSibling);
+  } else {
+    field.parentNode.appendChild(errorEl);
+  }
+  appendDescribedBy(field, errorId);
+}
+
+function appendDescribedBy(field, errorId) {
+  var current = field.getAttribute('aria-describedby') || '';
+  var ids = current.split(/\s+/).filter(Boolean);
+  if (ids.indexOf(errorId) === -1) {
+    ids.push(errorId);
+    field.setAttribute('aria-describedby', ids.join(' '));
+  }
+}
+
+function validateFormFields(form) {
+  var invalid = [];
+  collectValidatableFields(form).forEach(function(field) {
+    var msg = getFieldErrorMessage(field);
+    if (msg) invalid.push({ field: field, message: msg });
+  });
+  return invalid;
+}
+
+// Plain-language messages derived from HTML5 Constraint Validation.
+// Healthcare standard wants natural language ("Please enter your email"),
+// not browser-default strings like "Invalid value."
+function getFieldErrorMessage(field) {
+  if (typeof field.checkValidity !== 'function') return null;
+  if (field.checkValidity()) return null;
+
+  var v = field.validity;
+  var label = getFieldLabelText(field);
+
+  if (v.valueMissing) {
+    if (field.type === 'checkbox' || field.type === 'radio') {
+      return 'Please check ' + label;
+    }
+    if (field.tagName === 'SELECT') {
+      return 'Please choose ' + label;
+    }
+    return 'Please enter your ' + label.toLowerCase();
+  }
+  if (v.typeMismatch && field.type === 'email') {
+    return 'Please enter a valid email address';
+  }
+  if (v.typeMismatch && field.type === 'url') {
+    return 'Please enter a valid URL';
+  }
+  if (v.tooShort) {
+    return label + ' must be at least ' + field.minLength + ' characters';
+  }
+  if (v.tooLong) {
+    return label + ' must be no more than ' + field.maxLength + ' characters';
+  }
+  if (v.patternMismatch) {
+    return 'Please match the requested format for ' + label.toLowerCase();
+  }
+  return 'Please correct ' + label.toLowerCase();
+}
+
+// Resolve a human-readable label name in priority order:
+//   1. aria-labelledby target text (preferred — matches our Designer wiring)
+//   2. aria-label attribute
+//   3. .labels collection (native <label for=>)
+//   4. The field's name attribute
+// Strips a trailing " *" required indicator so messages read naturally.
+function getFieldLabelText(field) {
+  var labelText = '';
+  var labelledBy = field.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    var lbl = document.getElementById(labelledBy);
+    if (lbl) labelText = lbl.textContent;
+  }
+  if (!labelText) {
+    labelText = field.getAttribute('aria-label') || '';
+  }
+  if (!labelText && field.labels && field.labels.length) {
+    labelText = field.labels[0].textContent;
+  }
+  if (!labelText) labelText = field.name || 'this field';
+  return labelText.trim().replace(/\s*\*\s*$/, '');
+}
+
+function showFieldError(field, message) {
+  var errorEl = document.getElementById(field.id + '-error');
+  if (!errorEl) return;
+  errorEl.textContent = message;
+  errorEl.hidden = false;
+  field.setAttribute('aria-invalid', 'true');
+}
+
+function clearFieldError(field) {
+  var errorEl = document.getElementById(field.id + '-error');
+  if (!errorEl) return;
+  if (errorEl.hidden) return;
+  errorEl.textContent = '';
+  errorEl.hidden = true;
+  field.removeAttribute('aria-invalid');
+}
+
+// CSS.escape polyfill — Webflow auto-generated IDs can contain
+// characters that need escaping in selectors (none in this site
+// today, but cheap insurance against future IDs).
+function cssEscape(value) {
+  if (window.CSS && typeof window.CSS.escape === 'function') {
+    return window.CSS.escape(value);
+  }
+  return String(value).replace(/([^a-zA-Z0-9_-])/g, '\\$1');
 }
 
 // =============================================
