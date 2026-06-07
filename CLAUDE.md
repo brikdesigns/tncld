@@ -41,7 +41,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ## Security — read the canonical 5 before any credential work
 
-> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN` (1P entry: `Development:TNCLD - Webflow API Token`), used by build automation in `brik-llm/scripts/04-development/webflow-builder.py` and `brik-llm/scripts/webflow/`. The token is consumed by brik-llm, not by this repo directly.
+> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN` (1P entry: `Development:TNCLD - Webflow API Token`), used by build automation in `brik-llm/scripts/webflow/`. The token is consumed by brik-llm, not by this repo directly.
 >
 > Read the canonical 5 doctrine docs before doing anything credential-related:
 >
@@ -157,7 +157,7 @@ Full workflow documentation: [brik-llm/CLAUDE.md](../../brik/brik-llm/CLAUDE.md)
 | 01 Discovery | `audit-inspiration-site.py` | "Cache discovery data for TNCLD" |
 | 02 Content | `website-scraper.py` | "Scrape content from tncld.com" |
 | 03 Design | `page-generator.py` | "Generate HTML mockups for TNCLD" |
-| 04 Development | `webflow-builder.py` | "Build TNCLD website in Webflow" |
+| 04 Development | `webflow/wf-content-push.py` | "Build TNCLD website in Webflow" |
 
 ### Quick Commands
 
@@ -169,7 +169,7 @@ python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/02-content-st
 python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/03-design/compress-photos.py --input ./assets/photos
 
 # Sync Notion → Webflow (uses Direct API)
-python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/04-development/webflow-builder.py
+python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/webflow/wf-content-push.py
 ```
 
 ### Fallback Scripts (when MCP fails)
