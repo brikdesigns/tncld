@@ -4,6 +4,17 @@ This file provides project-specific context for Claude Code.
 
 ---
 
+## ⚠️ Repo status — READ FIRST
+
+The **live TNCLD site is on Webflow** (https://www.tncld.com). This repo is **NOT the active website**:
+
+- **Active (live in production):** Brik custom code — `footer.js` + `header.css` — served to the Webflow site via jsDelivr (`cdn.jsdelivr.net/gh/brikdesigns/tncld@main/…`; see `deploy.sh`). Edits to these **do** reach production after `deploy.sh`.
+- **NOT active:** the exported `*.html` pages (and any future Astro build here) stage a *planned* future migration off Webflow. They serve **zero** traffic. Do not treat them as the live site or wire integrations into them expecting production effect.
+- **Analytics:** GA4 `G-1XJVGSWDDC` is configured in **Webflow → Custom Code → Head** (not in this repo). Do **not** add a GA tag here. The managed property `G-E7LRDTTP3L` was a duplicate created in error (2026-07-08) and is being retired — it is not live.
+- **Two local checkouts** of this repo exist (`brik/tncld` and `web/tncld`) — same remote. Consolidate to one to avoid confusion.
+
+---
+
 ## Compliance Profile
 
 TNCLD is a dental practice in Franklin, TN. Regulatory regimes that apply:
