@@ -4,17 +4,6 @@ This file provides project-specific context for Claude Code.
 
 ---
 
-## ⚠️ Repo status — READ FIRST
-
-The **live TNCLD site is on Webflow** (https://www.tncld.com). This repo is **NOT the active website**:
-
-- **Active (live in production):** Brik custom code — `footer.js` + `header.css` — served to the Webflow site via jsDelivr (`cdn.jsdelivr.net/gh/brikdesigns/tncld@main/…`; see `deploy.sh`). Edits to these **do** reach production after `deploy.sh`.
-- **NOT active:** the exported `*.html` pages (and any future Astro build here) stage a *planned* future migration off Webflow. They serve **zero** traffic. Do not treat them as the live site or wire integrations into them expecting production effect.
-- **Analytics:** GA4 `G-1XJVGSWDDC` is configured in **Webflow → Custom Code → Head** (not in this repo). Do **not** add a GA tag here. The managed property `G-E7LRDTTP3L` was a duplicate created in error (2026-07-08) and is being retired — it is not live.
-- **Two local checkouts** of this repo exist (`brik/tncld` and `web/tncld`) — same remote. Consolidate to one to avoid confusion.
-
----
-
 ## Compliance Profile
 
 TNCLD is a dental practice in Franklin, TN. Regulatory regimes that apply:
@@ -52,7 +41,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ## Security — read the canonical 5 before any credential work
 
-> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN` (1P entry: `Development:TNCLD - Webflow API Token`), used by build automation in `brik-llm/scripts/webflow/`. The token is consumed by brik-llm, not by this repo directly.
+> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN`, stored in 1Password (Development vault, item id `v7yjeqrzuqolnt7boicclvheb4` — title `Webflow - TNCLD (tncld-claude-20260122)`, field `credential`). Read it with `op read "op://Development/v7yjeqrzuqolnt7boicclvheb4/credential"`. Used by build automation in `brik-llm/scripts/webflow/`, and callable directly for Data API operations (page DOM read/text + html-embed edits, site publish) — verified working headless 2026-07-09.
 >
 > Read the canonical 5 doctrine docs before doing anything credential-related:
 >
