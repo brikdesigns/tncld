@@ -38,4 +38,9 @@ paths = [
   # (e.g. Google Maps API key for the map widget) that fire on `gcp-api-key`.
   # These are baked into Webflow's product, not Brik secrets — safe to skip.
   '''(.*/)?js/webflow\.js$''',
+  # Tokens Studio config uses a `${FIGMA_ACCESS_TOKEN}` env-var placeholder,
+  # never a live value (brik-llm#1354).
+  '''(.*/)?json/tokens-studio-config\.json$''',
+  # Figma setup doc — placeholder tokens in copy-paste instructions, not live.
+  '''(.*/)?markdown/resources/FIGMA_SETUP\.md$''',
 ]

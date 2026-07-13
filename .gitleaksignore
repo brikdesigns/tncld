@@ -1,0 +1,16 @@
+# .gitleaksignore — acknowledged gitleaks findings.
+# Format: <commit>:<file>:<rule>:<startline>  (see secret-scan-triage.sh).
+#
+# Accepted per brik-llm#1354 (structural fix only, no rotation): these are real
+# Notion + Webflow API tokens that were hardcoded in an early commit and later
+# refactored to process.env.* (current HEAD reads from env — verified clean).
+# The values remain only in this PRIVATE repo's git history, which per
+# brik-secrets doctrine (operations/security/when-to-rotate.md) is a
+# structural-fix trigger, not an external-exposure or rotation trigger. HEAD is
+# clean; these fingerprints stop the weekly full-history scan re-paging #security.
+0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/count-contacts.js:notion-api-token:3
+0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/count-contacts.js:notion-integration-token:3
+0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/list-notion-databases.js:notion-api-token:4
+0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/list-notion-databases.js:notion-integration-token:4
+0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/publish-webflow-test.js:webflow-v1-api-token:3
+0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/publish-webflow.js:webflow-v1-api-token:4
