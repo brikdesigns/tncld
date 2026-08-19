@@ -1,0 +1,30 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_PUBLIC_ENV = "production"
+
+# Branch deploys (staging + any other non-production branch).
+# Per-context Supabase URL/keys, SITE_URL, etc. are configured in the Netlify
+# UI under Environment variables, scoped to "Branch deploys".
+# Note: Netlify silently ignores per-context [[headers]] blocks despite the
+# docs claiming support — the X-Robots-Tag is set from next.config.mjs
+# instead, gated on NEXT_PUBLIC_ENV !== "production".
+[context.branch-deploy.environment]
+  NEXT_PUBLIC_ENV = "staging"
+
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_ENV = "preview"
+
+# Next.js on Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Security headers (supplement Next.js headers)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
