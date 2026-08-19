@@ -102,6 +102,7 @@ We aim to respond to accessibility feedback within **5 business days**.
 
 If you believe you have been denied access to our services or an accommodation, or have otherwise been discriminated against on the basis of a disability, you may file a grievance with our Accessibility Coordinator:
 
+- **Accessibility Coordinator:** {{ACCESSIBILITY_COORDINATOR}}
 - **Email:** accessibility@tncld.com
 - **Phone:** (615) 595-8070
 - **Mail:** Attn: Accessibility Coordinator, Tennessee Center for Laser Dentistry, 204 Miller Springs Ct., Suite 200, Franklin, TN 37064
