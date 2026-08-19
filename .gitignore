@@ -1,11 +1,20 @@
 # Environment variables (secrets)
-.env
-.env.local
-.env.*.local
+.env*
+!.env.example
 
 # Node
 node_modules/
 npm-debug.log*
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# BDS inspector manifest — copied from the installed @brikdesigns/bds by
+# postinstall (keep ignore + copy step together, see brik-bds#1552).
+/public/bds-manifest.json
 
 # OS files
 .DS_Store

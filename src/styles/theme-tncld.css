@@ -1,0 +1,135 @@
+/* ───────────────────────────────────────────────────────────────────
+ * Tennessee Center for Laser Dentistry (TNCLD) — Client Theme
+ *
+ * Layers on top of @brikdesigns/bds/dist/tokens.css. Overrides BDS semantic
+ * tokens with the client's brand vocabulary. Imported into the `client-theme`
+ * cascade layer by src/app/globals.css.
+ *
+ * Selector contract (mirrors brikdesigns `.theme-brand-brik`): `.theme-tncld`
+ * is applied to <body> in layout.tsx. Light-mode tokens live on `.theme-tncld`;
+ * dark-mode tokens on `:root[data-theme="dark"] .theme-tncld`.
+ *
+ * Atmosphere: minimal-clinical (dental precedent — pure white, zero-effect).
+ * The current canonical atmosphere is inert; its content is inlined at the end.
+ *
+ * TOKEN DISCIPLINE: every semantic token below is a name defined in
+ * @brikdesigns/bds dist/tokens.css (validated against the registry). Only the
+ * `--tncld-*` primitives are local.
+ * ─────────────────────────────────────────────────────────────────── */
+
+/* NOTE: the Poppins @font-face @import lives at the top of globals.css, not
+   here — a nested @import inside a layered stylesheet is invalid and gets
+   dropped by the CSS optimizer. The --font-family-* tokens below reference it. */
+
+.theme-tncld {
+  /* ── Brand primitives ──────────────────────────────────────────────
+   * TODO: confirm TNCLD brand. Derived from the live Webflow site's
+   * design-tokens/webflow-tokens.json, which maps semantic tokens onto the
+   * BDS "blue" theme palette (design-tokens/tokens.json → theme.blue-*).
+   * Hover/pressed/secondary tonal stops taken from that same blue ramp; the
+   * ramp has no dedicated interaction stops, so these are best-fit placeholders
+   * pending a confirmed brand palette. */
+  --tncld-blue:           #4665f5; /* theme.blue-blue-light — primary */
+  --tncld-blue-lighter:   #79b0d9; /* theme.blue-blue-lighter */
+  --tncld-blue-lightest:  #edf2f6; /* theme.blue-blue-lightest */
+  --tncld-blue-dark:      #0e212a; /* theme.blue-blue-dark — deep navy */
+  --tncld-green:          #79d799; /* theme.blue-green — accent */
+
+  --tncld-white:          #ffffff;
+  --tncld-black:          #000000;
+  --tncld-gray-darkest:   #333333;
+  --tncld-gray-darker:    #4f4f4f;
+  --tncld-gray-dark:      #828282;
+  --tncld-gray-light:     #bdbdbd;
+  --tncld-gray-lighter:   #e0e0e0;
+  --tncld-gray-lightest:  #f2f2f2;
+
+  /* ── Fonts (TNCLD = Poppins, per design-tokens) ────────────────────── */
+  --font-family-display:  Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-heading:  Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-subtitle: Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-body:     Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-label:    Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── Light-mode semantic overrides (minimal-clinical: white surfaces) ── */
+  --background-brand-primary:         var(--tncld-blue);
+  --background-brand-primary-hover:   var(--tncld-blue-lighter);
+  --background-brand-primary-pressed: var(--tncld-blue-dark);
+  --background-brand-secondary:       var(--tncld-blue-lightest);
+  --background-primary:               var(--tncld-white);
+  --background-secondary:             var(--tncld-white);
+  --background-tertiary:              var(--tncld-gray-lightest);
+  --background-inverse:               var(--tncld-blue-dark);
+  --background-input:                 var(--tncld-white);
+
+  --surface-primary:   var(--tncld-white);
+  --surface-secondary: var(--tncld-white);
+
+  --text-primary:       var(--tncld-gray-darkest); /* 12.6:1 on white */
+  --text-secondary:     var(--tncld-gray-darker);  /* 9.0:1 on white */
+  --text-muted:         var(--tncld-gray-dark);     /* 3.5:1 — decorative/placeholder use */
+  --text-inverse:       var(--tncld-white);
+  --text-brand-primary: var(--tncld-blue);          /* 4.67:1 on white — passes AA */
+  --text-on-color-light: var(--tncld-gray-darkest);
+  --text-link:          var(--tncld-blue);
+
+  --border-primary:       var(--tncld-gray-light);
+  --border-brand-primary: var(--tncld-blue);
+  --border-input:         var(--tncld-gray-light);
+
+  --page-primary: var(--tncld-white);
+  --page-accent:  var(--tncld-blue-lightest);
+}
+
+/* ── Dark-mode divergences ─────────────────────────────────────────── */
+:root[data-theme="dark"] .theme-tncld {
+  --background-primary:   var(--tncld-blue-dark);
+  --background-secondary: var(--tncld-blue-dark);
+  --background-tertiary:  var(--tncld-blue-dark);
+  --background-inverse:   var(--tncld-white);
+  --background-input:     var(--tncld-blue-dark);
+
+  --surface-primary:   var(--tncld-blue-dark);
+  --surface-secondary: var(--tncld-blue-dark);
+
+  --text-primary:       var(--tncld-white);
+  --text-secondary:     var(--tncld-gray-lighter);
+  --text-muted:         var(--tncld-gray-light);
+  --text-inverse:       var(--tncld-gray-darkest);
+  /* Blue brand primitive fails AA on the navy surface, so brand text/links use
+     the green accent in dark mode (9.3:1 on --tncld-blue-dark). */
+  --text-brand-primary: var(--tncld-green);
+  --text-link:          var(--tncld-green);
+
+  --border-primary: var(--tncld-gray-dark);
+
+  --page-primary: var(--tncld-blue-dark);
+  --page-accent:  var(--tncld-blue-dark);
+}
+
+/* Heading font family (mirrors the dental precedent theme). */
+.theme-tncld h1,
+.theme-tncld h2,
+.theme-tncld h3,
+.theme-tncld h4,
+.theme-tncld h5,
+.theme-tncld h6 {
+  font-family: var(--font-family-heading);
+}
+
+.theme-tncld {
+  font-family: var(--font-family-body);
+}
+
+/* ── Atmosphere (minimal-clinical) ───────────────────────────────────
+ * Inlined from @brikdesigns/bds/content-system/atmospheres/minimal-clinical.css
+ * (canonical version is inert — it adds no color overrides; trust comes from
+ * type, spacing, and precision, not decoration). Kept here so the atmosphere
+ * vocabulary sits in the theme file per the client-theme contract. Surface
+ * colors are set by the brand tokens above. A trailing CSS `@import` would be
+ * invalid (imports must precede rules), so the atmosphere is inlined.
+ *
+ * data-ambient / data-edge / data-spotlight attributes on sections/cards are
+ * inert under this atmosphere — they render nothing. Keeps the attribute
+ * contract consistent so the same markup works across all atmospheres.
+ * ─────────────────────────────────────────────────────────────────── */
