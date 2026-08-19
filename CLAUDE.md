@@ -89,58 +89,88 @@ curl -s "https://api.webflow.com/v2/collections/{collection_id}/items" \
 
 ---
 
-## Custom Code Deployment (jsDelivr CDN)
+## Custom Code Deployment (jsDelivr, SHA-pinned)
 
-**DO NOT manually copy/paste code to Webflow.** Custom code is served via jsDelivr CDN directly from this GitHub repo.
+> **The URLs are pinned to a commit. Pushing to `main` does NOT reach the live site.**
+> Changed `header.css` or `footer.js`? You must paste the new SHA into Webflow
+> or nothing ships — silently, with a green CI run. See § Deploying a change.
+> Interim state pending the [#34](https://github.com/brikdesigns/tncld/issues/34) decision.
+
+**DO NOT paste code bodies into Webflow.** `header.css` and `footer.js` are served from this repo via jsDelivr; only the two `<link>` / `<script>` tags live in Webflow.
+
+### Why pinned and not `@main` (2026-08-19, tncld#33)
+
+`@main` was unusable. jsDelivr caches each `Accept-Encoding` variant as a separate object and **a purge does not clear them together**. Four purges returning `{"status":"finished"}` left the gzip object stale for ~40 minutes while a bare `curl` — which asks for `identity` — served the correct file the whole time. Browsers negotiate gzip/br, so the site served CSS that was two commits old.
+
+```
+same @main URL:  [identity] 22089 bytes, rule present   <-- what curl sees
+                 [gzip]     21138 bytes, rule ABSENT    <-- what browsers see
+```
+
+`@<sha>` is cached immutably, is correct on every encoding on first fetch, and never needs purging. That is the whole reason for the pin.
 
 ### Webflow Custom Code Setup
 
-**Head Code** (in Webflow Settings > Custom Code > Head Code):
+Replace `<SHA>` with the full 40-char commit hash — short hashes work but are not what the deploy step prints.
+
+**Head Code** (Site settings > Custom Code > Head Code):
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/header.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@<SHA>/header.css">
 ```
 
-**Footer Code** (in Webflow Settings > Custom Code > Footer Code):
+**Footer Code** (Site settings > Custom Code > Footer Code):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@<SHA>/footer.js"></script>
 ```
 
-### Deploy Command
+This is a **dashboard-only** edit. The Data API cannot do it — verified 2026-08-19 against site `694f1891a016a6340049f761`:
 
-Use the deploy script for the full cycle (push, purge, verify):
+| Attempt | Result |
+|---|---|
+| `GET /v2/sites/{id}/custom_code` | `403 invalid_auth_version` |
+| `GET /v2/sites/{id}/registered_scripts` | `403 invalid_auth_version` |
+| `GET /v2/sites/{id}/custom_code/hosted` | `404` |
+
+Even with `custom_code:write`, a `<link>` in Head Code is not expressible through the registered-scripts endpoints.
+
+### Deploying a change
 
 ```bash
-bash deploy.sh
-# or
-npm run deploy:cdn
+# 1. Land the change on main as normal (worktree + PR).
+# 2. Get the SHA to pin:
+git rev-parse origin/main
+# 3. Confirm jsDelivr serves it on the encoding browsers use:
+curl -s --compressed -H 'Accept-Encoding: gzip' \
+  "https://cdn.jsdelivr.net/gh/brikdesigns/tncld@$(git rev-parse origin/main)/header.css" | shasum -a 256
+shasum -a 256 header.css     # must match
+# 4. Paste both URLs into Webflow, Publish, then Cmd+Shift+R.
+# 5. Verify against the live site:
+npm test
 ```
 
-The script will:
-1. Detect uncommitted changes to `header.css` / `footer.js`
-2. Commit and push to `main`
-3. Purge jsDelivr CDN cache
-4. Verify the CDN is serving the new version
-5. Optionally publish the Webflow site via API
+`deploy.sh` and `.github/workflows/purge-cdn.yml` still purge and verify **`@main`**, which the site no longer loads — so they pass without proving anything about production. Tracked in [#37](https://github.com/brikdesigns/tncld/issues/37); do not read a green purge run as a successful deploy.
 
-### Caching: Two Layers to Know About
+### Caching
 
-| Layer | TTL | Cleared by |
-|-------|-----|------------|
-| **jsDelivr CDN** | 12 hours | `deploy.sh` purge + GitHub Actions auto-purge on push |
-| **Browser cache** | 7 days | **Hard refresh (Cmd+Shift+R)** — always do this after deploying |
-
-The deploy script handles CDN purging automatically. But your **browser** will still serve its cached copy unless you hard-refresh.
+| Layer | Behaviour |
+|-------|-----------|
+| **jsDelivr `@<sha>`** | immutable — no purge needed, no staleness possible |
+| **jsDelivr `@main`** | per-encoding caching, `s-maxage=43200`, purge unreliable — **not used** |
+| **Browser** | `max-age=604800` (7 days) — **hard refresh (Cmd+Shift+R)** after any pin bump |
 
 ### Troubleshooting: Changes Not Appearing
 
-1. **Hard-refresh the browser**: Cmd+Shift+R (this fixes 90% of cases)
-2. **Verify CDN content**: Run `bash deploy.sh` — it checks if CDN matches local
-3. **Test with raw GitHub URL** (bypasses all caching):
+1. **Check the pin first.** `curl -sL https://tncld.com/about/technology | grep -o 'tncld@[a-z0-9]*'` — if that SHA is not `origin/main`, the pin was never bumped. This is the most likely cause.
+2. **Hard-refresh**: Cmd+Shift+R. The browser holds its own 7-day copy.
+3. **Check the encoding browsers get, not the one curl defaults to.** A bare `curl` asks for `identity` and can be correct while gzip is stale:
+   ```bash
+   curl -s --compressed -H 'Accept-Encoding: gzip' <url> | grep <something-you-just-added>
+   ```
+4. **Bypass all caching** to confirm the file itself is right:
    ```
    https://raw.githubusercontent.com/brikdesigns/tncld/main/header.css
    ```
-   Temporarily swap this into Webflow head code to confirm the CSS is correct, then switch back to jsDelivr.
-4. **Wait and retry**: jsDelivr edge propagation can take 30-60 seconds after purge
+5. **Verify in a real browser, not curl.** `npm test` drives Chromium against the live pages and asserts the actual rendered result.
 
 ---
 
