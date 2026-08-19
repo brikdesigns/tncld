@@ -43,3 +43,6 @@ logs/
 js/webflow.js
 updates/
 *.DS_Store
+
+# Webflow migration extract output (regenerated on demand)
+scripts/.migration-output/
