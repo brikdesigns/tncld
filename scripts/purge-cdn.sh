@@ -22,10 +22,28 @@
 #
 #  3. It fails the build instead of printing a warning.
 #
-#  Known limit: a purge is global but a verify only observes the ONE edge
-#  this runner is routed to. A pass means that edge is clean, not that every
-#  edge is. Browsers on other continents may lag; that is why the retry loop
-#  re-purges rather than only re-reading.
+#  4. It checks every Accept-Encoding variant, not just identity (tncld#33).
+#     jsDelivr caches gzip / br / identity as separate objects and a purge
+#     does not clear them together. Measured in Chromium 2026-08-19:
+#
+#       @main/header.css   21111 bytes, rule ABSENT, age 1463   <-- stale
+#       @<sha>/header.css  22056 bytes, rule present, age null
+#
+#     A bare `curl` asks for identity and got the CORRECT file the whole
+#     time, so the first version of this gate would have reported green
+#     while every real browser received stale CSS. Three purges returning
+#     {"status":"finished"} did not clear the gzip object.
+#
+#  Known limits, both real:
+#
+#  - A verify only observes the ONE edge this runner is routed to. A pass
+#    means that edge is clean, not that every edge is.
+#  - If curl has no brotli support (macOS system curl does not), the br
+#    variant goes unchecked and the script says so.
+#
+#  Because of the first two, a green run here is necessary but not
+#  sufficient. The durable fix is not to depend on purging at all — see
+#  tncld#34 for the SHA-pinning vs self-hosting decision.
 # =============================================
 
 set -uo pipefail
@@ -57,18 +75,46 @@ hash_stdin() {
   fi
 }
 
+# Which Accept-Encoding variants to check. jsDelivr caches each separately
+# and a purge does not clear them together, so checking one proves nothing
+# about the others — see the tncld#33 note above. `identity` is what a bare
+# curl asks for; `gzip` is what every browser actually gets.
+ENCODINGS=("gzip" "identity")
+if curl -V | grep -q brotli; then
+  ENCODINGS+=("br")
+else
+  echo "note: this curl has no brotli support, so the br variant is unchecked."
+fi
+
 hash_url() {
+  # $1 = url, $2 = Accept-Encoding value.
   # Download to a file rather than a variable: $(curl ...) strips trailing
-  # newlines, so a body-vs-file comparison would never match. An empty body
-  # or a non-200 must not hash equal to anything real.
+  # newlines, so a body-vs-file comparison would never match. --compressed
+  # makes curl decode the response, so the hash is of the decoded bytes the
+  # browser would see. An empty body or a non-200 must not hash equal to
+  # anything real.
   local tmp
   tmp=$(mktemp) || return 1
-  if ! curl -fsS --max-time 30 -o "$tmp" "$1" 2>/dev/null || [ ! -s "$tmp" ]; then
+  if ! curl -fsS --compressed --max-time 30 -H "Accept-Encoding: $2" \
+       -o "$tmp" "$1" 2>/dev/null || [ ! -s "$tmp" ]; then
     rm -f "$tmp"
     return 1
   fi
   hash_stdin < "$tmp"
   rm -f "$tmp"
+}
+
+# Every configured encoding must match, else report the first that does not.
+all_encodings_match() {
+  local url="$1" want="$2" enc got
+  for enc in "${ENCODINGS[@]}"; do
+    got=$(hash_url "$url" "$enc") || got="unreadable"
+    if [ "$got" != "$want" ]; then
+      printf '%s:%s' "$enc" "${got:0:12}"
+      return 1
+    fi
+  done
+  return 0
 }
 
 fail=0
@@ -88,7 +134,7 @@ for file in "${FILES[@]}"; do
   origin_ok=false
   origin_elapsed=0
   while [ "$origin_elapsed" -lt "$ORIGIN_DEADLINE_SECONDS" ]; do
-    got=$(hash_url "${RAW_BASE}/${file}") || got="unreadable"
+    got=$(hash_url "${RAW_BASE}/${file}" "gzip") || got="unreadable"
     if [ "$got" = "$want" ]; then
       origin_ok=true
       echo -e "  ${GREEN}✓${NC} origin serving the new bytes (${origin_elapsed}s)"
@@ -112,15 +158,13 @@ for file in "${FILES[@]}"; do
     status=$(curl -fsS --max-time 30 "${PURGE_BASE}/${file}" 2>/dev/null \
              | python3 -c 'import sys,json; print(json.load(sys.stdin).get("status","unknown"))' 2>/dev/null \
              || echo "unreachable")
-    got=$(hash_url "${CDN_BASE}/${file}") || got="unreadable"
-
-    if [ "$got" = "$want" ]; then
+    if mismatch=$(all_encodings_match "${CDN_BASE}/${file}" "$want"); then
       cdn_ok=true
-      echo -e "  ${GREEN}✓${NC} CDN matches after ${elapsed}s (purge: ${status})"
+      echo -e "  ${GREEN}✓${NC} CDN matches on ${ENCODINGS[*]} after ${elapsed}s (purge: ${status})"
       break
     fi
 
-    echo -e "  ${YELLOW}…${NC} ${elapsed}s — CDN has ${got:0:12}, purge: ${status}"
+    echo -e "  ${YELLOW}…${NC} ${elapsed}s — stale ${mismatch}, purge: ${status}"
     sleep "$SLEEP_SECONDS"
     elapsed=$((elapsed + SLEEP_SECONDS))
   done
@@ -134,11 +178,21 @@ done
 echo ""
 if [ "$fail" -ne 0 ]; then
   echo -e "${RED}CDN verification FAILED.${NC} The site is serving old assets."
-  echo "  Re-run this script; if it keeps failing, purge by hand and check:"
-  echo "    curl -s ${PURGE_BASE}/header.css"
-  echo "    curl -s ${CDN_BASE}/header.css | shasum -a 256"
-  echo "  Do NOT pin the Webflow @main URLs to a commit hash as a workaround —"
-  echo "  that trades a transient stale cache for a permanent one."
+  echo ""
+  echo "  Re-running rarely helps if the stale variant is gzip — repeated purges"
+  echo "  returning {\"status\":\"finished\"} did not clear it on 2026-08-19."
+  echo ""
+  echo "  Unblock the live site by pinning the Webflow head/footer URLs to this"
+  echo "  commit, which jsDelivr caches immutably and never has to purge:"
+  echo "    https://cdn.jsdelivr.net/gh/${REPO}@$(git rev-parse HEAD 2>/dev/null || echo '<sha>')/header.css"
+  echo "  Site settings > Custom Code — dashboard only; the Data API returns"
+  echo "  403 invalid_auth_version for /custom_code on this token."
+  echo ""
+  echo "  Inspect what a browser really gets (a bare curl asks for identity,"
+  echo "  which can be correct while gzip is stale):"
+  echo "    curl -s --compressed -H 'Accept-Encoding: gzip' ${CDN_BASE}/header.css | shasum -a 256"
+  echo ""
+  echo "  Long-term: tncld#34 tracks dropping the purge dependency entirely."
   exit 1
 fi
 
