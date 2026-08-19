@@ -152,7 +152,7 @@ Franklin, TN 37064
 Email: privacy@tncld.com
 Phone: (615) 595-8070
 
-**HIPAA Privacy Officer:** The Practice Manager, reachable at the contact above. _(A specific named Privacy Officer must be designated per 45 CFR § 164.530; TNCLD will update this line with the individual's name.)_
+**HIPAA Privacy Officer:** {{HIPAA_PRIVACY_OFFICER}}, reachable at the contact above. _(A specific named Privacy Officer must be designated per 45 CFR § 164.530; TNCLD will update this line with the individual's name.)_
 
 ---
 
