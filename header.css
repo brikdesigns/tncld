@@ -143,6 +143,29 @@ li,
 }
 
 /* ============================================= */
+/*          GHL REVIEW WIDGET — WIDTH            */
+/* ============================================= */
+/*
+ * The GoHighLevel review embed sits as a bare flex item in
+ * section_4-col (display:flex, column, align-items:center), so it
+ * shrinks to its content — 300px inside a 1440px section. The iframe's
+ * own width:100% then resolves against that 300px parent.
+ *
+ * Constrain the wrapper to the site container instead. 1280px matches
+ * .container-lg, which is what the sibling heading block uses in the
+ * same section. Below 1280 it just fills the available width, so the
+ * Webflow breakpoints need no separate rules.
+ *
+ * Pages affected: /patient-resources/new-patients, /about/technology,
+ * /about/meet-the-doctors, /about/tour-our-office — all via the shared
+ * `3-column-testimonial` component.
+ */
+.w-embed:has(iframe.lc_reviews_widget) {
+  width: 100%;
+  max-width: 1280px;
+}
+
+/* ============================================= */
 /*              UTILITY CLASSES                 */
 /* ============================================= */
 
