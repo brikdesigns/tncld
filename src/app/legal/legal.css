@@ -1,0 +1,73 @@
+/* Legal-page shell. All accessibility here is native semantic markup — the
+   real <main> landmark, a keyboard skip link, and text-labelled links — which
+   replaces the runtime DOM-patching the legacy footer.js initAccessibility()
+   did (addMainLandmark / labelLogoLinks). Colors use canonical BDS tokens only
+   (see src/styles/theme-tncld.css); spacing is raw rem, which the token guard
+   does not govern. */
+
+/* Skip link — visually hidden until focused (WCAG 2.4.1 Bypass Blocks). */
+.legal-skip-link {
+  position: absolute;
+  left: 0;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--background-inverse);
+  color: var(--text-inverse);
+  border-radius: 0 0 4px 0;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+.legal-skip-link:focus {
+  top: 0;
+}
+
+/* Visible keyboard focus for every link in the legal shell (WCAG 2.4.7).
+   BDS ships :focus-visible only for its own components (buttons, inputs), not
+   for anchors, so the home link, footer nav, and in-prose links need it here.
+   Mirrors the BDS button pattern: outline in the canonical --border-focus. */
+.legal-skip-link:focus-visible,
+.legal-home-link:focus-visible,
+.legal-footer a:focus-visible,
+.legal-main .bds-prose a:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.legal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-primary);
+}
+.legal-home-link {
+  color: var(--text-primary);
+  font-family: var(--font-family-heading);
+  font-weight: 600;
+  text-decoration: none;
+}
+.legal-home-link:hover {
+  text-decoration: underline;
+}
+
+.legal-main {
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.legal-footer {
+  border-top: 1px solid var(--border-primary);
+  padding: 2rem 1.5rem 3rem;
+}
+.legal-footer nav ul {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 72ch;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+.legal-footer a {
+  color: var(--text-link);
+}

@@ -92,7 +92,7 @@ You have the right to be notified in the event of a breach of your unsecured PHI
 
 To exercise any of these rights, contact our Privacy Officer:
 
-**Privacy Officer:** The Practice Manager _(TNCLD will replace with the designated individual's name per 45 CFR § 164.530)_
+**Privacy Officer:** {{HIPAA_PRIVACY_OFFICER}} _(TNCLD will replace with the designated individual's name per 45 CFR § 164.530)_
 **Tennessee Center for Laser Dentistry**
 204 Miller Springs Ct., Suite 200
 Franklin, TN 37064
