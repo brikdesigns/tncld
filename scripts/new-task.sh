@@ -1,0 +1,320 @@
+#!/usr/bin/env bash
+# new-task.sh — Create an isolated git worktree for a single BDS task.
+#
+# Branches from origin/staging (staging-first flow). Enforces task/{scope}-{name} naming.
+# Installs dependencies in the new worktree.
+#
+# Usage:
+#   ./scripts/new-task.sh {scope}-{name}
+#   ./scripts/new-task.sh bds-button-variants
+#   ./scripts/new-task.sh tokens-figma-pull
+#
+# Creates:
+#   ../brikdesigns-worktrees/{scope}-{name}/   on branch  task/{scope}-{name}
+#
+# Requirements:
+#   - Must be run from the repo root.
+#   - Requires a clean working tree (no uncommitted changes).
+#
+# Why this exists: the shared main-repo `.git/HEAD` drifts silently when a
+# second session checks out a task/* branch, and every edit afterward lands
+# on the wrong branch. Worktrees are the fix — each session gets its own
+# HEAD. See the Git Release Workflow Notion doc (Per-Repo Playbook table
+# flagged BDS worktrees "Critical" after the 2026-04-19 incident).
+
+set -euo pipefail
+
+# Prevent shells that sourced ~/.secrets/brik-packages.env from inheriting
+# PACKAGES_READ_TOKEN as GITHUB_TOKEN — gh CLI auths to that instead of the
+# user's PAT, using a wrong-scope (read:packages) token for arbitrary gh calls.
+unset GITHUB_TOKEN
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# ── Config ──
+BASE_BRANCH="staging"
+
+# ── Resolve repo root ──
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+WORKTREE_BASE="$(dirname "$PROJECT_ROOT")/brikdesigns-worktrees"
+
+# ── OP_SERVICE_ACCOUNT_TOKEN loader (#813) ──
+# `op run` below needs the token, and brik-mini is headless — no 1Password GUI
+# and no interactive `op signin` — so with nothing in the environment op aborts
+# with "You are not currently signed in" before npm ci ever starts. brik-llm
+# owns the one implementation; source it rather than adding another local copy
+# of the self-source logic. Guarded and cross-repo: this repo can be cloned
+# without its sibling, and the deps assertion after the install still fails
+# loudly if the token turns out to be genuinely missing.
+for _op_wrapper in \
+  "${PROJECT_ROOT}/../../brik/brik-llm/scripts/lib/op-run-wrapper.sh" \
+  "$HOME/Documents/GitHub/brik/brik-llm/scripts/lib/op-run-wrapper.sh"; do
+  if [ -r "$_op_wrapper" ]; then
+    # shellcheck source=/dev/null  # sibling repo, resolved at runtime
+    source "$_op_wrapper"
+    break
+  fi
+done
+unset _op_wrapper
+if ! declare -F rws_load_sa_token >/dev/null 2>&1; then
+  echo -e "${YELLOW}⚠  brik-llm/scripts/lib/op-run-wrapper.sh not found — 'op run'${NC}" >&2
+  echo "   below will only work if OP_SERVICE_ACCOUNT_TOKEN is already set (#813)." >&2
+fi
+
+# ── Must run from the primary worktree on main ──
+# Running new-task.sh from inside another task worktree creates nested state
+# that breaks the one-worktree-per-task contract. The primary worktree is
+# also the one place main is meant to live — if it's on a task branch,
+# something else already broke.
+PRIMARY_PATH="$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+if [ "$PROJECT_ROOT" != "$PRIMARY_PATH" ]; then
+  echo -e "${RED}Error: new-task.sh must be run from the primary worktree.${NC}"
+  echo ""
+  echo "  Here:    $PROJECT_ROOT"
+  echo "  Primary: $PRIMARY_PATH"
+  echo ""
+  echo "  cd into the primary worktree first:"
+  echo "    cd $PRIMARY_PATH && ./scripts/new-task.sh $*"
+  exit 1
+fi
+
+PRIMARY_BRANCH="$(git -C "$PRIMARY_PATH" branch --show-current || echo '(detached)')"
+case "$PRIMARY_BRANCH" in
+  main|staging) ;;
+  *)
+    echo -e "${RED}Error: primary worktree is on '${PRIMARY_BRANCH}', not a base branch.${NC}"
+    echo ""
+    echo "  The primary worktree at $PRIMARY_PATH must stay on ${BASE_BRANCH} (or staging)."
+    echo "  Task work lives in ../brikdesigns-worktrees/{slug} — never in the primary."
+    echo ""
+    echo "  To fix:"
+    echo "    cd $PRIMARY_PATH"
+    echo "    git status                  # inspect any uncommitted work"
+    echo "    git switch ${BASE_BRANCH}   # return to the base branch"
+    exit 1
+    ;;
+esac
+
+# ── Parse flags ──
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --base)
+      BASE_BRANCH="$2"
+      shift 2
+      ;;
+    -*)
+      echo -e "${RED}Unknown flag: $1${NC}"
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+# ── Validate input ──
+if [ $# -lt 1 ]; then
+  echo -e "${RED}Usage: $0 [--base branch] {scope}-{name}${NC}"
+  echo ""
+  echo "  scope = area of the site (marketing, content, seo, site, infra, docs, intel)"
+  echo "  name  = what the task delivers (hero-rework, pricing-copy, analytics-4-setup)"
+  echo ""
+  echo "  Example: $0 marketing-hero-rework"
+  echo "  Example: $0 content-pricing-copy"
+  echo ""
+  echo "  Base branch: ${BASE_BRANCH} (override with --base)"
+  exit 1
+fi
+
+TASK_NAME="$1"
+BRANCH_NAME="task/${TASK_NAME}"
+
+# ── Validate naming convention ──
+if [[ ! "$TASK_NAME" =~ ^[a-z]+-[a-z0-9]+ ]]; then
+  echo -e "${RED}Error: Task name must follow {scope}-{name} pattern.${NC}"
+  echo ""
+  echo "  Got:      $TASK_NAME"
+  echo "  Expected: {scope}-{name}  (e.g., marketing-hero-rework, infra-worktree-guard)"
+  echo ""
+  echo "  Valid scopes: marketing, content, seo, site, infra, docs, intel"
+  exit 1
+fi
+
+# ── Check for clean working tree ──
+if [ -n "$(git status --porcelain)" ]; then
+  echo -e "${RED}Error: Working tree is dirty. Commit or stash changes first.${NC}"
+  echo ""
+  git status --short
+  exit 1
+fi
+
+# ── Check branch doesn't already exist ──
+if git show-ref --verify --quiet "refs/heads/${BRANCH_NAME}"; then
+  echo -e "${RED}Error: Branch '${BRANCH_NAME}' already exists.${NC}"
+  echo ""
+  echo "  To resume:  cd ${WORKTREE_BASE}/${TASK_NAME}"
+  echo "  To delete:  git branch -d ${BRANCH_NAME}"
+  exit 1
+fi
+
+# ── Check for branch name reuse (previous PRs) ──
+if command -v gh &>/dev/null; then
+  PRIOR_PRS=$(gh pr list --state all --head "${BRANCH_NAME}" --json number,state --jq '.[] | "#\(.number) (\(.state))"' 2>/dev/null || true)
+  if [ -n "$PRIOR_PRS" ]; then
+    echo -e "${YELLOW}⚠  Branch name '${BRANCH_NAME}' was used in previous PRs:${NC}"
+    echo "$PRIOR_PRS" | sed 's/^/    /'
+    echo ""
+    echo -e "${YELLOW}   Reusing names makes PR history confusing.${NC}"
+    echo -e "${YELLOW}   Consider: task/${TASK_NAME}-v2 or a more specific name.${NC}"
+    echo -e "${YELLOW}   Press Enter to continue anyway, Ctrl+C to abort.${NC}"
+    read -r
+  fi
+fi
+
+# ── Check for overlapping scope (local branches) ──
+SCOPE_KEYWORD="${TASK_NAME%%-*}"
+SIMILAR_BRANCHES=$(git branch -r 2>/dev/null | grep -i "origin/task/.*${SCOPE_KEYWORD}" | grep -v HEAD || true)
+if [ -n "$SIMILAR_BRANCHES" ]; then
+  echo -e "${YELLOW}⚠  Branches with similar scope already exist:${NC}"
+  echo "$SIMILAR_BRANCHES" | sed 's/^/    /'
+  echo ""
+  echo -e "${YELLOW}   Verify these don't overlap before proceeding.${NC}"
+  echo -e "${YELLOW}   Press Enter to continue, Ctrl+C to abort.${NC}"
+  read -r
+fi
+
+# ── Check open PRs for file-level overlap ──
+# Parallel PRs that touch the same files cause cascading rebase conflicts
+# (see the 2026-04-19 portal #257 ↔ #258 incident captured in the Notion
+# Git Release Workflow doc). Warn when open PRs touch files whose path
+# fragment matches the task scope.
+if command -v gh &>/dev/null; then
+  OPEN_PR_FILES=$(gh pr list --state open --json number,title,files --jq \
+    '.[] | "\(.number)\t\(.title)\t\(.files | map(.path) | join(","))"' 2>/dev/null || true)
+  if [ -n "$OPEN_PR_FILES" ]; then
+    # Heuristic: tasks with the same descriptor likely touch the same directory.
+    # e.g. "bds-button-variants" → check PRs touching any "*button*" file.
+    DESC_KEYWORD=$(echo "$TASK_NAME" | cut -d'-' -f2)
+    OVERLAPPING=$(echo "$OPEN_PR_FILES" | grep -i "${DESC_KEYWORD}" || true)
+    if [ -n "$OVERLAPPING" ]; then
+      echo -e "${YELLOW}⚠  Open PR(s) may touch the same area as '${TASK_NAME}':${NC}"
+      echo "$OVERLAPPING" | awk -F'\t' '{ printf "    PR #%s — %s\n", $1, $2 }'
+      echo ""
+      echo -e "${YELLOW}   Parallel work on overlapping files = cascading rebase conflicts.${NC}"
+      echo -e "${YELLOW}   Options:${NC}"
+      echo -e "${YELLOW}     1) Wait for the open PR(s) to merge, then start this task${NC}"
+      echo -e "${YELLOW}     2) Chain this branch off the open PR instead of ${BASE_BRANCH}${NC}"
+      echo -e "${YELLOW}     3) Proceed (accept the rebase cost)${NC}"
+      echo ""
+      echo -e "${YELLOW}   Press Enter to proceed, Ctrl+C to abort.${NC}"
+      read -r
+    fi
+  fi
+fi
+
+# ── Fetch and branch from base ──
+echo -e "${YELLOW}▸ Fetching latest ${BASE_BRANCH}...${NC}"
+git fetch origin "${BASE_BRANCH}" --quiet
+
+echo -e "${YELLOW}▸ Creating worktree at ${WORKTREE_BASE}/${TASK_NAME}...${NC}"
+mkdir -p "$WORKTREE_BASE"
+git worktree add "${WORKTREE_BASE}/${TASK_NAME}" -b "${BRANCH_NAME}" "origin/${BASE_BRANCH}"
+
+cd "${WORKTREE_BASE}/${TASK_NAME}"
+
+# ── Symlink shared resources from primary ──
+# brikdesigns has runtime secrets (.env / .env.local) and gitignored CSV
+# fixtures (content/csv/) that the reconciliation pipeline reads. Symlink
+# (don't copy) so the worktree always sees primary's canonical state.
+echo -e "${YELLOW}▸ Symlinking shared resources from primary...${NC}"
+for f in .env .env.local; do
+  if [ -f "${PRIMARY_PATH}/${f}" ]; then
+    ln -sf "${PRIMARY_PATH}/${f}" "./${f}"
+    echo "    ${f} → primary"
+  fi
+done
+if [ -d "${PRIMARY_PATH}/content/csv" ]; then
+  mkdir -p ./content
+  ln -sf "${PRIMARY_PATH}/content/csv" ./content/csv
+  echo "    content/csv/ → primary"
+fi
+# .netlify/state.json carries the linked siteId. Symlink only that file —
+# never the whole .netlify/ dir, which netlify dev writes runtime artifacts
+# into (blobs-serve/, functions-internal/, v1/). Per-worktree runtime state,
+# shared siteId is the right split. Symlinking the whole dir also creates
+# ELOOP traps when netlify dev rewrites it. See #86.
+if [ -f "${PRIMARY_PATH}/.netlify/state.json" ]; then
+  mkdir -p .netlify
+  ln -sf "${PRIMARY_PATH}/.netlify/state.json" .netlify/state.json
+  echo "    .netlify/state.json → primary"
+fi
+
+# ── Install dependencies ──
+echo -e "${YELLOW}▸ Installing dependencies (op run -- npm ci --prefer-offline)...${NC}"
+# rws_load_sa_token puts the token in THIS process only, from the mode-600 SA
+# file — never the parent shell.
+if declare -F rws_load_sa_token >/dev/null 2>&1; then
+  rws_load_sa_token
+fi
+# Run without aborting so the assertion below can report *why* it failed. The
+# `| tail -1` pipe would otherwise mask the exit code under pipefail and leave
+# the worktree looking fine with an empty node_modules.
+set +e
+op run --env-file=.env.op -- npm ci --prefer-offline 2>&1 | tail -1
+set -e
+
+# ── Assert the install actually populated node_modules ──
+# A worktree with no deps must not look like success: the next command would
+# die on `tsc: command not found` with nothing pointing back to here.
+if [ ! -x node_modules/.bin/tsc ]; then
+  echo ""
+  echo -e "${RED}Error: dependency install did not complete.${NC}"
+  echo ""
+  echo "  The worktree exists but node_modules is empty or incomplete"
+  echo "  (node_modules/.bin/tsc is missing)."
+  echo ""
+  if [ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]; then
+    echo "  OP_SERVICE_ACCOUNT_TOKEN is not set and could not be loaded (#813)."
+    echo "  Expected at ~/.secrets/op-service-account.env, sourced via"
+    echo "  brik-llm/scripts/lib/op-run-wrapper.sh. On a headless machine that"
+    echo "  file IS the only auth path — there is no desktop integration to"
+    echo "  fall back to. Check it exists and is readable, then re-run."
+  else
+    echo "  The token WAS loaded, so this is not #813 — likely the 1Password"
+    echo "  session or the registry itself. Running it directly in your shell"
+    echo "  reliably works."
+  fi
+  echo ""
+  echo "  Finish setup from the worktree, then you're ready:"
+  echo "    cd ${WORKTREE_BASE}/${TASK_NAME}"
+  echo "    set -a; source ~/.secrets/op-service-account.env; set +a"
+  echo "    op run --env-file=.env.op -- npm ci --prefer-offline"
+  echo "    test -x node_modules/.bin/tsc && echo 'deps OK'"
+  echo ""
+  echo -e "${RED}  NOT printing the 'ready' summary — the worktree is not usable yet.${NC}"
+  exit 1
+fi
+
+# ── Summary ──
+echo ""
+echo -e "${GREEN}═══════════════════════════════════════${NC}"
+echo -e "${GREEN}  Task worktree ready (brikdesigns)${NC}"
+echo -e "${GREEN}═══════════════════════════════════════${NC}"
+echo ""
+echo "  Branch:    ${BRANCH_NAME}"
+echo "  Worktree:  ${WORKTREE_BASE}/${TASK_NAME}"
+echo "  Based on:  origin/${BASE_BRANCH}"
+echo ""
+echo "  Next steps:"
+echo "    cd ${WORKTREE_BASE}/${TASK_NAME}"
+echo "    claude -p \"Task: ... Follow CLAUDE.md rules.\""
+echo ""
+echo "  Before merge: sync all 3 consumers (portal, renew-pms, brikdesigns)."
+echo ""
+echo "  When done (REQUIRED — branches without PRs rot):"
+echo "    git diff ${BASE_BRANCH}..${BRANCH_NAME}   # review changes"
+echo "    ./scripts/pr-task.sh             # push + create PR (mandatory)"
+echo ""

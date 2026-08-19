@@ -1,0 +1,38 @@
+/* BDS consumption — npm package via @brikdesigns/bds (matches brikdesigns/portal).
+
+   ── Layer order: later = higher cascade priority ──
+   Tailwind's internal layers (theme, base, components, utilities) are declared
+   FIRST so they sit at the BOTTOM of the cascade. BDS layers are declared after,
+   making them higher priority than Tailwind's preflight and base resets.
+
+   Final order, lowest → highest:
+     theme → base (preflight) → components → utilities
+     → bds-tokens → bds-components → client-theme → client-overrides
+*/
+/* Client font (TNCLD = Poppins). Must sit at the top of the entry stylesheet,
+   NOT inside a layered import — a nested @import gets dropped by the optimizer. */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
+
+@layer theme, base, components, utilities;
+@layer bds-tokens, bds-components, client-theme, client-overrides;
+
+/* BDS token + component layers (npm package) */
+@import '@brikdesigns/bds/tokens.css' layer(bds-tokens);
+@import '@brikdesigns/bds/styles.css' layer(bds-components);
+
+/* TNCLD client theme — overrides BDS semantic tokens with the client's brand
+   vocabulary. Placed in client-theme so `.theme-tncld` wins over the canonical
+   theme in bds-tokens. */
+@import '../styles/theme-tncld.css' layer(client-theme);
+
+/* Tailwind layers */
+@import "tailwindcss";
+
+/* Match overscroll background to page color. */
+html {
+  background-color: var(--page-primary);
+  overflow-x: hidden;
+}
+:root[data-theme="dark"] {
+  background-color: var(--background-primary);
+}
