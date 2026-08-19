@@ -1,5 +1,10 @@
 # Purge jsDelivr CDN Cache
-# Automatically purges and verifies cached CSS/JS files when they change
+# Purges and verifies the cached CSS/JS whenever they change on main.
+#
+# The verification is a real gate: it hashes the whole file and fails the run
+# if the CDN is not serving it. See scripts/purge-cdn.sh for why (tncld#30) —
+# the previous version hashed only `head -20`, a static comment banner, so it
+# reported success while the CDN served stale assets.
 
 name: Purge jsDelivr Cache
 
@@ -9,6 +14,7 @@ on:
     paths:
       - 'header.css'
       - 'footer.js'
+  workflow_dispatch:
 
 jobs:
   purge:
@@ -17,35 +23,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Purge jsDelivr cache
-        run: |
-          echo "Purging header.css..."
-          curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/header.css" | jq -r '.status'
-          echo "Purging footer.js..."
-          curl -s "https://purge.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js" | jq -r '.status'
-
-      - name: Wait for propagation
-        run: sleep 10
-
-      - name: Verify CDN content
-        run: |
-          echo "Commit: ${{ github.sha }}"
-          echo ""
-
-          # Verify header.css
-          LOCAL_HASH=$(head -20 header.css | md5sum | cut -d' ' -f1)
-          CDN_HASH=$(curl -s "https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/header.css" | head -20 | md5sum | cut -d' ' -f1)
-          if [ "$LOCAL_HASH" = "$CDN_HASH" ]; then
-            echo "✓ header.css — CDN matches"
-          else
-            echo "⚠ header.css — CDN may still be propagating"
-          fi
-
-          # Verify footer.js
-          LOCAL_HASH=$(head -20 footer.js | md5sum | cut -d' ' -f1)
-          CDN_HASH=$(curl -s "https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js" | head -20 | md5sum | cut -d' ' -f1)
-          if [ "$LOCAL_HASH" = "$CDN_HASH" ]; then
-            echo "✓ footer.js — CDN matches"
-          else
-            echo "⚠ footer.js — CDN may still be propagating"
-          fi
+      - name: Purge and verify jsDelivr cache
+        run: bash scripts/purge-cdn.sh header.css footer.js

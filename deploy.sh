@@ -19,12 +19,11 @@ REPO="brikdesigns/tncld"
 BRANCH="main"
 FILES=("header.css" "footer.js")
 CDN_BASE="https://cdn.jsdelivr.net/gh/${REPO}@${BRANCH}"
-PURGE_BASE="https://purge.jsdelivr.net/gh/${REPO}@${BRANCH}"
+# Purge + verify now live in scripts/purge-cdn.sh (shared with CI).
 
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 BOLD='\033[1m'
 NC='\033[0m'
 
@@ -62,50 +61,11 @@ git push origin ${BRANCH} 2>&1 | tail -1
 COMMIT=$(git rev-parse --short HEAD)
 echo -e "${GREEN}✓${NC} Pushed (commit: ${COMMIT})"
 
-# ---- Step 3: Purge CDN cache ----
+# ---- Steps 3 + 4: Purge and verify the CDN ----
+# Shared with .github/workflows/purge-cdn.yml so the check lives in one place.
+# Exits non-zero if the CDN never serves the local content (set -e stops here).
 echo ""
-echo "Purging jsDelivr cache..."
-for file in "${FILES[@]}"; do
-  result=$(curl -s "${PURGE_BASE}/${file}")
-  status=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))" 2>/dev/null || echo "unknown")
-  if [ "$status" = "finished" ]; then
-    echo -e "  ${GREEN}✓${NC} ${file}"
-  else
-    echo -e "  ${YELLOW}⚠${NC} ${file} (status: ${status})"
-  fi
-done
-
-# ---- Step 4: Verify CDN content ----
-echo ""
-echo "Waiting for CDN propagation..."
-sleep 5
-
-echo "Verifying CDN content..."
-ALL_VERIFIED=true
-for file in "${FILES[@]}"; do
-  # Compare first 5 non-empty lines of local vs CDN
-  local_hash=$(head -20 "$file" | md5 2>/dev/null || head -20 "$file" | md5sum | cut -d' ' -f1)
-  cdn_hash=$(curl -s "${CDN_BASE}/${file}" | head -20 | md5 2>/dev/null || curl -s "${CDN_BASE}/${file}" | head -20 | md5sum | cut -d' ' -f1)
-
-  if [ "$local_hash" = "$cdn_hash" ]; then
-    echo -e "  ${GREEN}✓${NC} ${file} — CDN matches local"
-  else
-    echo -e "  ${RED}✗${NC} ${file} — CDN may be stale"
-    ALL_VERIFIED=false
-  fi
-done
-
-if [ "$ALL_VERIFIED" = false ]; then
-  echo ""
-  echo -e "${YELLOW}Some files may still be cached. Options:${NC}"
-  echo "  1. Wait 30-60s and re-run: bash deploy.sh"
-  echo "  2. Test with raw GitHub URL (no caching):"
-  echo "     https://raw.githubusercontent.com/${REPO}/${BRANCH}/header.css"
-  echo ""
-  echo -e "${RED}${BOLD}DO NOT change the @main URLs in Webflow to a commit hash.${NC}"
-  echo "  The CDN will catch up. Pinning to a commit hash causes stale code"
-  echo "  that's easy to forget about."
-fi
+bash "$(dirname "$0")/scripts/purge-cdn.sh" "${FILES[@]}"
 
 # ---- Step 5: Optional Webflow publish ----
 echo ""
