@@ -55,6 +55,7 @@ function initializeModules() {
  *   - Missing <main> landmark         (landmark-one-main)
  *   - Links without accessible name   (link-name: logo, social icons)
  *   - Heading order violations        (heading-order: eyebrow h6s)
+ *   - Untitled review-widget iframe   (frame-title: GHL reviews embed)
  *
  * Runs after DOM ready. Safe to run on every page — each fix
  * checks for existing correct markup before making changes.
@@ -68,6 +69,7 @@ function initAccessibility() {
     labelLogoLinks();
     labelSocialIcons();
     demoteEyebrowHeadings();
+    labelReviewWidgets();
     initFormErrorAnnouncements();
   } catch (err) {
     console.warn('a11y init error:', err);
@@ -137,6 +139,21 @@ function demoteEyebrowHeadings() {
   });
 }
 
+// The GoHighLevel review widget embed renders a bare <iframe> with no title,
+// which fails WCAG 2.1 AA 4.1.2 (axe: frame-title) — a screen reader announces
+// an unlabelled frame. The vendor's review-widget.js only resizes the iframe,
+// it never recreates it, so a one-shot label at DOM-ready holds. Proper fix is
+// adding title= to the html-embed in Webflow Designer (tncld#25); Webflow's
+// Data API cannot write html-embed nodes (secondary-locale only), so this
+// closes the violation in the meantime.
+function labelReviewWidgets() {
+  var frames = document.querySelectorAll('iframe.lc_reviews_widget');
+  frames.forEach(function(f) {
+    if (f.getAttribute('title')) return;
+    f.setAttribute('title', 'Google reviews for Tennessee Center for Laser Dentistry');
+  });
+}
+
 // Per-field error announcement for /contact + /request-appointment forms.
 // Webflow's native form UX shows a single generic .w-form-fail banner
 // ("Oops! Something went wrong...") which is too vague for healthcare
@@ -200,7 +217,11 @@ function enhanceFormErrors(form) {
         showFieldError(item.field, item.message);
       });
       // Move focus to the first invalid field for keyboard + SR users
-      try { invalid[0].field.focus({ preventScroll: false }); } catch (err) {}
+      try {
+        invalid[0].field.focus({ preventScroll: false });
+      } catch (err) {
+        console.warn('could not focus first invalid field:', err);
+      }
     }
   }, true);
 }
@@ -587,14 +608,20 @@ function initVideoModals() {
           wasVisible = true;
           // Delay to let modal animation settle + mux-player render
           setTimeout(function() {
-            try { player.play(); } catch(e) {}
+            try {
+              player.play();
+            } catch (e) {
+              console.warn('modal video play failed:', e);
+            }
           }, 400);
         } else if (!isVisible && wasVisible) {
           wasVisible = false;
           try {
             player.pause();
             player.currentTime = 0;
-          } catch(e) {}
+          } catch (e) {
+            console.warn('modal video pause failed:', e);
+          }
         }
       });
 
