@@ -1,0 +1,38 @@
+# Verify the assets the live site loads
+#
+# Reads tncld.com, extracts the jsDelivr URL it actually requests for
+# header.css / footer.js, and fails if those bytes differ from main.
+#
+# Replaces the old "Purge jsDelivr Cache" workflow, which purged and verified
+# `@main` — a URL the site stopped loading when #33 pinned the Webflow custom
+# code to a commit SHA. See scripts/verify-live-assets.sh for the three
+# previous versions of this gate and how each reported green while broken
+# (tncld#37).
+#
+# Expect this to go RED on the push that changes an asset. That is the point:
+# the pin has not been bumped yet at that moment, and the run prints the exact
+# tags to paste into Webflow. Re-run it after publishing.
+
+name: Verify live assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'header.css'
+      - 'footer.js'
+  # Catches drift the push trigger cannot see — a Webflow republish that drops
+  # the custom code, or an asset change that was never pasted and then forgotten.
+  schedule:
+    - cron: '17 13 * * 1'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify the live site serves these assets
+        run: bash scripts/verify-live-assets.sh header.css footer.js

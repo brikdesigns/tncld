@@ -18,8 +18,11 @@ set -e
 REPO="brikdesigns/tncld"
 BRANCH="main"
 FILES=("header.css" "footer.js")
-CDN_BASE="https://cdn.jsdelivr.net/gh/${REPO}@${BRANCH}"
-# Purge + verify now live in scripts/purge-cdn.sh (shared with CI).
+# Pinned to the pushed commit, NOT @main — the site loads a SHA-pinned URL and
+# @main is unsafe to serve from (tncld#33). Set after the push, once HEAD is
+# the commit being shipped. Verify lives in scripts/verify-live-assets.sh
+# (shared with CI).
+CDN_BASE=""
 
 # Colors
 GREEN='\033[0;32m'
@@ -59,13 +62,26 @@ echo ""
 echo "Pushing to origin/${BRANCH}..."
 git push origin ${BRANCH} 2>&1 | tail -1
 COMMIT=$(git rev-parse --short HEAD)
+# Full 40-char SHA: short hashes resolve on jsDelivr but are not what the
+# Webflow tags should carry.
+CDN_BASE="https://cdn.jsdelivr.net/gh/${REPO}@$(git rev-parse HEAD)"
 echo -e "${GREEN}✓${NC} Pushed (commit: ${COMMIT})"
 
-# ---- Steps 3 + 4: Purge and verify the CDN ----
-# Shared with .github/workflows/purge-cdn.yml so the check lives in one place.
-# Exits non-zero if the CDN never serves the local content (set -e stops here).
+# ---- Steps 3 + 4: Verify the live site serves these assets ----
+# Shared with .github/workflows/verify-live-assets.yml so the check lives in
+# one place. There is no purge step any more: the Webflow URLs are pinned to a
+# commit SHA, which jsDelivr caches immutably (tncld#33/#34).
+#
+# This is EXPECTED to fail here on an asset change — the pin has not been
+# bumped yet, and the paste is a human step that cannot happen before this
+# script ends. An `if` condition is exempt from set -e, so the run continues
+# to print the paste instructions instead of dying here.
 echo ""
-bash "$(dirname "$0")/scripts/purge-cdn.sh" "${FILES[@]}"
+if bash "$(dirname "$0")/scripts/verify-live-assets.sh" "${FILES[@]}"; then
+  LIVE_VERIFIED=true
+else
+  LIVE_VERIFIED=false
+fi
 
 # ---- Step 5: Optional Webflow publish ----
 echo ""
@@ -91,12 +107,26 @@ fi
 # ---- Summary ----
 echo ""
 echo "================================"
-echo -e "${GREEN}${BOLD}Deploy complete!${NC}"
-echo "  Commit: ${COMMIT}"
-echo "  CDN:    ${CDN_BASE}/header.css"
-echo ""
-echo -e "${YELLOW}${BOLD}Remember: Hard-refresh your browser (Cmd+Shift+R)${NC}"
-echo "  Browser caches jsDelivr files for up to 7 days."
-echo "  Cmd+Shift+R forces a fresh download."
+if [ "$LIVE_VERIFIED" = true ]; then
+  echo -e "${GREEN}${BOLD}Deploy complete.${NC} The live site serves this commit."
+  echo "  Commit: ${COMMIT}"
+else
+  echo -e "${YELLOW}${BOLD}Pushed — but NOT live yet.${NC}"
+  echo "  Commit: ${COMMIT}"
+  echo ""
+  echo "  The Webflow URLs are pinned to a commit SHA, so pushing to main does"
+  echo "  not reach the site. Paste these into Site settings > Custom Code,"
+  echo "  then Publish:"
+  echo ""
+  echo "    <link rel=\"stylesheet\" href=\"${CDN_BASE}/header.css\">"
+  echo "    <script src=\"${CDN_BASE}/footer.js\"></script>"
+  echo ""
+  echo "  Then confirm it actually shipped:"
+  echo "    bash scripts/verify-live-assets.sh"
+fi
 echo "================================"
 echo ""
+
+# "Pushed but not live" is not success. Exiting 0 here would be the same lie
+# the old @main gate told — green while the site served something else.
+[ "$LIVE_VERIFIED" = true ] || exit 1
