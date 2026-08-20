@@ -93,8 +93,11 @@ curl -s "https://api.webflow.com/v2/collections/{collection_id}/items" \
 
 > **The URLs are pinned to a commit. Pushing to `main` does NOT reach the live site.**
 > Changed `header.css` or `footer.js`? You must paste the new SHA into Webflow
-> or nothing ships — silently, with a green CI run. See § Deploying a change.
-> Interim state pending the [#34](https://github.com/brikdesigns/tncld/issues/34) decision.
+> or nothing ships. This is no longer silent: `scripts/verify-live-assets.sh`
+> reads the live page and fails if the pin was not bumped ([#37](https://github.com/brikdesigns/tncld/issues/37)).
+> Pinning is the decided model, not a stopgap — [#34](https://github.com/brikdesigns/tncld/issues/34)
+> closed on option A because [#13](https://github.com/brikdesigns/tncld/issues/13)'s
+> Next.js rebuild retires this surface at [#44](https://github.com/brikdesigns/tncld/issues/44).
 
 **DO NOT paste code bodies into Webflow.** `header.css` and `footer.js` are served from this repo via jsDelivr; only the two `<link>` / `<script>` tags live in Webflow.
 
@@ -123,7 +126,7 @@ Replace `<SHA>` with the full 40-char commit hash — short hashes work but are 
 <script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@<SHA>/footer.js"></script>
 ```
 
-This is a **dashboard-only** edit. The Data API cannot do it — verified 2026-08-19 against site `694f1891a016a6340049f761`:
+This is an **App-only** edit, so in practice a dashboard one. The site token cannot do it — re-verified 2026-08-20 against site `694f1891a016a6340049f761`:
 
 | Attempt | Result |
 |---|---|
@@ -131,7 +134,7 @@ This is a **dashboard-only** edit. The Data API cannot do it — verified 2026-0
 | `GET /v2/sites/{id}/registered_scripts` | `403 invalid_auth_version` |
 | `GET /v2/sites/{id}/custom_code/hosted` | `404` |
 
-Even with `custom_code:write`, a `<link>` in Head Code is not expressible through the registered-scripts endpoints.
+The reason is the token type, not the endpoint's absence. Per [Webflow's docs](https://developers.webflow.com/data/docs/working-with-custom-code): *"Only Webflow Apps with OAuth tokens can call the custom code API endpoints, not clients with site or Workspace tokens."* An OAuth App with `custom_code:read`/`custom_code:write` could script the bump; TNCLD has no such App, and building one was judged not worth it for a surface #44 retires (see the #34 decision record).
 
 ### Deploying a change
 
@@ -144,11 +147,31 @@ curl -s --compressed -H 'Accept-Encoding: gzip' \
   "https://cdn.jsdelivr.net/gh/brikdesigns/tncld@$(git rev-parse origin/main)/header.css" | shasum -a 256
 shasum -a 256 header.css     # must match
 # 4. Paste both URLs into Webflow, Publish, then Cmd+Shift+R.
-# 5. Verify against the live site:
-npm test
+# 5. Verify the live site actually loads this commit's bytes:
+bash scripts/verify-live-assets.sh
 ```
 
-`deploy.sh` and `.github/workflows/purge-cdn.yml` still purge and verify **`@main`**, which the site no longer loads — so they pass without proving anything about production. Tracked in [#37](https://github.com/brikdesigns/tncld/issues/37); do not read a green purge run as a successful deploy.
+> `npm test` used to be step 6. It no longer exists — the Next.js scaffold (#40)
+> replaced a `package.json` symlink with a regular file and dropped the `test`,
+> `test:a11y`, `test:widget-width` and `deploy:cdn` scripts along with the
+> `playwright` and `husky` devDeps. Tracked in [#50](https://github.com/brikdesigns/tncld/issues/50).
+> Until that is resolved this repo has no automated a11y check.
+
+### The gate
+
+`scripts/verify-live-assets.sh` reads `tncld.com`, extracts the jsDelivr URL the page **actually requests** for each asset, and fails if those bytes differ from the working tree. `deploy.sh` and `.github/workflows/verify-live-assets.yml` both call it, so the check lives in one place.
+
+It goes **red on the push that changes an asset** — the pin has not been bumped at that moment — and prints the exact tags to paste. Re-run after publishing. A weekly scheduled run catches drift the push trigger cannot see, such as a Webflow republish that drops the custom code.
+
+Three earlier versions of this gate each reported green while the site was broken, which is why it is shaped this way:
+
+| Gate version | Reported green while… |
+|---|---|
+| `head -20` hash (pre-[#30](https://github.com/brikdesigns/tncld/issues/30)) | the CDN served stale bytes below line 20 |
+| whole file, identity only ([#32](https://github.com/brikdesigns/tncld/pull/32)) | browsers received a stale gzip variant |
+| whole file, all encodings ([#35](https://github.com/brikdesigns/tncld/pull/35)) | the site loaded a different URL entirely |
+
+Each verified a URL the *script* chose. This one derives the URL from the live HTML, so there is no URL for the gate and the site to disagree about ([#37](https://github.com/brikdesigns/tncld/issues/37)).
 
 ### Caching
 
@@ -160,7 +183,7 @@ npm test
 
 ### Troubleshooting: Changes Not Appearing
 
-1. **Check the pin first.** `curl -sL https://tncld.com/about/technology | grep -o 'tncld@[a-z0-9]*'` — if that SHA is not `origin/main`, the pin was never bumped. This is the most likely cause.
+1. **Check the pin first** — `bash scripts/verify-live-assets.sh` answers this directly, comparing the live site's bytes to your tree. Raw look: `curl -sL https://tncld.com/ | grep -o 'tncld@[a-z0-9]*'`. If those bytes differ, the pin was never bumped. This is the most likely cause.
 2. **Hard-refresh**: Cmd+Shift+R. The browser holds its own 7-day copy.
 3. **Check the encoding browsers get, not the one curl defaults to.** A bare `curl` asks for `identity` and can be correct while gzip is stale:
    ```bash

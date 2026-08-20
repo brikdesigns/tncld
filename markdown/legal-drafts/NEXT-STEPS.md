@@ -101,11 +101,11 @@ Full click-by-click guide: [`PUBLISH-TO-WEBFLOW.md`](PUBLISH-TO-WEBFLOW.md).
 
 Does not block publishing but should happen this week for lawsuit-grade defensibility.
 
-### 3.1 Wait for jsDelivr CDN propagation
+### 3.1 ~~Wait for jsDelivr CDN propagation~~ — resolved, premise was wrong
 
 - **Status at 2026-04-20:** `@<commit-sha>` URLs serve correctly; `@main` alias still cached stale
-- **Expected to auto-resolve:** within 1-4 hours of last purge
-- **Verify:** `curl https://cdn.jsdelivr.net/gh/brikdesigns/tncld@main/footer.js | grep -c "^function initAccessibility"` should return `1`
+- **~~Expected to auto-resolve within 1-4 hours of last purge~~** — it does not. jsDelivr caches each `Accept-Encoding` variant separately and a purge does not clear them together (tncld#33). The site is pinned to a commit SHA and `@main` is no longer used.
+- **Verify:** `bash scripts/verify-live-assets.sh` — checks the URL the live site actually loads, on every encoding.
 
 ### 3.2 Re-run Lighthouse (5 min)
 
