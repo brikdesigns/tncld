@@ -149,13 +149,15 @@ shasum -a 256 header.css     # must match
 # 4. Paste both URLs into Webflow, Publish, then Cmd+Shift+R.
 # 5. Verify the live site actually loads this commit's bytes:
 bash scripts/verify-live-assets.sh
+# 6. Assert the rendered result in a real browser:
+npm test
 ```
 
-> `npm test` used to be step 6. It no longer exists — the Next.js scaffold (#40)
+> `npm test` briefly did not exist: the Next.js scaffold ([#40](https://github.com/brikdesigns/tncld/pull/46))
 > replaced a `package.json` symlink with a regular file and dropped the `test`,
 > `test:a11y`, `test:widget-width` and `deploy:cdn` scripts along with the
-> `playwright` and `husky` devDeps. Tracked in [#50](https://github.com/brikdesigns/tncld/issues/50).
-> Until that is resolved this repo has no automated a11y check.
+> `playwright` and `husky` devDeps. Restored in [#50](https://github.com/brikdesigns/tncld/issues/50) —
+> the two Playwright checks and the gitleaks pre-commit hook are armed again.
 
 ### The gate
 
