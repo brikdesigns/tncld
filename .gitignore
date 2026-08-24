@@ -46,3 +46,6 @@ updates/
 
 # Webflow migration extract output (regenerated on demand)
 scripts/.migration-output/
+
+# Notion migration extract output (regenerated on demand, #70)
+scripts/.notion-migration-output/
