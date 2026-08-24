@@ -4,6 +4,13 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Netlify secrets scanning flags PACKAGES_READ_TOKEN (build-time npm auth for
+  # @brikdesigns/bds) because Next.js/Turbopack writes it into its build cache
+  # (.next/cache, .netlify/.next/cache). That cache is NOT deployed or served,
+  # so this is a false positive. Omit only those cache PATHS — the scanner still
+  # scans the deployed output for the token (Netlify's recommended approach over
+  # omitting the KEY, which would stop scanning for it everywhere). tncld#44.
+  SECRETS_SCAN_OMIT_PATHS = ".next/cache/**,.netlify/.next/cache/**"
 
 # NEXT_PUBLIC_ENV is a PER-SITE env var — deliberately NOT set here (two-site
 # model, tncld#44 / brik-llm#1686). Under that model a staging site's production
