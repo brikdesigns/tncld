@@ -15,9 +15,10 @@ const nextConfig = {
     ];
 
     // Block crawlers unless this is production AND indexing is explicitly
-    // switched on. NEXT_PUBLIC_ENV is set by netlify.toml (production=production,
-    // branch-deploy=staging); NEXT_PUBLIC_ALLOW_INDEXING gates the production
-    // deploy too, so the site stays noindexed until launch. Netlify's
+    // switched on. NEXT_PUBLIC_ENV is a per-site Netlify env var (production
+    // site=production, staging site=staging — see netlify.toml, two-site model
+    // tncld#44); NEXT_PUBLIC_ALLOW_INDEXING gates the production deploy too, so
+    // the site stays noindexed until launch. Netlify's
     // per-context [[headers]] blocks are silently ignored, so this is set from
     // Next.js where env is reliable. Keep in sync with src/app/robots.ts.
     const indexingAllowed =
