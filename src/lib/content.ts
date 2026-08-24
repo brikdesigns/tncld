@@ -65,3 +65,28 @@ export function getServicesContent(): ServicesContent {
 export function getAboutContent(): AboutContent {
   return industry().about;
 }
+
+/** URL-safe slug for a service title, e.g. "Cleaning Exam" → "cleaning-exam". */
+export function serviceSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** Every service, tagged with its route slug — used by the detail routes. */
+export function getServiceList(): (ServiceItem & { slug: string })[] {
+  return getServicesContent().serviceList.map((service) => ({
+    ...service,
+    slug: serviceSlug(service.title),
+  }));
+}
+
+/** A single service by slug, or null if no service maps to it. */
+export function getServiceBySlug(slug: string): ServiceItem | null {
+  return (
+    getServicesContent().serviceList.find(
+      (service) => serviceSlug(service.title) === slug,
+    ) ?? null
+  );
+}

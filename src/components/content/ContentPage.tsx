@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import './content-page.css';
 
 /**
@@ -10,6 +11,8 @@ import './content-page.css';
 export interface ContentSection {
   title: string;
   description: string;
+  /** When set, the section title links here (e.g. a service detail page). */
+  href?: string;
 }
 
 export interface ContentPageProps {
@@ -50,7 +53,18 @@ export function ContentPage({
         <ul className="content-page__sections">
           {sections.map((section) => (
             <li key={section.title} className="content-page__section">
-              <h2 className="content-page__section-title">{section.title}</h2>
+              <h2 className="content-page__section-title">
+                {section.href ? (
+                  <Link
+                    href={section.href}
+                    className="content-page__section-link"
+                  >
+                    {section.title}
+                  </Link>
+                ) : (
+                  section.title
+                )}
+              </h2>
               <p className="content-page__section-body">
                 {section.description}
               </p>
