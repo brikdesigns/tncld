@@ -1,0 +1,49 @@
+/* Patient-resource template (tncld#60). Canonical BDS color/border tokens via
+   var() (see src/styles/theme-tncld.css); spacing is raw rem, matching the
+   shell, home, content, and legal shells. Section bodies render through the BDS
+   Prose Block, so per-tag typography comes from Prose — this file only lays out
+   the intro and the section rhythm. */
+
+.resource-page__intro {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 2rem;
+}
+.resource-page__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.resource-page__lede {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 60ch;
+}
+
+.resource-page__sections {
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  max-width: 60rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.resource-page__section {
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-primary);
+}
+.resource-page__section-title {
+  margin: 0 0 0.75rem;
+  color: var(--text-primary);
+}
+.resource-page__section-link {
+  color: var(--text-link);
+  text-decoration: none;
+}
+.resource-page__section-link:hover {
+  text-decoration: underline;
+}
+.resource-page__section-link:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

@@ -12,6 +12,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(readFileSync(join(root, 'json/cms-data.json'), 'utf8'));
 
 const INDUSTRY = 'dental';
+// Top-level pages plus every generic content page under `pages` (patient
+// resources #60, etc.) — anything the site actually renders.
 const PAGES = ['home', 'about', 'services'];
 const PLACEHOLDER = [
   /lorem ipsum/i,
@@ -32,6 +34,7 @@ if (!industry) {
   process.exit(1);
 }
 for (const page of PAGES) walk(industry[page]);
+walk(industry.pages ?? {});
 
 const hits = strings.filter((s) => PLACEHOLDER.some((re) => re.test(s)));
 if (hits.length) {

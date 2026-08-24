@@ -1,4 +1,6 @@
+import { marked } from 'marked';
 import cmsData from '../../json/cms-data.json';
+import { sanitizeHtml } from './sanitize';
 
 /**
  * Typed reader over the migrated Webflow content (`json/cms-data.json`). The
@@ -53,6 +55,38 @@ export interface ContactContent {
   hours?: string;
 }
 
+/**
+ * A generic content page — the patient-resource set (tncld#60) and any future
+ * page whose body is a list of headed sections. Section bodies are markdown so
+ * the migrated Notion copy keeps its lists, sub-headings, and emphasis.
+ */
+export interface PageSection {
+  title: string;
+  /** Markdown body — rendered to sanitized HTML by getResourcePage(). */
+  body: string;
+  /** When set, the section title links here. */
+  href?: string;
+}
+
+export interface PageContent {
+  title: string;
+  lede: string;
+  sections: PageSection[];
+}
+
+/** A section whose markdown body has been rendered to sanitized HTML. */
+export interface RenderedSection {
+  title: string;
+  html: string;
+  href?: string;
+}
+
+export interface RenderedPage {
+  title: string;
+  lede: string;
+  sections: RenderedSection[];
+}
+
 /** The TNCLD industry key within the shared demo content file. */
 const INDUSTRY = 'dental';
 
@@ -63,6 +97,7 @@ interface IndustryContent {
   about: AboutContent;
   services: ServicesContent;
   contact?: ContactContent;
+  pages?: Record<string, PageContent>;
 }
 
 function industry(): IndustryContent {
@@ -108,4 +143,35 @@ export function getServiceBySlug(slug: string): ServiceItem | null {
       (service) => serviceSlug(service.title) === slug,
     ) ?? null
   );
+}
+
+function pages(): Record<string, PageContent> {
+  return industry().pages ?? {};
+}
+
+/** Every generic content page slug — used to statically generate the routes. */
+export function getResourceSlugs(): string[] {
+  return Object.keys(pages());
+}
+
+/**
+ * A generic content page by slug, with each section's markdown body rendered to
+ * sanitized HTML for the BDS `Prose` Block (same pipeline as the legal pages —
+ * see src/lib/legal.ts and src/lib/sanitize.ts). Returns null for an unknown
+ * slug so the route can 404.
+ */
+export function getResourcePage(slug: string): RenderedPage | null {
+  const page = pages()[slug];
+  if (!page) return null;
+  return {
+    title: page.title,
+    lede: page.lede,
+    sections: page.sections.map((section) => ({
+      title: section.title,
+      href: section.href,
+      html: sanitizeHtml(
+        marked.parse(section.body, { async: false, breaks: true, gfm: true }),
+      ),
+    })),
+  };
 }
