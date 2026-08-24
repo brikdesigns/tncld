@@ -1,0 +1,82 @@
+/* TNCLD home. Canonical BDS color/border tokens via var() (see
+   src/styles/theme-tncld.css); spacing is raw rem, matching the shell and
+   legal shells. */
+
+.home-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+.home-hero__copy {
+  flex: 1 1 22rem;
+}
+.home-hero__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.home-hero__lede {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+  max-width: 44ch;
+}
+.home-hero__image {
+  flex: 1 1 22rem;
+  width: 100%;
+  height: auto;
+  max-width: 36rem;
+  border-radius: var(--border-radius-lg);
+  object-fit: cover;
+}
+
+.home-services {
+  background: var(--background-secondary);
+}
+.home-services__heading {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 0;
+  color: var(--text-primary);
+}
+.home-services__grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 1.5rem;
+  max-width: 80rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1.5rem;
+}
+.home-services__card {
+  padding: 1.5rem;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+}
+.home-services__card-title {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+.home-services__card-body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.home-cta {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+.home-cta__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.home-cta__body {
+  margin: 0 auto 1.5rem;
+  color: var(--text-secondary);
+  max-width: 48ch;
+}
