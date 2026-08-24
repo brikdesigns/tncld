@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # new-task.sh — Create an isolated git worktree for a single BDS task.
 #
-# Branches from origin/staging (staging-first flow). Enforces task/{scope}-{name} naming.
+# Branches from origin/main. Enforces task/{scope}-{name} naming.
 # Installs dependencies in the new worktree.
 #
 # Usage:
 #   ./scripts/new-task.sh {scope}-{name}
-#   ./scripts/new-task.sh bds-button-variants
-#   ./scripts/new-task.sh tokens-figma-pull
+#   ./scripts/new-task.sh infra-worktree-guard
+#   ./scripts/new-task.sh content-pricing-copy
 #
 # Creates:
-#   ../brikdesigns-worktrees/{scope}-{name}/   on branch  task/{scope}-{name}
+#   ../tncld-worktrees/{scope}-{name}/   on branch  task/{scope}-{name}
 #
 # Requirements:
 #   - Must be run from the repo root.
@@ -35,34 +35,15 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # ── Config ──
-BASE_BRANCH="staging"
+# tncld has no `staging` branch yet — PRs target `main`. When #44 puts this
+# site on Netlify's two-site model, add `staging` and flip this default.
+BASE_BRANCH="main"
 
 # ── Resolve repo root ──
+# Derive the worktree dir from the repo name so a copy of this script into
+# another repo lands worktrees beside *that* repo, not a hardcoded one (#53).
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
-WORKTREE_BASE="$(dirname "$PROJECT_ROOT")/brikdesigns-worktrees"
-
-# ── OP_SERVICE_ACCOUNT_TOKEN loader (#813) ──
-# `op run` below needs the token, and brik-mini is headless — no 1Password GUI
-# and no interactive `op signin` — so with nothing in the environment op aborts
-# with "You are not currently signed in" before npm ci ever starts. brik-llm
-# owns the one implementation; source it rather than adding another local copy
-# of the self-source logic. Guarded and cross-repo: this repo can be cloned
-# without its sibling, and the deps assertion after the install still fails
-# loudly if the token turns out to be genuinely missing.
-for _op_wrapper in \
-  "${PROJECT_ROOT}/../../brik/brik-llm/scripts/lib/op-run-wrapper.sh" \
-  "$HOME/Documents/GitHub/brik/brik-llm/scripts/lib/op-run-wrapper.sh"; do
-  if [ -r "$_op_wrapper" ]; then
-    # shellcheck source=/dev/null  # sibling repo, resolved at runtime
-    source "$_op_wrapper"
-    break
-  fi
-done
-unset _op_wrapper
-if ! declare -F rws_load_sa_token >/dev/null 2>&1; then
-  echo -e "${YELLOW}⚠  brik-llm/scripts/lib/op-run-wrapper.sh not found — 'op run'${NC}" >&2
-  echo "   below will only work if OP_SERVICE_ACCOUNT_TOKEN is already set (#813)." >&2
-fi
+WORKTREE_BASE="$(dirname "$PROJECT_ROOT")/$(basename "$PROJECT_ROOT")-worktrees"
 
 # ── Must run from the primary worktree on main ──
 # Running new-task.sh from inside another task worktree creates nested state
@@ -99,6 +80,10 @@ case "$PRIMARY_BRANCH" in
 esac
 
 # ── Parse flags ──
+# Collect positionals instead of breaking on the first one, so `--base` works
+# after the slug (`new-task.sh slug --base main`) instead of being silently
+# dropped (#53).
+POSITIONAL=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --base)
@@ -110,10 +95,16 @@ while [[ $# -gt 0 ]]; do
       exit 1
       ;;
     *)
-      break
+      POSITIONAL+=("$1")
+      shift
       ;;
   esac
 done
+if [ ${#POSITIONAL[@]} -gt 0 ]; then
+  set -- "${POSITIONAL[@]}"
+else
+  set --
+fi
 
 # ── Validate input ──
 if [ $# -lt 1 ]; then
@@ -215,6 +206,19 @@ if command -v gh &>/dev/null; then
   fi
 fi
 
+# ── Assert the base branch exists on origin ──
+# Fails clearly naming what does exist, instead of git's bare
+# "couldn't find remote ref staging" (#53).
+if ! git ls-remote --exit-code --heads origin "${BASE_BRANCH}" >/dev/null 2>&1; then
+  echo -e "${RED}Error: base branch '${BASE_BRANCH}' does not exist on origin.${NC}"
+  echo ""
+  echo "  Branches that do exist:"
+  git ls-remote --heads origin | sed 's#.*refs/heads/#    #'
+  echo ""
+  echo "  Pass an existing branch with --base, e.g. --base main."
+  exit 1
+fi
+
 # ── Fetch and branch from base ──
 echo -e "${YELLOW}▸ Fetching latest ${BASE_BRANCH}...${NC}"
 git fetch origin "${BASE_BRANCH}" --quiet
@@ -253,17 +257,23 @@ if [ -f "${PRIMARY_PATH}/.netlify/state.json" ]; then
 fi
 
 # ── Install dependencies ──
-echo -e "${YELLOW}▸ Installing dependencies (op run -- npm ci --prefer-offline)...${NC}"
-# rws_load_sa_token puts the token in THIS process only, from the mode-600 SA
-# file — never the parent shell.
-if declare -F rws_load_sa_token >/dev/null 2>&1; then
-  rws_load_sa_token
+echo -e "${YELLOW}▸ Installing dependencies (npm ci --prefer-offline)...${NC}"
+# .npmrc authenticates to GitHub Packages for @brikdesigns/* via
+# PACKAGES_READ_TOKEN. tncld has no .env.op / op-run SA flow — source the
+# token into THIS process only from ~/.secrets/brik-packages.env, the same
+# path that works by hand. Skip if the file is absent so a machine that
+# already exports the token still installs.
+if [ -r "$HOME/.secrets/brik-packages.env" ]; then
+  set -a
+  # shellcheck source=/dev/null  # local secrets file, resolved at runtime
+  source "$HOME/.secrets/brik-packages.env"
+  set +a
 fi
 # Run without aborting so the assertion below can report *why* it failed. The
 # `| tail -1` pipe would otherwise mask the exit code under pipefail and leave
 # the worktree looking fine with an empty node_modules.
 set +e
-op run --env-file=.env.op -- npm ci --prefer-offline 2>&1 | tail -1
+npm ci --prefer-offline 2>&1 | tail -1
 set -e
 
 # ── Assert the install actually populated node_modules ──
@@ -276,22 +286,20 @@ if [ ! -x node_modules/.bin/tsc ]; then
   echo "  The worktree exists but node_modules is empty or incomplete"
   echo "  (node_modules/.bin/tsc is missing)."
   echo ""
-  if [ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]; then
-    echo "  OP_SERVICE_ACCOUNT_TOKEN is not set and could not be loaded (#813)."
-    echo "  Expected at ~/.secrets/op-service-account.env, sourced via"
-    echo "  brik-llm/scripts/lib/op-run-wrapper.sh. On a headless machine that"
-    echo "  file IS the only auth path — there is no desktop integration to"
-    echo "  fall back to. Check it exists and is readable, then re-run."
+  if [ -z "${PACKAGES_READ_TOKEN:-}" ]; then
+    echo "  PACKAGES_READ_TOKEN is not set and could not be loaded from"
+    echo "  ~/.secrets/brik-packages.env. .npmrc needs it to read @brikdesigns/*"
+    echo "  from GitHub Packages — without it npm ci returns 401. Check the file"
+    echo "  exists and is readable, then re-run."
   else
-    echo "  The token WAS loaded, so this is not #813 — likely the 1Password"
-    echo "  session or the registry itself. Running it directly in your shell"
-    echo "  reliably works."
+    echo "  The token WAS loaded, so auth is not the cause — inspect the npm"
+    echo "  output above (network, registry, or a stale lockfile)."
   fi
   echo ""
   echo "  Finish setup from the worktree, then you're ready:"
   echo "    cd ${WORKTREE_BASE}/${TASK_NAME}"
-  echo "    set -a; source ~/.secrets/op-service-account.env; set +a"
-  echo "    op run --env-file=.env.op -- npm ci --prefer-offline"
+  echo "    set -a; source ~/.secrets/brik-packages.env; set +a"
+  echo "    npm ci --prefer-offline"
   echo "    test -x node_modules/.bin/tsc && echo 'deps OK'"
   echo ""
   echo -e "${RED}  NOT printing the 'ready' summary — the worktree is not usable yet.${NC}"
@@ -301,7 +309,7 @@ fi
 # ── Summary ──
 echo ""
 echo -e "${GREEN}═══════════════════════════════════════${NC}"
-echo -e "${GREEN}  Task worktree ready (brikdesigns)${NC}"
+echo -e "${GREEN}  Task worktree ready (tncld)${NC}"
 echo -e "${GREEN}═══════════════════════════════════════${NC}"
 echo ""
 echo "  Branch:    ${BRANCH_NAME}"
@@ -311,8 +319,6 @@ echo ""
 echo "  Next steps:"
 echo "    cd ${WORKTREE_BASE}/${TASK_NAME}"
 echo "    claude -p \"Task: ... Follow CLAUDE.md rules.\""
-echo ""
-echo "  Before merge: sync all 3 consumers (portal, renew-pms, brikdesigns)."
 echo ""
 echo "  When done (REQUIRED — branches without PRs rot):"
 echo "    git diff ${BASE_BRANCH}..${BRANCH_NAME}   # review changes"
