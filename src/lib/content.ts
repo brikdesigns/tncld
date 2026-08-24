@@ -6,9 +6,10 @@ import cmsData from '../../json/cms-data.json';
  * TNCLD is the `dental` industry. This is the file-based content source for the
  * rebuild — the eventual swap to Supabase is tracked in tncld#55.
  *
- * Some descriptions in the source are still placeholder copy; completing that
- * migration is tncld#56. Templates render whatever the source holds and never
- * hardcode copy, so real content flows in as #56 lands with no template change.
+ * The home/about/services copy is the real TNCLD content migrated from the
+ * Notion "TNCLD Website" DB (tncld#56). Templates render whatever the source
+ * holds and never hardcode copy, so further pages flow in with no template
+ * change as their templates land (patient-resource tncld#60, detail tncld#68).
  */
 export interface HeroContent {
   title: string;

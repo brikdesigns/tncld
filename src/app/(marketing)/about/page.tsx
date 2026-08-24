@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 /**
  * About page — maps the migrated `about` content onto the shared ContentPage
- * template (tncld#59). Topic bodies are still placeholder in the source
- * (tncld#56); the template renders them as-is.
+ * template (tncld#59). Copy is the real TNCLD content migrated from the Notion
+ * "TNCLD Website" DB (tncld#56).
  */
 export default function AboutPage() {
   const about = getAboutContent();
