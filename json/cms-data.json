@@ -249,6 +249,44 @@
             "body": "Our team is here to guide you — before, during, and after your visit."
           }
         ]
+      },
+      "meet-the-doctors": {
+        "title": "Exceptional dentists. Elevated care. A team committed to your best smile.",
+        "lede": "Our doctors combine advanced training, modern technology, and a patient-first approach to deliver dentistry that is both comfortable and precise. With extensive experience across restorative, cosmetic, laser, and implant dentistry, they guide you toward long-term health with clarity, compassion, and confidence.",
+        "sections": [
+          {
+            "title": "Guides you can trust with your smile",
+            "body": "At Tennessee Center for Laser Dentistry, you're cared for by a team of experienced clinicians dedicated to providing exceptional results and a supportive experience. Each doctor brings unique strengths — and a shared commitment to comfort, innovation, and personalized care."
+          },
+          {
+            "title": "Dr. Chad O. Edwards, DDS",
+            "body": "*Founder · Advanced laser dentistry expert · Restorative and implant dentistry*\n\nDr. Chad Edwards is known for his advanced clinical skill, commitment to innovation, and passion for delivering dentistry at the highest standard. As the founder of Tennessee Center for Laser Dentistry, he has shaped the practice with a philosophy built on better science and better service — offering modern, comfortable, and highly precise care to every patient.\n\nDr. Edwards has extensive training in laser dentistry and restorative techniques, allowing him to perform many procedures with greater comfort and improved healing. His expertise also includes implant dentistry, full-mouth rehabilitation, cosmetic services, and advanced restorative care.\n\nHe is deeply committed to continued education, both as a lifelong learner and as an educator. Dr. Edwards regularly participates in professional training programs and teaches other dentists across the country in the use of laser technology — helping elevate the standard of care far beyond his own practice.\n\n**Outside the office:** Dr. Edwards enjoys spending time with his family, staying active, and staying involved in dental education initiatives that advance the profession."
+          },
+          {
+            "title": "Dr. Ryan R. Torti, DDS",
+            "body": "*Restorative and cosmetic dentist · Advanced laser provider · Patient comfort advocate*\n\nDr. Ryan Torti brings a thoughtful, patient-centered approach to dentistry, blending advanced clinical training with a deep commitment to comfort and communication. Known for his calm, reassuring presence and meticulous attention to detail, Dr. Torti helps patients feel confident and cared for at every step of their treatment.\n\nHis areas of expertise include cosmetic dentistry, restorative treatments, Invisalign, and advanced laser dentistry. Dr. Torti's gentle approach — paired with his proficiency in modern technology — allows many patients to receive treatment with minimal or no anesthesia, reduced discomfort, and faster healing.\n\nDr. Torti is passionate about delivering results that look beautiful, function naturally, and support long-term oral health. He believes every patient deserves clarity in their dental care and enjoys educating patients so they feel empowered in their health decisions.\n\n**Outside the office:** Dr. Torti enjoys spending time with family, teaching, traveling, and staying connected within the Franklin community."
+          },
+          {
+            "title": "Dr. Andy Burton, DDS",
+            "body": "*Implant dentistry specialist · Cosmetic and general dentist · Fellow, World Clinical Laser Institute*\n\nDr. Andy Burton brings more than 30 years of experience in implant dentistry to Tennessee Center for Laser Dentistry, offering patients exceptional expertise in surgical placement, restorative design, and long-term implant success. His depth of clinical knowledge and commitment to precision allow him to deliver results that are both functional and beautifully natural.\n\nA respected clinician in the Nashville region, Dr. Burton is known for his calm demeanor, meticulous approach, and dedication to providing each patient with clear communication and a comfortable experience. His broad skillset spans general, cosmetic, restorative, and implant dentistry, strengthened by ongoing training in emerging technologies and advanced techniques.\n\nDr. Burton is an active member of multiple professional organizations, including the Nashville Dental Society, the Tennessee Dental Association, the American Dental Association, the Tennessee Academy of Cosmetic Dentistry, the Academy of General Dentistry, and the Academy of Clear Aligners. He is also a Fellow in the World Clinical Laser Institute, reflecting his advanced proficiency in modern laser technology — an essential part of TNCLD's commitment to better science and better service.\n\n**Outside the office:** Dr. Burton enjoys spending time with family, staying active in the dental community, and pursuing continued education that supports his passion for excellence in patient care."
+          },
+          {
+            "title": "A shared philosophy: better science, better service, better dentistry",
+            "body": "Our doctors share core beliefs that guide every appointment:\n\n- Comfort matters. Modern dentistry should feel gentle, calm, and supportive.\n- Technology elevates care. Advanced tools allow for precise, efficient, comfortable treatment.\n- Education empowers patients. Clear communication builds trust and confidence.\n- Experience drives excellence. Advanced training and ongoing learning ensure consistently exceptional outcomes.\n- Relationships strengthen results. We value long-term patient partnerships built on honesty and compassion."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"Both doctors made me feel so comfortable. They explained everything clearly and their gentle approach made all the difference.\"\n\n> \"Dr. Edwards and Dr. Torti are skilled, compassionate, and truly ahead of the curve with their technology. I trust them completely.\""
+          },
+          {
+            "title": "Related pages",
+            "body": "- Tour our office\n- [Our technology](/technology)\n- [New patients](/patient-resources/new-patients)"
+          },
+          {
+            "title": "Experience the difference of exceptional, patient-centered dentistry",
+            "body": "Let our doctors guide you to a healthier, more confident smile.\n\n[Request an appointment](/request-appointment)"
+          }
+        ]
       }
     }
   },
