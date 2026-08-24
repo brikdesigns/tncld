@@ -287,6 +287,50 @@
             "body": "Let our doctors guide you to a healthier, more confident smile.\n\n[Request an appointment](/request-appointment)"
           }
         ]
+      },
+      "technology": {
+        "title": "Modern Technology. A Better Dental Experience.",
+        "lede": "Advanced dental technology allows us to deliver care that feels more comfortable, precise, and efficient. At Tennessee Centers for Laser Dentistry, technology isn't used for the sake of innovation alone — it's thoughtfully integrated to improve how your care feels and how your results last.",
+        "sections": [
+          {
+            "title": "Digital imaging",
+            "body": "### Crystal-clear diagnostics through advanced digital imaging\n\nOur modern imaging technology provides precise, detailed insights into your oral health — allowing for earlier detection, more accurate treatment planning, and a more comfortable patient experience.\n\n[Request an appointment](/request-appointment) · [Contact us](/contact)"
+          },
+          {
+            "title": "Laser dentistry",
+            "body": "### Gentle, precise dentistry through advanced laser technology\n\nExperience a more comfortable, modern approach to dental care. Our advanced laser systems allow us to perform many treatments with less discomfort, greater precision, and faster healing.\n\n[Request an appointment](/request-appointment) · [Contact us](/contact)"
+          },
+          {
+            "title": "Oral cancer detection",
+            "body": "### Early, comfortable detection through advanced screening technology\n\nOur oral cancer screening technology allows us to identify concerns earlier, with greater precision — giving you proactive protection and peace of mind.\n\n[Request an appointment](/request-appointment) · [Contact us](/contact)"
+          },
+          {
+            "title": "Same-day crowns (CEREC)",
+            "body": "### Custom, high-quality crowns completed in one visit\n\nOur advanced CEREC technology allows us to design, craft, and place beautiful ceramic crowns in a single appointment — with exceptional precision and comfort.\n\n[Request an appointment](/request-appointment) · [Contact us](/contact)"
+          }
+        ]
+      },
+      "why-laser-dentistry": {
+        "title": "Why \"laser dentistry\" is our standard",
+        "lede": "A modern philosophy of care built on comfort and precision.",
+        "sections": [
+          {
+            "title": "Why \"laser dentistry\" is part of our name",
+            "body": "Laser dentistry isn't our specialty — it's our standard. Our name reflects our commitment to a higher level of care, where advanced technology, greater comfort, and precise treatment come together to create a better dental experience.\n\n### People may assume we're a laser-only specialty.\n\nWe provide comprehensive dentistry — laser technology simply enhances how we deliver exceptional care.\n\n### Patients aren't sure why \"laser dentistry\" matters.\n\nIt means better comfort, better precision, and better outcomes across many treatments.\n\n### Technology can feel intimidating or confusing.\n\nWe use it to make your experience easier, not more complicated — and we explain everything clearly."
+          },
+          {
+            "title": "What this means for you",
+            "body": "- More comfortable treatment experiences\n- Greater accuracy and precision\n- Less sensitivity or downtime\n- A smoother, more modern dental visit"
+          },
+          {
+            "title": "A higher standard of modern care",
+            "body": "Laser dentistry enhances many of the treatments we already provide. It allows us to treat soft and hard tissue more comfortably and efficiently, giving you a smoother experience from start to finish. For deeper details on how our lasers work, visit our [laser dentistry page](/technology)."
+          },
+          {
+            "title": "Experience dentistry at a higher standard",
+            "body": "Discover how our technology-driven, comfort-focused approach can elevate your dental care.\n\n[Request an appointment](/request-appointment) · [Explore laser dentistry](/technology)"
+          }
+        ]
       }
     }
   },
