@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ContentPage } from '@/components/content/ContentPage';
-import { getServicesContent } from '@/lib/content';
+import { getServicesContent, getServiceList } from '@/lib/content';
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -10,18 +10,24 @@ export const metadata: Metadata = {
 
 /**
  * Services page — maps the migrated `services` content onto the shared
- * ContentPage template (tncld#59). Service descriptions are still placeholder
- * in the source (tncld#56); the template renders them as-is.
+ * ContentPage template (tncld#59). Each service links to its detail route
+ * (tncld#61). Service descriptions are still placeholder in the source
+ * (tncld#56); the template renders them as-is.
  */
 export default function ServicesPage() {
   const services = getServicesContent();
+  const sections = getServiceList().map((service) => ({
+    title: service.title,
+    description: service.description,
+    href: `/services/${service.slug}`,
+  }));
   return (
     <ContentPage
       title={services.hero.title}
       lede={services.hero.description}
       image={services.images.image1}
       imageAlt="Dental care at Tennessee Center for Laser Dentistry"
-      sections={services.serviceList}
+      sections={sections}
     />
   );
 }
