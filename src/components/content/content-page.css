@@ -53,3 +53,15 @@
   margin: 0;
   color: var(--text-secondary);
 }
+.content-page__section-link {
+  color: var(--text-link);
+  text-decoration: none;
+}
+.content-page__section-link:hover {
+  text-decoration: underline;
+}
+.content-page__section-link:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
