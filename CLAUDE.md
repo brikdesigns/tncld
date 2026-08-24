@@ -236,11 +236,23 @@ python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/webflow/wf-co
 
 ---
 
-## CMS Collections
+## Content source (rebuild)
 
-| Collection | ID | Slug |
-|------------|----|------|
-| Services New | `696d6c32c61b66c34cbd65ff` | `services-new` |
+> **The Next.js rebuild does not read Webflow CMS.** Content is a checked-in
+> file: [`json/cms-data.json`](json/cms-data.json), read through the typed
+> reader [`src/lib/content.ts`](src/lib/content.ts). TNCLD is the `dental`
+> industry key. The eventual swap to Supabase is [#55](https://github.com/brikdesigns/tncld/issues/55).
+
+`cms-data.json` is industry-scoped; `dental` holds: `slug`, `name`, `home`,
+`about`, `services`, `contact`, `audience`, `pages`, `serviceDetails`,
+`technologyDetails`. Templates render whatever the source holds and never
+hardcode copy.
+
+### Legacy Webflow collection (not read by the rebuild)
+
+Retained only for the still-live Webflow site. The live collection is slug
+**`services`** (not `services-new`), id `696d6c32c61b66c34cbd65ff` — the #41
+extract is the source of truth for its ~58 flat fields.
 
 ---
 
@@ -254,30 +266,24 @@ python /Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/webflow/wf-co
 
 ## Common Tasks
 
-### Sync Services from Notion to Webflow
-1. Query Notion: `API-query-data-source` with Services DB ID
-2. Extract fields: Name, About, Introduction, Process, Technology, etc.
-3. Transform to HTML for Webflow RichText fields
-4. POST to Webflow `services-new` collection
+### Refresh Services content from Notion
+The rebuild's content pipeline is Notion → `json/cms-data.json`, **not** Notion
+→ Webflow. The ETL reads the TNCLD Services DB
+(`2ca97d34-ed28-8040-80eb-000b9234418f`) and is re-runnable and non-destructive
+— STAGE 1 writes derived maps to a gitignored `--out` **dir** and does *not*
+overwrite `json/cms-data.json` itself:
 
-### Field Mapping (Notion → Webflow)
+```bash
+npx --yes tsx scripts/migrate-from-notion.ts --out <dir>   # extract (gitignored)
+npx --yes tsx scripts/migrate-from-notion.ts --check       # drift gate
+```
 
-| Notion Field | Webflow Field | Type |
-|--------------|---------------|------|
-| Name | name | PlainText |
-| About | about | RichText (HTML) |
-| Introduction | introduction | RichText (HTML) |
-| What You Get | what-you-get | RichText (HTML) |
-| Benefits | benefits | RichText (HTML) |
-| Process | process | RichText (HTML) |
-| Technology | technology | RichText (HTML) |
-| What to Expect | what-to-expect | RichText (HTML) |
-| Payments | payments | RichText (HTML) |
-| Promise | promise | RichText (HTML) |
-| Testimonial | testimonial | RichText (HTML) |
-| FAQs | faqs | RichText (HTML) |
-| CTA | cta | RichText (HTML) |
-| Types | types | RichText (HTML) |
+Promoting the extract over the hand-edited baseline into `json/cms-data.json`
+is [#78](https://github.com/brikdesigns/tncld/issues/78); `--check` is red
+until then by design.
+
+> The old Notion→Webflow `services-new` field mapping was removed here — it
+> described a CMS surface the rebuild no longer uses ([#48](https://github.com/brikdesigns/tncld/issues/48)).
 
 ---
 
