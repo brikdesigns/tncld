@@ -35,6 +35,9 @@ if (!industry) {
 }
 for (const page of PAGES) walk(industry[page]);
 walk(industry.pages ?? {});
+// Service + technology detail pages (#68) — same content-consuming template.
+walk(industry.serviceDetails ?? {});
+walk(industry.technologyDetails ?? {});
 
 const hits = strings.filter((s) => PLACEHOLDER.some((re) => re.test(s)));
 if (hits.length) {
