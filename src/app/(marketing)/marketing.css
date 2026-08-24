@@ -1,0 +1,22 @@
+/* Marketing shell chrome. The skip link mirrors the legal shell's
+   (src/app/legal/legal.css): visually hidden until focused (WCAG 2.4.1). */
+
+.marketing-skip-link {
+  position: absolute;
+  left: 0;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--background-inverse);
+  color: var(--text-inverse);
+  border-radius: 0 0 4px 0;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+.marketing-skip-link:focus {
+  top: 0;
+}
+.marketing-skip-link:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
