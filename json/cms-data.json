@@ -75,6 +75,10 @@
         {
           "title": "Preventative Dentistry",
           "description": "Preventative dentistry focuses on maintaining healthy teeth and gums through regular care, early detection, and patient education. From routine cleanings to advanced diagnostics, we help you avoid costly, invasive treatments down the road."
+        },
+        {
+          "title": "Dental Implants",
+          "description": "Permanent, natural-looking tooth replacement that restores strength, stability, and confidence with advanced implant technology."
         }
       ]
     },
@@ -324,11 +328,515 @@
           },
           {
             "title": "A higher standard of modern care",
-            "body": "Laser dentistry enhances many of the treatments we already provide. It allows us to treat soft and hard tissue more comfortably and efficiently, giving you a smoother experience from start to finish. For deeper details on how our lasers work, visit our [laser dentistry page](/technology)."
+            "body": "Laser dentistry enhances many of the treatments we already provide. It allows us to treat soft and hard tissue more comfortably and efficiently, giving you a smoother experience from start to finish. For deeper details on how our lasers work, visit our [laser dentistry page](/technology/laser-dentistry)."
           },
           {
             "title": "Experience dentistry at a higher standard",
-            "body": "Discover how our technology-driven, comfort-focused approach can elevate your dental care.\n\n[Request an appointment](/request-appointment) · [Explore laser dentistry](/technology)"
+            "body": "Discover how our technology-driven, comfort-focused approach can elevate your dental care.\n\n[Request an appointment](/request-appointment) · [Explore laser dentistry](/technology/laser-dentistry)"
+          }
+        ]
+      }
+    },
+    "serviceDetails": {
+      "cosmetic-dentistry": {
+        "title": "Enhance your smile with modern, natural-looking cosmetic dentistry",
+        "lede": "From subtle improvements to transformative changes, our cosmetic treatments combine advanced technology, artistic detail, and clinical expertise to help you achieve the confident smile you've always wanted.",
+        "sections": [
+          {
+            "title": "Beautiful, personalized results designed around you",
+            "body": "Cosmetic dentistry allows you to elevate the appearance of your smile with treatments that enhance balance, symmetry, color, and overall aesthetics. Whether you want whiter teeth, straighter alignment, or a complete smile makeover, our approach blends precision, artistry, and advanced materials to create results that look natural and feel authentically \"you.\""
+          },
+          {
+            "title": "Cosmetic care that feels supportive, personalized, and judgment-free",
+            "body": "We've built an experience that addresses the concerns patients often feel when considering cosmetic treatment.\n\n### Gentle, modern dentistry\n\nComfortable, minimally invasive treatments with a focus on your wellbeing.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Expert care you can trust\n\nDoctors with advanced training in cosmetic design, digital imaging, and high-quality materials."
+          },
+          {
+            "title": "Benefits of cosmetic dentistry",
+            "body": "- Enhances smile confidence and self-esteem\n- Improves tooth shape, color, and symmetry\n- Supports a more youthful, balanced appearance\n- Boosts personal and professional confidence\n- Can complement restorative and preventative care\n- Customized to your aesthetic goals and lifestyle"
+          },
+          {
+            "title": "Types of cosmetic treatment",
+            "body": "### Professional teeth whitening\n\nBrighten your smile with safe, effective whitening options tailored to your sensitivity and desired results.\n\n### Porcelain veneers\n\nThin, custom-crafted shells that transform the shape, color, and symmetry of your smile.\n\n### Cosmetic bonding\n\nA fast, conservative solution for chips, gaps, and uneven edges.\n\n### Smile makeovers\n\nFull aesthetic transformations combining multiple treatments for the most comprehensive results."
+          },
+          {
+            "title": "Our process: your path to a confident, beautiful smile",
+            "body": "Experience cosmetic dentistry designed around your goals and comfort.\n\n### Cosmetic consultation and evaluation\n\nWe discuss your goals, evaluate your smile, and determine the best treatment options.\n\n### Personalized aesthetic plan\n\nUsing digital imaging and careful planning, we design a custom treatment roadmap aligned with your desired outcome.\n\n### Precise, natural-looking results\n\nYour final treatment delivers a beautiful, confident smile crafted with precision, artistry, and high-quality materials."
+          },
+          {
+            "title": "What to expect",
+            "body": "Cosmetic treatment time and investment vary by your goals and the complexity of your plan.\n\n### Treatment duration\n\nWhitening can be completed in one visit; veneers and makeovers require multiple appointments; Invisalign varies from months to a year+ depending on alignment needs.\n\n### Results\n\nMany cosmetic improvements offer immediate or rapid results with proper care.\n\n### Cost\n\nCosmetic services typically start at a base investment and vary based on treatment type and individual customization. We provide clear pricing, review your insurance coverage where applicable, and offer flexible payment options."
+          },
+          {
+            "title": "Aesthetic expertise. Advanced technology. Beautifully natural results.",
+            "body": "Cosmetic dentistry requires an elevated blend of clinical precision and artistic skill — and that's where our practice excels.\n\nPatients trust TNCLD because we offer doctors with advanced training in cosmetic design and alignment, treatment plans grounded in both aesthetics and functional health, digital imaging for accuracy and predictable outcomes, high-quality materials and modern techniques, a supportive patient-centered experience, and over 1,000 five-star reviews for exceptional results."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"I've never loved my smile more. The team listened to everything I wanted and made the entire cosmetic process easy and comfortable.\"\n\n> \"My veneers look so natural — no one knows I had work done. TNCLD is truly exceptional.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### Is cosmetic dentistry painful?\n\nMost cosmetic treatments are minimally invasive and extremely comfortable.\n\n### How long do cosmetic results last?\n\nWith proper care, veneers and bonding can last many years; whitening results vary by habits and maintenance.\n\n### Can I combine multiple cosmetic treatments?\n\nYes — many patients choose a smile makeover for a comprehensive transformation.\n\n### Is cosmetic dentistry covered by insurance?\n\nMost cosmetic treatments are elective, but we'll review your benefits to see if any portion may apply."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Invisalign](/services/invisalign)\n- [Restorative dentistry](/services/restorative-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
+          },
+          {
+            "title": "Start your cosmetic consultation today",
+            "body": "We make treatment accessible with transparent pricing, insurance support, and flexible payment solutions.\n\n[Request a consultation](/request-appointment) · [Contact us](/contact)"
+          }
+        ]
+      },
+      "dental-implants": {
+        "title": "Dental implants for long-lasting strength, stability, and confidence",
+        "lede": "Restore your smile with the most advanced, natural-looking tooth replacement option. Our implant expertise and modern technology ensure exceptional results designed to last.",
+        "sections": [
+          {
+            "title": "A permanent, natural-looking solution for missing teeth",
+            "body": "Dental implants replace missing teeth with unmatched stability, function, and aesthetics. Whether you're missing one tooth or several, implants restore your ability to chew comfortably, speak confidently, and smile without hesitation — all while preserving long-term oral health."
+          },
+          {
+            "title": "You deserve implant treatment that feels comfortable, clear, and trustworthy",
+            "body": "Many patients delay implants because of uncertainty or fear. We address every concern with clarity and expert care.\n\n### Gentle, modern dentistry\n\nAdvanced techniques and technology for precise, comfortable treatment.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Expert care you can trust\n\nDoctors with extensive implant training and hundreds of successful cases."
+          },
+          {
+            "title": "Benefits of dental implants",
+            "body": "- Look, feel, and function like natural teeth\n- Long-term durability and stability\n- Preserve bone and facial structure\n- Improve confidence and quality of life\n- No slipping or adhesives\n- Support a healthier smile for decades"
+          },
+          {
+            "title": "Solutions tailored to your needs",
+            "body": "### Single dental implants\n\nReplace individual missing teeth with long-lasting, natural results.\n\n### Multiple implants\n\nRestore several teeth with stable, functional solutions.\n\n### Implant-supported bridges\n\nA stronger, more durable alternative to traditional bridges.\n\n### Full-arch hybrid solutions\n\nSecure, life-changing full-arch restorations for patients needing complete smile transformation."
+          },
+          {
+            "title": "Your implant journey with TNCLD",
+            "body": "Experience implant care designed around your comfort and long-term success.\n\n### Comprehensive evaluation\n\nWe use advanced digital imaging to assess your dental structure and create a precise, personalized treatment plan.\n\n### Expert implant placement\n\nYour implant is placed with accuracy and care, supported by modern technology that enhances comfort and healing.\n\n### Custom restoration\n\nA beautifully crafted crown or full-arch solution completes your new smile with natural aesthetics and long-term strength."
+          },
+          {
+            "title": "What to expect",
+            "body": "Treatment time and pricing vary depending on your personalized plan.\n\n### Treatment duration\n\nMost implant cases require 1–2 visits for placement, followed by a healing period before the final restoration is completed.\n\n### Healing\n\nMany patients return to normal activities quickly, while full healing depends on your individual treatment plan.\n\n### Cost\n\nImplant care typically starts at a base investment and varies by your needs and restoration type. We review insurance, provide clear pricing upfront, and offer flexible payment options."
+          },
+          {
+            "title": "Advanced training. Modern technology. Exceptional results.",
+            "body": "Our doctors bring a high level of clinical expertise and precision to implant dentistry.\n\nPatients choose TNCLD for implants because we offer digital imaging for accuracy and planning, laser-assisted tissue care for comfortable healing, advanced surgical and restorative expertise, hundreds of successful cases, and a reputation for excellence backed by over 1,000 five-star reviews."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"My dental implant looks and feels just like my natural tooth. The entire experience was far easier and more comfortable than I expected.\"\n\n> \"The team explained everything clearly and made the process simple. I finally have my confidence back.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### Do implants hurt?\n\nMost patients are surprised by how comfortable the experience is. Modern techniques and technology minimize discomfort during and after treatment.\n\n### How long do implants last?\n\nWith proper care, implants can last decades — often a lifetime.\n\n### Am I a candidate?\n\nMost healthy adults qualify. We evaluate bone health and overall oral condition during your consultation.\n\n### Will insurance help pay for implants?\n\nCoverage varies. We review your insurance and discuss payment options before treatment begins."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Hybrid dentures](/services/hybrid-dentures)\n- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)\n- [Restorative dentistry](/services/restorative-dentistry)"
+          },
+          {
+            "title": "Restore your confidence with a strong, natural-looking smile",
+            "body": "Exceptional implant outcomes start with advanced technology, skilled doctors, and a commitment to your comfort.\n\n[Schedule a consultation](/request-appointment) · [Contact us](/contact)"
+          }
+        ]
+      },
+      "hybrid-dentures": {
+        "title": "A secure, life-changing solution for full-arch tooth replacement",
+        "lede": "Hybrid implant-supported dentures offer unmatched stability, comfort, and aesthetics — restoring your ability to eat, speak, and smile with confidence.",
+        "sections": [
+          {
+            "title": "Advanced, stable, natural-looking full-arch restoration",
+            "body": "Hybrid dentures combine the strength of dental implants with a beautifully crafted full-arch restoration. Unlike traditional dentures, hybrids stay securely in place, feel more natural, and dramatically improve comfort and chewing ability."
+          },
+          {
+            "title": "You deserve a full-arch solution that feels stable, comfortable, and worry-free",
+            "body": "We address the concerns patients often have around full-arch treatment with clarity and modern solutions.\n\n### Gentle, modern dentistry\n\nAdvanced techniques and technology for precise, comfortable treatment.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Expert care you can trust\n\nDoctors trained in advanced implant and full-arch techniques with a track record of exceptional outcomes."
+          },
+          {
+            "title": "Benefits of hybrid dentures",
+            "body": "- Secured by implants — no slipping or shifting\n- Strong, stable chewing ability\n- Natural-looking smile aesthetics\n- Protects bone and facial structure\n- Long-lasting durability\n- Greater comfort than traditional dentures\n- Restores confidence in eating, speaking, and smiling"
+          },
+          {
+            "title": "Types of hybrid dentures",
+            "body": "### Fixed full-arch hybrid denture\n\nA permanent, implant-supported restoration that offers exceptional strength and natural appearance.\n\n### Implant-retained overdenture\n\nA removable option that attaches securely to implants for dramatically improved stability.\n\n### Full-mouth implant reconstruction\n\nCustomized solutions for patients seeking comprehensive restoration and long-term oral health improvement."
+          },
+          {
+            "title": "Our process: your path to a secure, confident smile",
+            "body": "Experience full-arch care designed around your comfort and long-term success.\n\n### Comprehensive evaluation\n\nWe complete advanced imaging and a full examination to determine the ideal implant-supported solution for your needs.\n\n### Precise implant placement\n\nImplants are placed with accuracy using modern technology to support optimal stability and healing.\n\n### Custom full-arch transformation\n\nYour final hybrid restoration is crafted for natural appearance, durability, and long-term function."
+          },
+          {
+            "title": "What to expect",
+            "body": "Time and investment vary depending on your personalized treatment plan.\n\n### Treatment timeline\n\nMost full-arch cases involve implant placement followed by healing before the final restoration.\n\n### Healing\n\nMany patients resume normal activities quickly; full integration time varies by case.\n\n### Cost\n\nHybrid solutions typically start at a higher investment due to the number of implants and custom full-arch design. We provide transparent pricing, insurance support, and flexible payment options."
+          },
+          {
+            "title": "Advanced expertise. Precision. Life-changing results.",
+            "body": "Full-arch implant solutions require exceptional clinical skill and an advanced technological approach — both of which define our practice.\n\nPatients choose TNCLD for hybrid dentures because we offer doctors trained in advanced implant and full-arch techniques, modern technology that enhances accuracy and comfort, comprehensive restorative expertise for beautiful natural results, detailed treatment planning and personalized care, and a track record of exceptional patient outcomes backed by over 1,000 five-star reviews."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"My hybrid dentures look incredible and feel secure — I can finally eat and smile with total confidence.\"\n\n> \"The entire process was so much easier than I expected. The team walked me through every step with clarity and care.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### Are hybrid dentures permanent?\n\nFixed hybrid dentures are secured to implants and are not removable by the patient.\n\n### How many implants do I need?\n\nMost full-arch solutions use 4–6 implants, depending on the case.\n\n### Do hybrid dentures feel like natural teeth?\n\nYes — patients describe them as strong, stable, and comfortable.\n\n### What if I'm not sure which option is right for me?\n\nWe'll evaluate your oral health and goals to recommend the most predictable, long-lasting solution."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Dental implants](/services/dental-implants)\n- [Restorative dentistry](/services/restorative-dentistry)\n- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)"
+          },
+          {
+            "title": "Transform your smile with a secure, full-arch solution",
+            "body": "Experience unmatched comfort, stability, and confidence with hybrid implant-supported dentures.\n\n[Request a consultation](/request-appointment) · [Contact us](/contact)"
+          }
+        ]
+      },
+      "invisalign": {
+        "title": "Straighten your smile discreetly, comfortably, and confidently",
+        "lede": "Invisalign clear aligners offer a modern, convenient way to achieve a beautifully aligned smile — without brackets, wires, or lifestyle interruption.",
+        "sections": [
+          {
+            "title": "A clear, convenient way to transform your smile",
+            "body": "Invisalign uses a series of custom-made, transparent aligners to gently guide your teeth into their ideal position. Comfortable, removable, and virtually invisible, Invisalign lets you improve your smile with confidence — whether you're preparing for a major life event or simply ready for a subtle transformation."
+          },
+          {
+            "title": "You deserve orthodontic care that fits your lifestyle — not the other way around",
+            "body": "We make Invisalign treatment simple, comfortable, and easy to commit to by addressing the questions and concerns patients care about most.\n\n### Gentle, modern dentistry\n\nClear aligners with no metal brackets or wires.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Efficient, convenient appointments\n\nShorter and less frequent visits than traditional braces."
+          },
+          {
+            "title": "Benefits of Invisalign",
+            "body": "- Nearly invisible, clear aligners\n- Comfortable — no metal brackets or wires\n- Removable for eating, brushing, and special events\n- Fewer in-office visits\n- Predictable digital treatment planning\n- Smooth, gradual tooth movement\n- Ideal for adults and teens"
+          },
+          {
+            "title": "Types of Invisalign treatment",
+            "body": "### Invisalign Full\n\nThe most comprehensive option for moderate to complex tooth movement.\n\n### Invisalign Lite\n\nDesigned for moderate alignment and shorter treatment timelines.\n\n### Invisalign Express\n\nA quick, efficient option for minor corrections or touch-ups.\n\n### Invisalign Teen\n\nIncludes features tailored to teen patients and their unique needs."
+          },
+          {
+            "title": "Our process: your path to a straighter, more confident smile",
+            "body": "Experience the convenience of Invisalign with our streamlined approach.\n\n### Digital scan and consultation\n\nWe complete 3D digital imaging and design your personalized orthodontic plan.\n\n### Custom aligner series\n\nYou'll receive a series of clear aligners, each gently moving your teeth closer to the desired result.\n\n### Confident final results\n\nMaintain and protect your new smile with a custom retainer after treatment is complete."
+          },
+          {
+            "title": "What to expect",
+            "body": "Treatment time and cost depend on your personalized alignment plan.\n\n### Treatment duration\n\nMost Invisalign cases range from 6–18 months, depending on the complexity.\n\n### Appointments\n\nShorter and less frequent than traditional braces — most patients are seen every 6–10 weeks.\n\n### Cost\n\nInvisalign treatment typically starts at a base investment, with total cost depending on the number of aligners and treatment length. We review your insurance, provide a clear cost estimate, and discuss all payment options before treatment begins."
+          },
+          {
+            "title": "Advanced planning. Modern technology. Confident results.",
+            "body": "With advanced training, digital technology, and an eye for aesthetics, our doctors deliver Invisalign treatment that is precise, personalized, and aligned with your long-term oral health.\n\nPatients choose TNCLD for Invisalign because we offer expert planning using digital imaging, aesthetic-focused alignment for natural, balanced results, experience with both simple and complex cases, clear communication at every step, and over 1,000 five-star reviews from patients in Franklin."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"I loved how easy Invisalign was. The aligners were comfortable, and the team made everything simple from start to finish.\"\n\n> \"My smile is straighter, my confidence is higher, and the process felt effortless thanks to TNCLD.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### How often do I wear the aligners?\n\n22 hours per day for best results.\n\n### Can I eat with Invisalign?\n\nRemove aligners to eat and drink anything besides water.\n\n### Will Invisalign affect my speech?\n\nMost patients adjust within a few days.\n\n### Is Invisalign as effective as braces?\n\nYes — for most mild to moderate alignment needs. We'll determine if you're a good candidate during your consultation."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Cosmetic dentistry](/services/cosmetic-dentistry)\n- [Dental implants](/services/dental-implants)\n- [Preventative dentistry](/services/preventative-dentistry)"
+          },
+          {
+            "title": "Start your Invisalign journey today",
+            "body": "We make treatment accessible with transparent pricing, insurance support, and flexible payment solutions.\n\n[Request a consultation](/request-appointment) · [Contact us](/contact)"
+          }
+        ]
+      },
+      "preventative-dentistry": {
+        "title": "Keep your smile healthy, strong, and confident",
+        "lede": "Preventative dentistry helps protect your oral health today — and prevents more complex issues tomorrow. Our advanced technology and personalized approach make every visit comfortable, efficient, and tailored to your needs.",
+        "sections": [
+          {
+            "title": "Modern, personalized prevention for long-term oral health",
+            "body": "Preventative care is the foundation of a healthy smile. Through routine cleanings, exams, screenings, and personalized guidance, we help you maintain strong teeth, healthy gums, and long-term confidence — while catching concerns early, before they become bigger problems."
+          },
+          {
+            "title": "Preventative care that feels comfortable, clear, and supportive",
+            "body": "We make ongoing dental care feel approachable and stress-free by addressing what matters most to patients.\n\n### Gentle, modern dentistry\n\nAdvanced technology and comfort-driven techniques for a thorough, relaxing experience.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Efficient, convenient appointments\n\nWe explain everything clearly, step-by-step, so you always feel informed and empowered — never rushed or overwhelmed."
+          },
+          {
+            "title": "Benefits of preventative care",
+            "body": "- Maintains long-term oral health\n- Catches issues early, before they become complex\n- Helps prevent gum disease and decay\n- Supports overall wellness\n- Reduces cost and treatment needs over time\n- Builds trust and confidence in your care"
+          },
+          {
+            "title": "Types of preventative care",
+            "body": "### Routine cleanings and exams\n\nEssential care to maintain oral health and prevent future issues.\n\n### Periodontal (gum) care\n\nEarly detection and treatment to protect gum and bone health.\n\n### Oral cancer screening\n\nFast, painless screening using advanced detection tools.\n\n### Digital x-rays and imaging\n\nHigh-clarity diagnostics with lower radiation and greater precision."
+          },
+          {
+            "title": "Our process: your path to a healthy, confident smile",
+            "body": "Experience preventative care designed around your comfort and long-term health.\n\n### Comprehensive exam\n\nWe assess your teeth, gums, bite, and overall oral health using modern diagnostic tools.\n\n### Gentle cleaning and prevention\n\nOur hygiene team ensures a comfortable, thorough cleaning and personalized care plan.\n\n### Ongoing support and monitoring\n\nRegular visits help maintain health and catch concerns early for long-term success."
+          },
+          {
+            "title": "What to expect",
+            "body": "Visit length and pricing vary by your personalized care needs.\n\n### Appointment time\n\nMost routine visits take 45–60 minutes.\n\n### Frequency\n\nMost patients visit twice per year; some may need more frequent periodontal care.\n\n### Cost\n\nPreventative services typically start at a lower investment, and many are covered by insurance. We'll review your insurance, provide transparent pricing, and discuss payment options before any treatment begins."
+          },
+          {
+            "title": "Advanced technology. Exceptional care. Long-term results.",
+            "body": "Our doctors and hygiene team are committed to delivering comprehensive, detail-focused preventative care.\n\nPatients choose TNCLD for preventative care because we offer modern diagnostic tools for early detection, gentle comfort-driven techniques, a proactive educational approach, personalized plans tailored to your needs, and a reputation for excellence with over 1,000 five-star reviews."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"The most thorough and comfortable cleaning I've ever had. The team actually taught me what was happening in my mouth — I feel so much more confident.\"\n\n> \"TNCLD makes going to the dentist a completely stress-free experience. I've never felt more cared for.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### How often should I come in for cleanings?\n\nMost patients benefit from visits every six months; some require additional periodontal care.\n\n### Does preventative care hurt?\n\nOur gentle techniques and modern tools make routine care surprisingly comfortable.\n\n### Why is preventative care so important?\n\nIt keeps your teeth and gums healthy while catching small issues before they become complex or costly.\n\n### Is preventative care covered by insurance?\n\nMost plans cover cleanings, exams, and x-rays. We'll help verify and maximize your benefits."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Restorative dentistry](/services/restorative-dentistry)\n- [Cosmetic dentistry](/services/cosmetic-dentistry)\n- [Technology](/technology)"
+          },
+          {
+            "title": "Protect your smile with advanced, comfortable preventative care",
+            "body": "Take a proactive step toward lasting oral health and confidence.\n\n[Request an appointment](/request-appointment) · [Contact us](/contact)"
+          }
+        ]
+      },
+      "restorative-dentistry": {
+        "title": "Restore strength, function, and confidence to your smile",
+        "lede": "Our restorative dentistry services rebuild damaged, worn, or missing teeth using advanced technology and precise, comfortable techniques — helping you regain long-term oral health and renewed confidence.",
+        "sections": [
+          {
+            "title": "Rebuild your smile with modern, patient-focused care",
+            "body": "Restorative dentistry repairs and strengthens teeth that are damaged, decayed, or missing. Whether you need a small filling or a full-mouth restoration, we design treatment plans that protect your oral health, enhance comfort, and support long-lasting results."
+          },
+          {
+            "title": "Restorative care that is comfortable, clear, and built around you",
+            "body": "We ensure restorative treatment feels supportive and stress-free by focusing on what patients value most.\n\n### Gentle, modern dentistry\n\nLaser-assisted techniques and advanced materials for precise, comfortable care.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Efficient, convenient appointments\n\nSame-day crown options and streamlined scheduling to fit your life."
+          },
+          {
+            "title": "Benefits of restorative dentistry",
+            "body": "- Repairs damaged or decayed teeth\n- Restores comfort, strength, and function\n- Prevents future oral health issues\n- Improves bite alignment and stability\n- Enhances the appearance of your smile\n- Supports long-term oral and overall health"
+          },
+          {
+            "title": "Types of restorative treatments",
+            "body": "### Same-day crowns (CEREC)\n\nCustom, high-strength ceramic crowns crafted and placed in a single visit.\n\n### Fillings\n\nSmall, conservative restorations that treat decay while preserving natural tooth structure. Laser-assisted options available.\n\n### Bridges\n\nA secure, natural-looking option to replace missing teeth and restore full function.\n\n### Root canal therapy\n\nGentle treatment to relieve pain, remove infection, and save natural teeth."
+          },
+          {
+            "title": "Our process: your path to a restored, healthy smile",
+            "body": "Experience restorative care designed around your comfort and long-term health.\n\n### Diagnostic evaluation\n\nDigital imaging and a detailed exam help identify concerns and determine the most effective treatment options.\n\n### Personalized treatment plan\n\nWe tailor recommendations to your goals, oral health needs, and desired timeline.\n\n### Precise, comfortable restoration\n\nUsing advanced tools and materials, we restore your tooth or teeth with lasting, natural-looking results."
+          },
+          {
+            "title": "What to expect",
+            "body": "Treatment time and investment depend on your specific restorative needs.\n\n### Treatment duration\n\nFillings may take a single visit; crowns, bridges, and full-mouth plans vary by complexity — with same-day options available for CEREC.\n\n### Healing\n\nMany restorative treatments require minimal recovery time.\n\n### Cost\n\nRestorative services typically start at a base investment and vary by treatment type and materials used. We provide transparent pricing, review your insurance benefits, and offer flexible payment options before any treatment begins."
+          },
+          {
+            "title": "Advanced training. Precise treatment. Superior results.",
+            "body": "Restorative dentistry demands accuracy, clinical expertise, and a deep understanding of both function and aesthetics.\n\nPatients choose TNCLD for restorative care because we offer advanced training in restorative and laser-assisted techniques, digital imaging and modern diagnostics for accuracy, high-quality materials for long-term durability, thoughtful individualized treatment planning, gentle patient-centered care, and a reputation for excellence backed by over 1,000 five-star reviews."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"My crown was done in one visit and looks completely natural. The entire experience was comfortable and seamless.\"\n\n> \"TNCLD restored several of my teeth, and I can finally eat without discomfort again. Their attention to detail is unmatched.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### Are restorative treatments painful?\n\nOur modern techniques and comfort-focused approach make treatment surprisingly easy and gentle.\n\n### How long do restorations last?\n\nWith proper care, fillings, crowns, and bridges can last many years — often over a decade.\n\n### What happens if I delay treatment?\n\nUntreated issues can progress, leading to more complex and costly care. Early treatment helps protect your oral health.\n\n### Does insurance cover restorative services?\n\nMost plans offer partial coverage. We'll review your benefits and provide clear pricing before treatment begins."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)\n- [Cosmetic dentistry](/services/cosmetic-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
+          },
+          {
+            "title": "Restore your smile today",
+            "body": "We make treatment accessible with transparent pricing, insurance support, and flexible payment solutions.\n\n[Request an appointment](/request-appointment) · [Contact us](/contact)"
+          }
+        ]
+      }
+    },
+    "technologyDetails": {
+      "digital-imaging": {
+        "title": "Crystal-clear diagnostics through advanced digital imaging",
+        "lede": "Our modern imaging technology provides precise, detailed insights into your oral health — allowing for earlier detection, more accurate treatment planning, and a more comfortable patient experience.",
+        "sections": [
+          {
+            "title": "Sharper images. Smarter diagnostics. Better dentistry.",
+            "body": "Digital imaging allows us to evaluate your teeth, gums, bone health, and supporting structures with exceptional clarity. These high-resolution, low-radiation images help us detect concerns earlier, diagnose with precision, and create treatment plans that are both more accurate and more personalized."
+          },
+          {
+            "title": "Comfortable, clear imaging designed for better understanding and better outcomes",
+            "body": "Our advanced imaging technology enhances your visit by improving accuracy, clarity, and peace of mind.\n\n### Gentle, modern dentistry\n\nNo bulky film or uncomfortable trays — just smooth, modern scanning.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Efficient, convenient appointments\n\nDigital images are captured within seconds, keeping your visit on schedule."
+          },
+          {
+            "title": "Benefits of digital imaging",
+            "body": "- Comfortable and fast\n- High-definition detail for accurate diagnoses\n- Lower radiation exposure\n- Immediate image review\n- Better understanding of your oral health\n- Supports early detection and prevention\n- Enhances treatment precision and outcomes"
+          },
+          {
+            "title": "Types of digital imaging",
+            "body": "### Digital X-rays\n\nFast, clear, low-radiation images ideal for detecting decay, bone health, and structural concerns.\n\n### Intraoral cameras\n\nHigh-resolution, close-up images that help you see exactly what we see — improving understanding and communication.\n\n### 3D / CBCT imaging\n\nThree-dimensional views for detailed evaluation of bone, sinus anatomy, implant planning, and complex cases.\n\n### Digital impressions\n\nScanner-based impressions for crowns, Invisalign, and comprehensive diagnostics — no trays or putty."
+          },
+          {
+            "title": "How it works: your path to clearer insights and better treatment decisions",
+            "body": "Our imaging process is designed for comfort, clarity, and collaborative care.\n\n### Precise diagnostic capture\n\nWe gather detailed images that reveal the full picture of your oral health.\n\n### Real-time review and discussion\n\nYou see what we see, helping you fully understand your condition and your options.\n\n### Confident treatment planning\n\nClear imaging supports precise, personalized treatment — from simple fillings to advanced procedures."
+          },
+          {
+            "title": "What to expect",
+            "body": "Digital imaging is designed to be quick, comfortable, and informative.\n\n### Time\n\nDigital images are captured within seconds.\n\n### Comfort\n\nNo bulky film or uncomfortable trays — just smooth, modern scanning.\n\n### Cost\n\nImaging typically starts at a minimal investment, and most insurance plans include or support digital X-rays and other diagnostics. We provide clear, upfront pricing."
+          },
+          {
+            "title": "Advanced technology. Clear communication. Proactive care.",
+            "body": "Digital imaging is an essential part of the elevated care we provide. TNCLD stands out because we use imaging not only to diagnose, but to educate, reassure, and plan with precision.\n\nPatients choose TNCLD for imaging because we offer modern technology for clearer, more accurate results, doctors experienced in interpreting advanced imaging, and a safer, low-radiation diagnostic experience.\n\nBetter science leads to better service — and digital imaging is one of the clearest expressions of that philosophy."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"I loved seeing my images on the screen. The team explained everything so clearly — I finally understood what was happening with my teeth.\"\n\n> \"Digital X-rays were quick and comfortable. The whole visit felt modern and reassuring.\"\n\n> \"Being able to see my own scans helped me understand why the treatment was recommended. It made the decision easy.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### Are digital X-rays safe?\n\nYes — they use significantly less radiation than traditional film-based X-rays.\n\n### Can digital imaging detect problems early?\n\nAbsolutely. The detail provided allows us to identify concerns long before they become painful or complex.\n\n### Is imaging included in routine exams?\n\nIn most cases, yes. Frequency depends on your oral health needs and risk factors."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Oral cancer detection](/technology/oral-cancer-detection)\n- [Laser dentistry](/technology/laser-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
+          },
+          {
+            "title": "See your oral health with unmatched clarity",
+            "body": "Experience the precision and comfort of advanced digital imaging. Schedule your appointment today.\n\n[Request an appointment](/request-appointment)"
+          }
+        ]
+      },
+      "laser-dentistry": {
+        "title": "Gentle, precise dentistry through advanced laser technology",
+        "lede": "Experience a more comfortable, modern approach to dental care. Our advanced laser systems allow us to perform many treatments with less discomfort, greater precision, and faster healing.",
+        "sections": [
+          {
+            "title": "A modern approach to dentistry grounded in better science and better service",
+            "body": "Laser dentistry uses focused light energy to perform a variety of dental treatments with exceptional accuracy and minimal discomfort. At TNCLD, laser technology isn't an add-on — it's a foundational part of how we deliver more comfortable, efficient, and precise care across many procedures."
+          },
+          {
+            "title": "Comfortable, stress-free dental care designed around your needs",
+            "body": "Laser dentistry helps us address the concerns patients feel most when it comes to dental treatment.\n\n### Gentle, modern dentistry\n\nAdvanced laser technology reduces the noises, sensations, and lingering discomfort often associated with traditional dental tools.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Efficient, convenient appointments\n\nLaser procedures often require less time in the chair and fewer follow-up visits."
+          },
+          {
+            "title": "Benefits of laser dentistry",
+            "body": "- More comfortable and less invasive\n- Reduced need for numbing\n- Increased precision for soft and hard tissue procedures\n- Faster healing and reduced post-treatment sensitivity\n- Lower risk of inflammation or infection\n- Minimal bleeding and gentler tissue interaction\n- Ideal for patients with dental anxiety"
+          },
+          {
+            "title": "Types of laser treatments",
+            "body": "### Laser-assisted fillings\n\nA quieter, gentler approach to treating cavities — often without anesthesia.\n\n### Gum contouring and soft tissue procedures\n\nPrecise sculpting and treatment with minimal bleeding and faster healing.\n\n### Periodontal therapy\n\nLaser energy helps disinfect and treat gum disease with greater comfort.\n\n### Cold sore and ulcer treatment\n\nFast relief and accelerated healing for oral lesions."
+          },
+          {
+            "title": "Laser dentistry experience: your path to a more comfortable dental visit",
+            "body": "Our streamlined process ensures you receive the benefits of advanced laser technology from start to finish.\n\n### Advanced digital evaluation\n\nWe assess your needs using precise diagnostic tools.\n\n### Gentle, laser-enhanced treatment\n\nLaser technology allows for more comfortable, efficient care.\n\n### Faster healing and confident results\n\nImproved comfort and reduced downtime enhance your overall experience."
+          },
+          {
+            "title": "What to expect",
+            "body": "Time and cost vary based on the specific treatment being performed.\n\n### Time\n\nMany laser-assisted treatments are faster and more efficient than traditional methods.\n\n### Healing\n\nPatients often experience shorter healing times and reduced sensitivity.\n\n### Cost\n\nLaser procedures typically start at a base investment, varying by treatment type. We review pricing, insurance, and payment options before beginning care."
+          },
+          {
+            "title": "Nationally recognized experience. Advanced technology. Elevated care.",
+            "body": "TNCLD is distinguished by its deep expertise in laser dentistry. Our doctors have advanced laser training, teach and assist in national laser dentistry courses, and use laser technology daily across multiple clinical applications.\n\nLaser dentistry is more than a tool for us — it's a philosophy of providing gentler, more effective care built on clinical excellence and modern science.\n\nBetter science. Better service. Exceptional dentistry."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"I couldn't believe how comfortable my visit was. I didn't even need numbing for my filling — the laser made it completely painless.\"\n\n> \"The team explained everything clearly and the treatment was so much easier than I expected. I'll never go back to traditional dental tools if I can help it.\"\n\n> \"TNCLD's laser technology made my gum treatment virtually pain-free. I was back to normal the same day.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### Does laser dentistry hurt?\n\nMost patients report little to no discomfort — lasers are significantly gentler than traditional tools.\n\n### Is laser dentistry safe?\n\nYes. When used by trained professionals, dental lasers are extremely safe and precise.\n\n### Does insurance cover laser dentistry?\n\nCoverage varies. We'll review your plan and discuss all options before treatment."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)\n- [Restorative dentistry](/services/restorative-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
+          },
+          {
+            "title": "Experience a calmer, more comfortable approach to dental care",
+            "body": "Discover how advanced laser technology can transform your visit — with gentler treatment and exceptional results.\n\n[Request an appointment](/request-appointment)"
+          }
+        ]
+      },
+      "oral-cancer-detection": {
+        "title": "Early, comfortable detection through advanced screening technology",
+        "lede": "Our oral cancer screening technology allows us to identify concerns earlier, with greater precision — giving you proactive protection and peace of mind.",
+        "sections": [
+          {
+            "title": "Proactive screening for your long-term health",
+            "body": "Oral cancer is most treatable when detected early. Our advanced screening technology helps us identify tissue changes that may not be visible during a routine exam — allowing for earlier intervention, clearer diagnostics, and greater confidence in your oral health."
+          },
+          {
+            "title": "A simple, comfortable way to prioritize your health",
+            "body": "We use advanced detection tools to make screening more precise, more comfortable, and more reassuring for every patient.\n\n### Gentle, modern dentistry\n\nQuick, painless screening that fits seamlessly into your routine visit.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Expert care you can trust\n\nDoctors trained in advanced detection and oral pathology evaluate every screening."
+          },
+          {
+            "title": "Benefits of advanced oral cancer detection",
+            "body": "- Quick, painless, non-invasive screening\n- Detects abnormalities earlier than visual exams\n- Supports prompt diagnosis and treatment\n- Enhances peace of mind\n- Fits seamlessly into routine cleanings\n- Helps protect long-term oral and overall health"
+          },
+          {
+            "title": "We recommend screening for",
+            "body": "### Every routine exam\n\nRegular screening at each visit ensures continuous monitoring and early detection.\n\n### Adults over age 18\n\nAll adult patients benefit from proactive oral cancer screening.\n\n### Higher risk patients\n\nPatients with a history of tobacco or alcohol use, or those who've noticed persistent sores or tissue changes.\n\n### Unexplained oral symptoms\n\nIf you experience persistent discomfort or unusual oral tissue changes, screening provides answers."
+          },
+          {
+            "title": "How it works: your path to simple, proactive detection",
+            "body": "Our streamlined screening process integrates seamlessly into your routine dental visit.\n\n### Visual and digital evaluation\n\nWe begin with a thorough exam to identify any visible signs of concern.\n\n### Advanced light-based screening\n\nTechnology enhances visualization, allowing us to detect subtle tissue changes earlier.\n\n### Immediate results and next steps\n\nYou receive clear, same-visit communication about findings and recommendations."
+          },
+          {
+            "title": "What to expect",
+            "body": "Oral cancer screening is designed to be quick, comfortable, and informative.\n\n### Time\n\nIncluded in routine exams and completed in minutes.\n\n### Comfort\n\nCompletely painless and non-invasive.\n\n### Cost\n\nScreening typically starts at a minimal investment, and many insurance plans include or support it. We review any potential costs upfront."
+          },
+          {
+            "title": "Advanced technology. Experienced doctors. A commitment to prevention.",
+            "body": "Early detection is essential — and our team takes that responsibility seriously. Patients trust TNCLD because we provide state-of-the-art screening technology and doctors trained in advanced detection and oral pathology.\n\nOur philosophy: Better science leads to better service — and better health outcomes. We're committed to a thorough, preventative approach to every visit with clear communication and compassionate guidance."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"The screening was quick and painless. I feel so much more confident knowing they check thoroughly with advanced technology.\"\n\n> \"TNCLD takes prevention seriously. Their attention to detail gives me real peace of mind.\"\n\n> \"I appreciate that oral cancer screening is part of every visit. It shows they truly care about my overall health.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### Is oral cancer screening painful?\n\nNo — it's quick, gentle, and completely non-invasive.\n\n### Do I need screening if I don't smoke?\n\nYes. Many cases occur in patients without traditional risk factors, which makes early detection essential.\n\n### Will insurance cover screening?\n\nMany plans provide partial or full coverage. We help verify your benefits."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Laser dentistry](/technology/laser-dentistry)\n- [Digital imaging](/technology/digital-imaging)\n- [Preventative dentistry](/services/preventative-dentistry)"
+          },
+          {
+            "title": "Protect your health with advanced, comfortable screening",
+            "body": "Early detection makes all the difference. Keep your health protected with modern, proactive care.\n\n[Request an appointment](/request-appointment)"
+          }
+        ]
+      },
+      "same-day-crowns-cerec": {
+        "title": "Custom, high-quality crowns completed in one visit",
+        "lede": "Our advanced CEREC technology allows us to design, craft, and place beautiful ceramic crowns in a single appointment — with exceptional precision and comfort.",
+        "sections": [
+          {
+            "title": "Strong, natural-looking crowns without the wait",
+            "body": "Same-day crowns offer the perfect combination of convenience, precision, and aesthetic excellence. Using digital scanning and in-office ceramic milling, we restore damaged or worn teeth in a single visit — no messy impressions, temporary crowns, or second appointments required."
+          },
+          {
+            "title": "A faster, more comfortable way to restore your tooth",
+            "body": "We use CEREC technology to eliminate the most inconvenient and uncomfortable parts of getting a crown.\n\n### Gentle, modern dentistry\n\nDigital impressions replace messy putty trays, and same-day completion means no temporary crown discomfort.\n\n### Clear, upfront pricing\n\nWe provide estimated ranges and review your insurance before treatment begins. No surprises — just transparent, straightforward guidance.\n\n### Efficient, convenient appointments\n\nOne visit replaces the traditional two-appointment process, saving you time and hassle."
+          },
+          {
+            "title": "Benefits of same-day crowns",
+            "body": "- Completed in one visit\n- No temporary crowns\n- Digital impressions for greater comfort\n- High-strength ceramic materials\n- Natural-looking, custom color matching\n- Precise fit for long-term function\n- Saves time and reduces treatment visits"
+          },
+          {
+            "title": "Types of same-day restorations",
+            "body": "### Single CEREC crowns\n\nIdeal for damaged, fractured, or heavily restored teeth requiring full coverage.\n\n### CEREC onlays and inlays\n\nConservative, durable alternatives when a full crown isn't needed.\n\n### CEREC for emergency restorations\n\nSame-day solutions for sudden breakage or discomfort requiring immediate attention.\n\n### Aesthetic ceramic restorations\n\nBeautiful, tooth-colored restorations that blend seamlessly with your natural smile."
+          },
+          {
+            "title": "Our process: your path to a strong, beautiful restoration",
+            "body": "Experience the convenience of same-day crown technology with our streamlined approach.\n\n### Digital scan\n\nWe capture a detailed 3D image of your tooth — quickly and comfortably.\n\n### Custom design\n\nUsing advanced software, we design your crown for optimal fit, function, and aesthetics.\n\n### In-office fabrication and placement\n\nYour crown is crafted from durable ceramic and placed the same day."
+          },
+          {
+            "title": "What to expect",
+            "body": "Same-day crowns streamline the traditional restorative process while maintaining exceptional quality.\n\n### Time\n\nMost appointments take 1–2 hours from start to finish.\n\n### Healing\n\nMinimal downtime — most patients resume normal activities immediately.\n\n### Cost\n\nSame-day crowns typically start at a base investment, with total cost depending on tooth location and complexity. We review pricing and payment options before beginning."
+          },
+          {
+            "title": "Advanced technology. Skilled craftsmanship. Superior results.",
+            "body": "CEREC technology is only as effective as the team using it. TNCLD's doctors combine advanced training, restorative expertise, and an eye for aesthetics to deliver crowns that look beautiful and feel natural.\n\nPatients choose TNCLD because we offer expertise in digital and ceramic restorative design, in-office CEREC milling for instant, customized results, and high-quality ceramic materials that last.\n\nWe don't just provide faster crowns — we provide better, more precise, beautifully crafted crowns."
+          },
+          {
+            "title": "Patient testimonials",
+            "body": "> \"I couldn't believe my crown was finished the same day. It looks exactly like my natural tooth and the process was incredibly smooth.\"\n\n> \"No impressions, no temporaries, no second appointment — the technology and the team made everything easy.\"\n\n> \"The CEREC crown matches my other teeth perfectly. I'm so glad I didn't have to wait weeks for a lab.\""
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "### How long do same-day crowns last?\n\nWith proper care, CEREC crowns can last as long as traditional crowns — often 10–15 years or more.\n\n### Are same-day crowns as strong as lab-made crowns?\n\nYes. The ceramic materials used are highly durable and ideal for long-term function.\n\n### Does insurance cover same-day crowns?\n\nMost plans cover crowns. We'll help verify coverage and discuss payment options."
+          },
+          {
+            "title": "Related services",
+            "body": "- [Restorative dentistry](/services/restorative-dentistry)\n- [Dental implants](/services/dental-implants)\n- [Preventative dentistry](/services/preventative-dentistry)"
+          },
+          {
+            "title": "Restore your smile in a single visit",
+            "body": "Experience the convenience and precision of same-day CEREC crowns. Schedule your consultation today.\n\n[Request an appointment](/request-appointment)"
           }
         ]
       }

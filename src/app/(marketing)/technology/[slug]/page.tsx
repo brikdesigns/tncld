@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ResourcePage } from '@/components/content/ResourcePage';
-import { getServiceDetail, getServiceDetailSlugs } from '@/lib/content';
+import { getTechnologyDetail, getTechnologyDetailSlugs } from '@/lib/content';
 
-// Only the known service slugs exist; anything else 404s.
+// Only the known technology slugs exist; anything else 404s.
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return getServiceDetailSlugs().map((slug) => ({ slug }));
+  return getTechnologyDetailSlugs().map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -16,23 +16,24 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const page = getServiceDetail(slug);
+  const page = getTechnologyDetail(slug);
   if (!page) return {};
   return { title: page.title, description: page.lede };
 }
 
 /**
- * Service detail (tncld#61 route, tncld#68 content) — one dynamic route per
- * service, its section-structured copy migrated from the Notion "TNCLD Website"
- * DB (tncld#56) and rendered through the shared resource template.
+ * Technology detail (tncld#68) — one dynamic route per technology, its
+ * section-structured copy migrated from the Notion "TNCLD Website" DB
+ * (tncld#56) and rendered through the shared resource template. The
+ * `/technology` hub is tncld#72.
  */
-export default async function ServiceDetailPage({
+export default async function TechnologyDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const page = getServiceDetail(slug);
+  const page = getTechnologyDetail(slug);
   if (!page) notFound();
   return <ResourcePage page={page} />;
 }

@@ -98,6 +98,8 @@ interface IndustryContent {
   services: ServicesContent;
   contact?: ContactContent;
   pages?: Record<string, PageContent>;
+  serviceDetails?: Record<string, PageContent>;
+  technologyDetails?: Record<string, PageContent>;
 }
 
 function industry(): IndustryContent {
@@ -145,24 +147,13 @@ export function getServiceBySlug(slug: string): ServiceItem | null {
   );
 }
 
-function pages(): Record<string, PageContent> {
-  return industry().pages ?? {};
-}
-
-/** Every generic content page slug — used to statically generate the routes. */
-export function getResourceSlugs(): string[] {
-  return Object.keys(pages());
-}
-
 /**
- * A generic content page by slug, with each section's markdown body rendered to
- * sanitized HTML for the BDS `Prose` Block (same pipeline as the legal pages —
- * see src/lib/legal.ts and src/lib/sanitize.ts). Returns null for an unknown
- * slug so the route can 404.
+ * Render a content page's markdown section bodies to sanitized HTML for the BDS
+ * `Prose` Block (same pipeline as the legal pages — see src/lib/legal.ts and
+ * src/lib/sanitize.ts). Shared by every section-structured page: the generic
+ * resource pages, the service detail pages, and the technology detail pages.
  */
-export function getResourcePage(slug: string): RenderedPage | null {
-  const page = pages()[slug];
-  if (!page) return null;
+function renderPage(page: PageContent): RenderedPage {
   return {
     title: page.title,
     lede: page.lede,
@@ -174,4 +165,52 @@ export function getResourcePage(slug: string): RenderedPage | null {
       ),
     })),
   };
+}
+
+function pages(): Record<string, PageContent> {
+  return industry().pages ?? {};
+}
+
+/** Every generic content page slug — used to statically generate the routes. */
+export function getResourceSlugs(): string[] {
+  return Object.keys(pages());
+}
+
+/**
+ * A generic content page by slug, with each section rendered to sanitized HTML.
+ * Returns null for an unknown slug so the route can 404.
+ */
+export function getResourcePage(slug: string): RenderedPage | null {
+  const page = pages()[slug];
+  return page ? renderPage(page) : null;
+}
+
+function serviceDetails(): Record<string, PageContent> {
+  return industry().serviceDetails ?? {};
+}
+
+function technologyDetails(): Record<string, PageContent> {
+  return industry().technologyDetails ?? {};
+}
+
+/** Every service-detail slug — used to statically generate `/services/[slug]`. */
+export function getServiceDetailSlugs(): string[] {
+  return Object.keys(serviceDetails());
+}
+
+/** The rich, section-structured detail page for a service (tncld#68). */
+export function getServiceDetail(slug: string): RenderedPage | null {
+  const page = serviceDetails()[slug];
+  return page ? renderPage(page) : null;
+}
+
+/** Every technology-detail slug — used to statically generate `/technology/[slug]`. */
+export function getTechnologyDetailSlugs(): string[] {
+  return Object.keys(technologyDetails());
+}
+
+/** The rich, section-structured detail page for a technology (tncld#68). */
+export function getTechnologyDetail(slug: string): RenderedPage | null {
+  const page = technologyDetails()[slug];
+  return page ? renderPage(page) : null;
 }
