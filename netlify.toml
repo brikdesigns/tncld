@@ -4,17 +4,21 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  NEXT_PUBLIC_ENV = "production"
 
-# Branch deploys (staging + any other non-production branch).
-# Per-context Supabase URL/keys, SITE_URL, etc. are configured in the Netlify
-# UI under Environment variables, scoped to "Branch deploys".
-# Note: Netlify silently ignores per-context [[headers]] blocks despite the
-# docs claiming support — the X-Robots-Tag is set from next.config.mjs
-# instead, gated on NEXT_PUBLIC_ENV !== "production".
-[context.branch-deploy.environment]
-  NEXT_PUBLIC_ENV = "staging"
+# NEXT_PUBLIC_ENV is a PER-SITE env var — deliberately NOT set here (two-site
+# model, tncld#44 / brik-llm#1686). Under that model a staging site's production
+# branch IS `staging`, so it builds in Netlify's `production` context; since both
+# sites build from this one repo, a hardcoded [build.environment] value or a
+# [context.branch-deploy.environment] block cannot tell the two sites apart and
+# would tag staging as production. Set it per site instead:
+#   production site (branch main)    -> NEXT_PUBLIC_ENV = production
+#   staging site    (branch staging) -> NEXT_PUBLIC_ENV = staging
+# next.config.mjs gates X-Robots-Tag (noindex) on NEXT_PUBLIC_ENV !== "production",
+# so a staging/missing value keeps non-prod out of search.
+# (Netlify silently ignores per-context [[headers]] blocks, hence next.config.mjs.)
 
+# deploy-preview DOES fire for real PR previews on either site — force noindex
+# there regardless of the site's own env, so a preview URL is never indexable.
 [context.deploy-preview.environment]
   NEXT_PUBLIC_ENV = "preview"
 
