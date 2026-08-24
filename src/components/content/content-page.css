@@ -1,0 +1,55 @@
+/* Reusable content-page template. Canonical BDS color/border tokens via var()
+   (see src/styles/theme-tncld.css); spacing is raw rem, matching the shell,
+   home, and legal shells. */
+
+.content-page__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+.content-page__intro-copy {
+  flex: 1 1 22rem;
+}
+.content-page__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.content-page__lede {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 48ch;
+}
+.content-page__image {
+  flex: 1 1 22rem;
+  width: 100%;
+  height: auto;
+  max-width: 36rem;
+  border-radius: var(--border-radius-lg);
+  object-fit: cover;
+}
+
+.content-page__sections {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  max-width: 60rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.content-page__section {
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-primary);
+}
+.content-page__section-title {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+.content-page__section-body {
+  margin: 0;
+  color: var(--text-secondary);
+}

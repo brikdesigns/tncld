@@ -32,6 +32,13 @@ export interface ServicesContent {
   serviceList: ServiceItem[];
 }
 
+export interface AboutContent {
+  title: string;
+  description: string;
+  images: Record<string, string>;
+  topics: ServiceItem[];
+}
+
 /** The TNCLD industry key within the shared demo content file. */
 const INDUSTRY = 'dental';
 
@@ -39,6 +46,7 @@ interface IndustryContent {
   slug: string;
   name: string;
   home: HomeContent;
+  about: AboutContent;
   services: ServicesContent;
 }
 
@@ -52,4 +60,8 @@ export function getHomeContent(): HomeContent {
 
 export function getServicesContent(): ServicesContent {
   return industry().services;
+}
+
+export function getAboutContent(): AboutContent {
+  return industry().about;
 }
