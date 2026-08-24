@@ -4,8 +4,8 @@
     "name": "Dental",
     "home": {
       "hero": {
-        "title": "Your Smile is Our Priority – Gentle, Expert Dental Care You Can Trust",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
+        "title": "Better science. Better service. Exceptional dentistry.",
+        "description": "Experience advanced, comfortable dentistry designed around your health and confidence — from preventive visits to implants, hybrids, and Invisalign."
       },
       "images": {
         "location1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
@@ -16,13 +16,13 @@
         "person3": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e53a3554dd4189506b0_image_wrapper_2x.webp"
       },
       "cta": {
-        "title": "Get started with dental services today",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
+        "title": "Ready to Book? We Make It Simple.",
+        "description": "Clear expectations, transparent payment options, and a supportive team focused on your comfort and long-term oral health."
       }
     },
     "about": {
-      "title": "Our Team of Experts",
-      "description": "Our diverse team brings together a wealth of experience and expertise. Each member plays a crucial role in driving our success and delivering exceptional results for our clients.",
+      "title": "About Us",
+      "description": "We are a locally owned, general dentistry practice providing a comprehensive list of services for the entire family. We strive to offer our community a unique dental experience using lasers and the latest technological advancements available to us today. Our primary goal is to learn new and effective ways to perform traditional dental procedures and educate our patients to save time and have an overall more comfortable experience.",
       "images": {
         "image1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
         "image2": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e3c831b9c9befb709af_img-lg.jpg",
@@ -32,27 +32,23 @@
       },
       "topics": [
         {
-          "title": "Topic 1 Title",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere."
+          "title": "Meet Our Team",
+          "description": "Our highly-skilled team truly cares about your dental needs. Get to know everyone on our team by clicking the button below."
         },
         {
-          "title": "Topic 2 Title",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere."
+          "title": "Tour Our Office",
+          "description": "Want to know what our office looks like? Click below for high-quality images and a virtual tour of our Franklin office."
         },
         {
-          "title": "Topic 3 Title",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere."
-        },
-        {
-          "title": "Topic 4 Title",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere."
+          "title": "Technologies",
+          "description": "We are a family, cosmetic and general dental practice that uses lasers and other advanced technologies to provide a modern, pleasant dental experience."
         }
       ]
     },
     "services": {
       "hero": {
-        "title": "What We Do",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
+        "title": "Services",
+        "description": "Comprehensive dental care for your entire family."
       },
       "images": {
         "image1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684f04d26602a96b979e9578_frame_8_2x.webp",
@@ -61,20 +57,24 @@
       },
       "serviceList": [
         {
-          "title": "Crowns",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
-        },
-        {
-          "title": "Braces",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
-        },
-        {
-          "title": "Cleaning Exam",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
+          "title": "Hybrid Dentures",
+          "description": "Hybrid implant-supported dentures offer unmatched stability, comfort, and aesthetics — restoring your ability to eat, speak, and smile with confidence."
         },
         {
           "title": "Invisalign",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
+          "description": "Clear aligners that fit your lifestyle — providing effective orthodontic treatment without traditional braces."
+        },
+        {
+          "title": "Restorative Dentistry",
+          "description": "Comprehensive treatment plans for patients needing extensive restoration and renewed oral health."
+        },
+        {
+          "title": "Cosmetic Dentistry",
+          "description": "Transform your appearance with proven aesthetic treatments designed for natural, beautiful results."
+        },
+        {
+          "title": "Preventative Dentistry",
+          "description": "Preventative dentistry focuses on maintaining healthy teeth and gums through regular care, early detection, and patient education. From routine cleanings to advanced diagnostics, we help you avoid costly, invasive treatments down the road."
         }
       ]
     },

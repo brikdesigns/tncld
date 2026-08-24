@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 /**
  * Services page — maps the migrated `services` content onto the shared
  * ContentPage template (tncld#59). Each service links to its detail route
- * (tncld#61). Service descriptions are still placeholder in the source
- * (tncld#56); the template renders them as-is.
+ * (tncld#61). Copy is the real TNCLD content migrated from the Notion
+ * "TNCLD Website" DB (tncld#56); rich per-service detail bodies are tncld#68.
  */
 export default function ServicesPage() {
   const services = getServicesContent();
