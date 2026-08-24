@@ -79,7 +79,178 @@
       ]
     },
     "contact": {},
-    "audience": {}
+    "audience": {},
+    "pages": {
+      "patient-resources": {
+        "title": "Patient Resources",
+        "lede": "Everything you need to feel prepared, informed, and supported — all in one place.",
+        "sections": [
+          {
+            "title": "Helpful information for a smooth, stress-free visit",
+            "body": "We want every part of your experience to feel simple and clear. Whether you're preparing for your first appointment, looking for financial information, or wanting to explore the services we offer, this page gives you quick access to the resources that matter most."
+          },
+          {
+            "title": "New patient information",
+            "body": "Get started with what to expect, forms, FAQs, and tips for your first visit.",
+            "href": "/patient-resources/new-patients"
+          },
+          {
+            "title": "Payment & insurance",
+            "body": "Learn how insurance works in our office, explore payment options, and review our membership plan.",
+            "href": "/patient-resources/payments-and-insurance"
+          },
+          {
+            "title": "Membership plan",
+            "body": "A simple, affordable way to maintain your oral health with predictable, transparent pricing.",
+            "href": "/patient-resources/membership-plan"
+          },
+          {
+            "title": "Frequently asked questions",
+            "body": "Find quick answers to the questions patients ask us most.",
+            "href": "/patient-resources/faqs"
+          },
+          {
+            "title": "Your care & treatment",
+            "body": "Explore the services we offer and the technology behind our elevated approach.",
+            "href": "/services"
+          },
+          {
+            "title": "Still have questions? We're here to help.",
+            "body": "Our team is happy to guide you — before, during, or after your visit."
+          }
+        ]
+      },
+      "new-patients": {
+        "title": "Welcome to Tennessee Center for Laser Dentistry",
+        "lede": "We're so glad you're here. Whether you're new to the area, ready for a fresh start, or simply looking for a more comfortable dental experience, our team is here to make your first visit smooth, relaxed, and personalized.",
+        "sections": [
+          {
+            "title": "What to expect at your first visit",
+            "body": "Your first appointment is designed to be both thorough and comfortable. We take time to get to know you, understand your goals, and evaluate your oral health with advanced technology that allows for a more precise and gentle experience.\n\n**Your visit typically includes:**\n\n- A warm welcome and guided check-in\n- Digital imaging and a comprehensive exam\n- A gentle cleaning (when appropriate)\n- Time with your doctor to review findings and ask questions\n- A personalized treatment plan designed around your needs\n\nYou'll leave with a clear picture of your oral health — and a team committed to supporting you at every step."
+          },
+          {
+            "title": "Your comfort matters",
+            "body": "We understand that visiting a new dentist can feel uncertain. Our approach is designed to help you feel at ease from the moment you walk in.\n\n**What makes our experience different:**\n\n- A calm, modern, welcoming office\n- A team that listens and explains everything clearly\n- Gentle techniques supported by advanced technology\n- A judgment-free approach to care\n- Flexible scheduling\n\nYour comfort is our priority — always."
+          },
+          {
+            "title": "New patient forms",
+            "body": "Save time during your visit by completing your forms online. We'll send you a specific link to fill out the details we need from you prior to your appointment."
+          },
+          {
+            "title": "Insurance and payment options",
+            "body": "We make your first visit simple by helping you understand your benefits and providing clear, upfront information about costs.\n\n**We offer:**\n\n- Insurance support and benefits verification\n- Flexible payment options\n- Transparent pricing\n- A membership plan for patients without insurance",
+            "href": "/patient-resources/payments-and-insurance"
+          },
+          {
+            "title": "Meet your doctors",
+            "body": "Our doctors bring advanced training, modern technology, and a compassionate approach to every visit. Get to know the team who will be caring for you."
+          },
+          {
+            "title": "Tour our office",
+            "body": "Take a look inside our state-of-the-art, calming office and see what makes our experience feel different."
+          },
+          {
+            "title": "What patients are saying",
+            "body": "> \"The most welcoming dental experience I've ever had.\"\n\n> \"I felt cared for from the moment I walked in.\"\n\n> \"Everything was explained so clearly — I finally feel confident about my dental care.\""
+          },
+          {
+            "title": "Ready for a better dental experience?",
+            "body": "We'd love to welcome you to our practice. Reach out — we're here to help."
+          }
+        ]
+      },
+      "membership-plan": {
+        "title": "A simple, affordable way to maintain your oral health",
+        "lede": "Our membership plan is designed for patients without dental insurance — or anyone who wants predictable, transparent pricing for their preventive care. No deductibles. No claim denials. No surprises.",
+        "sections": [
+          {
+            "title": "Why consider a membership plan?",
+            "body": "Dental care should be clear and accessible. Insurance can be confusing, unpredictable, and limiting — so we created a straightforward option that gives you the preventive care you need and savings on the treatments you choose.\n\nWith our membership plan, your oral health stays on track with stress-free, year-round benefits."
+          },
+          {
+            "title": "What's included",
+            "body": "Each membership provides the essentials for maintaining long-term dental health:\n\n- Professional cleanings\n- Doctor exams\n- Digital x-rays as needed\n- Fluoride treatments (when appropriate)\n- Exclusive savings on additional treatments\n\nEverything is bundled into one simple annual plan — no hidden fees."
+          },
+          {
+            "title": "Designed to help you save",
+            "body": "Our membership plan offers meaningful savings on the care you need most:\n\n- Predictable costs for preventive care\n- Discounts on restorative and cosmetic services\n- No deductibles, waiting periods, or maximums\n- Membership begins the day you join\n\nIt's one of the easiest ways to invest in your smile and stay on top of your oral health."
+          },
+          {
+            "title": "Who is this for?",
+            "body": "- Patients without dental insurance\n- Families looking for affordable preventive care\n- Anyone who wants transparent, predictable pricing\n- Patients who prefer not to deal with insurance restrictions\n\nIf insurance has ever felt complicated or limiting, this option gives you more freedom with your care."
+          },
+          {
+            "title": "How it works",
+            "body": "### 1. Join the membership\nSign up at your next appointment or contact our team to enroll.\n\n### 2. Enjoy your preventive visits\nYour cleanings, exams, and x-rays are included.\n\n### 3. Save on additional care\nReceive discounted pricing on any recommended treatment.\n\nYour membership is active for 12 months from the date you join."
+          },
+          {
+            "title": "Have questions? We're here to help.",
+            "body": "We're happy to walk you through plan details, compare costs, or help you decide whether membership is the right fit for you or your family."
+          }
+        ]
+      },
+      "payments-and-insurance": {
+        "title": "Payment and insurance made simple",
+        "lede": "We believe dental care should be easy to understand and free of surprises. Whether you're using insurance, financing, or paying directly, our team is here to guide you every step of the way.",
+        "sections": [
+          {
+            "title": "Insurance information",
+            "body": "**We help you make the most of your benefits**\n\nInsurance can feel confusing — but we make it simple. We'll review your coverage, explain your benefits clearly, and let you know exactly what's included before treatment begins.\n\nWhat we support:\n\n- Verification of your benefits\n- Clear estimates before treatment\n- Help filing or processing claims\n- Transparent communication about out-of-pocket costs"
+          },
+          {
+            "title": "We accept",
+            "body": "We accept the following insurance plans:\n\n- Aetna\n- Cigna\n- Delta Dental\n- UnitedHealthcare\n- Blue Cross Blue Shield\n- PPO Provider for Guardian\n\nEven if your plan isn't listed above, we're happy to look into your benefits and help you understand your options."
+          },
+          {
+            "title": "No insurance? No problem.",
+            "body": "**Our membership plan makes care predictable and affordable**\n\nIf you don't have dental insurance — or are looking for a simpler alternative — our membership plan includes preventive care and offers savings on additional treatments.",
+            "href": "/patient-resources/membership-plan"
+          },
+          {
+            "title": "Flexible payment options",
+            "body": "**We make high-quality dentistry accessible**\n\nWe offer multiple ways to pay for your visit, making treatment as comfortable and attainable as possible.\n\nWe accept:\n\n- Cash\n- Check\n- Debit\n- Visa\n- Mastercard\n- Discover\n- American Express\n- Apple Pay\n\n**CareCredit financing available**\n\nFor patients wanting to spread out the cost of treatment, we proudly offer financing through CareCredit, including short-term zero-interest options for qualifying applicants."
+          },
+          {
+            "title": "Transparent estimates",
+            "body": "**Know what to expect before your visit**\n\nBefore beginning any treatment, we'll provide a clear outline of:\n\n- Recommended care\n- What your insurance may cover\n- Your estimated portion\n- Available payment options\n\nYou'll always have the full picture — with no confusion or unexpected costs."
+          },
+          {
+            "title": "Have questions about insurance or payment?",
+            "body": "We're here to help you feel confident and informed. Contact us anytime for guidance, explanations, or a breakdown of your benefits."
+          }
+        ]
+      },
+      "faqs": {
+        "title": "Frequently asked questions",
+        "lede": "Have questions? You're not alone. Here are answers to the things patients ask us most — from appointments and technology to insurance and comfort.",
+        "sections": [
+          {
+            "title": "General practice",
+            "body": "### Do you accept new patients?\nYes! We'd love to welcome you. You can schedule online or call/text our team.\n\n### What should I expect at my first visit?\nYour appointment includes digital imaging, a comprehensive exam, a gentle cleaning (when appropriate), and time with your doctor to review your oral health and ask questions.\n\n### How often should I come in for cleanings?\nMost patients benefit from visits every six months, though your dentist may recommend more frequent care depending on your needs.\n\n### Do you see children?\nYes — we provide family dentistry and welcome patients of all ages."
+          },
+          {
+            "title": "Comfort and technology",
+            "body": "### Does laser dentistry hurt?\nMost patients report little to no discomfort. Lasers allow for gentler treatment with reduced vibration and sensitivity.\n\n### Will I need numbing for my appointment?\nOften, no. With laser technology and gentle techniques, many procedures can be completed with minimal or no anesthesia.\n\n### I'm anxious about dental visits. Can you help?\nAbsolutely. Our office is designed to feel calm and welcoming, and our technology allows for a gentler experience that reduces many common anxiety triggers.\n\n### Why is laser dentistry in your name?\nWe are a comprehensive dental practice — laser dentistry simply reflects our elevated standard of care. It allows for more comfortable, precise treatments."
+          },
+          {
+            "title": "Payment and insurance",
+            "body": "### Do you take my insurance?\nWe work with many insurance plans and help you understand your benefits clearly. Contact us and we'll verify your coverage.\n\n### Do you offer payment plans?\nYes — we offer flexible payment options and a membership plan for patients without insurance.\n\n### How much will my treatment cost?\nCosts vary depending on your personalized treatment plan. We provide clear estimates before any care begins so there are no surprises."
+          },
+          {
+            "title": "Treatment",
+            "body": "### Do you offer same-day crowns?\nYes — with CEREC technology, we can design, mill, and place a custom ceramic crown in a single visit.\n\n### Do you place dental implants?\nYes, we offer implant placement and restoration with advanced technology and decades of combined experience.\n\n### How long does Invisalign take?\nMost patients complete treatment in 6–18 months, depending on alignment needs. You'll receive a personalized estimate at your consultation.\n\n### Do I need x-rays at every visit?\nDigital imaging is essential for accurate diagnosis. We follow safe, evidence-based guidelines to determine when x-rays are needed."
+          },
+          {
+            "title": "Appointments and logistics",
+            "body": "### How far in advance should I schedule?\nWe recommend booking routine visits 6 months ahead. For restorative or cosmetic care, availability may vary — contact us for options.\n\n### What if I need to cancel or reschedule?\nNo problem — we simply ask for as much notice as possible so we can offer the time to another patient.\n\n### Where are you located?\nWe're conveniently located in Franklin, TN."
+          },
+          {
+            "title": "Still have questions? We're happy to help.",
+            "body": "Our team is here to guide you — before, during, and after your visit."
+          }
+        ]
+      }
+    }
   },
   "finance": {
     "slug": "finance",
