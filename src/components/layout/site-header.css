@@ -1,0 +1,67 @@
+/* Global marketing header. Colors + borders use canonical BDS tokens only
+   (see src/styles/theme-tncld.css); spacing is raw rem, which the token guard
+   does not govern — matching the shipped legal shell (src/app/legal/legal.css).
+   Focus-visible is declared here because BDS ships it for its own components,
+   not for bare anchors. */
+
+.site-header {
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--background-primary);
+}
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+.site-header__brand {
+  color: var(--text-primary);
+  font-family: var(--font-family-heading);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-header__brand:hover {
+  text-decoration: underline;
+}
+
+/* Nav takes the middle, pushing brand left and CTA right. */
+.site-header__nav {
+  flex: 1;
+}
+.site-header__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+.site-header__nav-link {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.site-header__nav-link:hover {
+  color: var(--text-link);
+  text-decoration: underline;
+}
+
+.site-header__brand:focus-visible,
+.site-header__nav-link:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* On narrow viewports the nav wraps under the brand + CTA row. */
+@media (max-width: 48rem) {
+  .site-header__inner {
+    flex-wrap: wrap;
+  }
+  .site-header__nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
