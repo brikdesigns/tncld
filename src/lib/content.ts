@@ -39,6 +39,19 @@ export interface AboutContent {
   topics: ServiceItem[];
 }
 
+/**
+ * Practice contact details for the contact / appointment pages (tncld#62).
+ * Every field is optional — the source (`dental.contact`) is empty until real
+ * practice details land under tncld#56, and the templates render only the
+ * fields that are present rather than fabricating a phone/address.
+ */
+export interface ContactContent {
+  phone?: string;
+  email?: string;
+  address?: string;
+  hours?: string;
+}
+
 /** The TNCLD industry key within the shared demo content file. */
 const INDUSTRY = 'dental';
 
@@ -48,6 +61,7 @@ interface IndustryContent {
   home: HomeContent;
   about: AboutContent;
   services: ServicesContent;
+  contact?: ContactContent;
 }
 
 function industry(): IndustryContent {
@@ -64,6 +78,10 @@ export function getServicesContent(): ServicesContent {
 
 export function getAboutContent(): AboutContent {
   return industry().about;
+}
+
+export function getContactContent(): ContactContent {
+  return industry().contact ?? {};
 }
 
 /** URL-safe slug for a service title, e.g. "Cleaning Exam" → "cleaning-exam". */

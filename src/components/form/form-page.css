@@ -1,0 +1,83 @@
+/* Reusable form-page template (contact + request-appointment, tncld#62).
+   Canonical BDS color/border tokens via var() (see src/styles/theme-tncld.css);
+   the form fields themselves are BDS components and carry their own token-based
+   styling. Spacing is raw rem, matching the shell, home, legal, and content
+   shells. */
+
+.form-page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.form-page__intro {
+  margin-bottom: 2.5rem;
+}
+.form-page__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.form-page__lede {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 48ch;
+}
+
+/* Two-column on wide viewports: form beside the practice details. */
+.form-page__body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3rem;
+  align-items: flex-start;
+}
+.form-page__form {
+  flex: 1 1 28rem;
+}
+.form-page__aside {
+  flex: 1 1 16rem;
+}
+
+/* Pending-handler notice — online submission is wired under tncld#45. */
+.form-page__notice {
+  margin: 0 0 2rem;
+  padding: 1rem 1.25rem;
+  background: var(--background-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+}
+.form-page__notice a {
+  color: var(--text-link);
+}
+
+.form-page__details {
+  margin: 0;
+}
+.form-page__details-heading {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.form-page__detail {
+  margin: 0 0 1rem;
+}
+.form-page__detail-term {
+  display: block;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+.form-page__detail-value {
+  margin: 0;
+  color: var(--text-primary);
+}
+.form-page__detail-value a {
+  color: var(--text-link);
+  text-decoration: none;
+}
+.form-page__detail-value a:hover {
+  text-decoration: underline;
+}
+.form-page__detail-value a:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
