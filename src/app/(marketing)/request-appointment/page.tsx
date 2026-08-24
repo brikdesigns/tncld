@@ -8,6 +8,11 @@ export const metadata: Metadata = {
     'Request an appointment at Tennessee Center for Laser Dentistry — laser dentistry in Franklin, TN.',
 };
 
+// NO-PHI (tncld#45, Path A): name + phone + a non-clinical time preference only.
+// Dropped from the #62 draft — "new patient?" status, "reason for your visit",
+// and a specific date — all reveal health information (PHI), and Brik holds no
+// BAA. A morning/afternoon preference carries no clinical detail. See
+// FormPage.tsx header before adding any field here.
 const FIELDS: FormField[] = [
   {
     kind: 'text',
@@ -15,13 +20,6 @@ const FIELDS: FormField[] = [
     label: 'Name',
     required: true,
     autoComplete: 'name',
-  },
-  {
-    kind: 'email',
-    name: 'email',
-    label: 'Email',
-    required: true,
-    autoComplete: 'email',
   },
   {
     kind: 'tel',
@@ -32,49 +30,33 @@ const FIELDS: FormField[] = [
   },
   {
     kind: 'select',
-    name: 'patientStatus',
-    label: 'Are you a current patient?',
-    required: true,
-    placeholder: 'Select one',
-    options: [
-      { label: 'New patient', value: 'new' },
-      { label: 'Current patient', value: 'current' },
-    ],
-  },
-  { kind: 'date', name: 'preferredDate', label: 'Preferred date' },
-  {
-    kind: 'select',
     name: 'preferredTime',
-    label: 'Preferred time',
+    label: 'Best time to call',
     placeholder: 'No preference',
     options: [
       { label: 'Morning', value: 'morning' },
       { label: 'Afternoon', value: 'afternoon' },
     ],
   },
-  {
-    kind: 'textarea',
-    name: 'reason',
-    label: 'Reason for your visit',
-    rows: 4,
-  },
 ];
 
 /**
- * Request-appointment page (tncld#62). Static layout on the shared FormPage
- * template; the submit is wired to a BAA-covered handler under tncld#45 (no DB
- * store, per the tncld#39 decision record). Practice details come from the
- * migrated `contact` content (empty until tncld#56) and render only when
- * present.
+ * Request-appointment page (tncld#62). Callback-request layout on the shared
+ * FormPage template; the submit composes a mailto the visitor's own mail client
+ * sends to the practice (tncld#45 Path A — no PHI stored, no BAA needed).
+ * Practice details come from the migrated `contact` content (empty until
+ * tncld#56) and render only when present; the submit is disabled until a
+ * practice email lands.
  */
 export default function RequestAppointmentPage() {
   return (
     <FormPage
       title="Request an appointment"
-      lede="Tell us when works best and a bit about what you need. We'll confirm your visit by phone or email."
+      lede="Leave your name and number and the best time to reach you. We'll call to schedule your visit."
       formLabel="Appointment request form"
       fields={FIELDS}
-      submitLabel="Request appointment"
+      submitLabel="Request a call"
+      emailSubject="Website appointment — callback request"
       contact={getContactContent()}
     />
   );
