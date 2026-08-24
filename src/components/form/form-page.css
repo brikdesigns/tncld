@@ -37,7 +37,8 @@
   flex: 1 1 16rem;
 }
 
-/* Pending-handler notice — online submission is wired under tncld#45. */
+/* Callback notice + submit confirmation (tncld#45 Path A). Also the fallback
+   "call the practice" message shown until a practice email lands (tncld#56). */
 .form-page__notice {
   margin: 0 0 2rem;
   padding: 1rem 1.25rem;

@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     'Contact Tennessee Center for Laser Dentistry — laser dentistry in Franklin, TN.',
 };
 
+// NO-PHI (tncld#45, Path A): name + phone only. No free-text "message" field —
+// a visitor would type symptoms into it, which is PHI, and Brik holds no BAA.
+// See FormPage.tsx header before adding any field here.
 const FIELDS: FormField[] = [
   {
     kind: 'text',
@@ -17,30 +20,30 @@ const FIELDS: FormField[] = [
     autoComplete: 'name',
   },
   {
-    kind: 'email',
-    name: 'email',
-    label: 'Email',
+    kind: 'tel',
+    name: 'phone',
+    label: 'Phone',
     required: true,
-    autoComplete: 'email',
+    autoComplete: 'tel',
   },
-  { kind: 'tel', name: 'phone', label: 'Phone', autoComplete: 'tel' },
-  { kind: 'textarea', name: 'message', label: 'How can we help?', required: true },
 ];
 
 /**
- * Contact page (tncld#62). Static layout on the shared FormPage template; the
- * submit is wired to a BAA-covered handler under tncld#45. Practice details
- * come from the migrated `contact` content (empty until tncld#56) and render
- * only when present.
+ * Contact page (tncld#62). Callback-request layout on the shared FormPage
+ * template; the submit composes a mailto the visitor's own mail client sends to
+ * the practice (tncld#45 Path A — no PHI stored, no BAA needed). Practice
+ * details come from the migrated `contact` content (empty until tncld#56) and
+ * render only when present; the submit is disabled until a practice email lands.
  */
 export default function ContactPage() {
   return (
     <FormPage
       title="Contact us"
-      lede="Have a question about laser dentistry or your care? Send us a message and our team will follow up."
+      lede="Have a question about laser dentistry? Leave your name and number and our team will call you back."
       formLabel="Contact form"
       fields={FIELDS}
-      submitLabel="Send message"
+      submitLabel="Request a call"
+      emailSubject="Website contact — callback request"
       contact={getContactContent()}
     />
   );

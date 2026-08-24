@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Button, Form, Select, TextArea, TextInput } from '@brikdesigns/bds';
 import type { ContactContent } from '@/lib/content';
 import './form-page.css';
@@ -8,11 +11,18 @@ import './form-page.css';
  * renders them through BDS form primitives, so the two pages share spacing,
  * labelling, and messaging.
  *
- * STATIC BY DESIGN: the submit is disabled and the form posts nowhere. Wiring
- * the submit to a BAA-covered intake handler is tncld#45 (no DB store, per the
- * tncld#39 decision record); until that handler is chosen, transmitting patient
- * data would have no compliant destination. #45 enables the submit and adds the
- * action — the field layout here does not change.
+ * NO-PHI BY DESIGN (tncld#45, Path A). TNCLD is a HIPAA covered entity and Brik
+ * cannot sign a BAA on its behalf, so no submission may flow through Brik
+ * infrastructure (no marketing Supabase, no Brik API route). This template only
+ * ever collects non-clinical callback details (name + phone) and submits via a
+ * `mailto:` the visitor's own mail client sends directly to the practice —
+ * nothing is stored on any Brik surface. Routes MUST NOT add clinical fields
+ * (reason for visit, symptoms, new-patient status): that is PHI and would need
+ * the BAA-covered handler tracked as tncld#45 Path B.
+ *
+ * The `mailto:` target is `contact.email`. Until real practice details land
+ * (tncld#56) `contact` is empty, so the submit is disabled and the notice falls
+ * back to "call the practice".
  */
 export type FormField =
   | {
@@ -47,11 +57,21 @@ export interface FormPageProps {
   formLabel: string;
   fields: FormField[];
   submitLabel: string;
+  /** Subject line for the mailto the visitor's mail client composes. */
+  emailSubject: string;
   /** Practice contact details; only present fields render. */
   contact?: ContactContent;
 }
 
-function renderField(field: FormField) {
+function renderField(
+  field: FormField,
+  value: string,
+  onChange: (
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => void,
+) {
   switch (field.kind) {
     case 'textarea':
       return (
@@ -62,6 +82,8 @@ function renderField(field: FormField) {
           required={field.required}
           rows={field.rows ?? 5}
           placeholder={field.placeholder}
+          value={value}
+          onChange={onChange}
           fullWidth
         />
       );
@@ -74,6 +96,8 @@ function renderField(field: FormField) {
           required={field.required}
           placeholder={field.placeholder}
           options={field.options}
+          value={value}
+          onChange={onChange}
           fullWidth
         />
       );
@@ -87,6 +111,8 @@ function renderField(field: FormField) {
           required={field.required}
           autoComplete={field.autoComplete}
           placeholder={field.placeholder}
+          value={value}
+          onChange={onChange}
           fullWidth
         />
       );
@@ -139,9 +165,47 @@ export function FormPage({
   formLabel,
   fields,
   submitLabel,
+  emailSubject,
   contact = {},
 }: FormPageProps) {
-  const phone = contact.phone;
+  const { phone, email } = contact;
+  const telHref = phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : undefined;
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [sent, setSent] = useState(false);
+
+  function handleChange(
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) {
+    const { name, value } = event.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+  }
+
+  /**
+   * Compose a mailto the visitor's own mail client sends to the practice. No
+   * request leaves the browser to any Brik surface, so no PHI is stored and no
+   * BAA is required — see the file header.
+   */
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!email) return;
+    const body = [
+      ...fields
+        .map((field) => {
+          const value = values[field.name]?.trim();
+          return value ? `${field.label}: ${value}` : null;
+        })
+        .filter((line): line is string => line !== null),
+      '',
+      'Sent from the tncld.com website.',
+    ].join('\n');
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(
+      emailSubject,
+    )}&body=${encodeURIComponent(body)}`;
+    setSent(true);
+  }
+
   return (
     <div className="form-page">
       <div className="form-page__intro">
@@ -151,27 +215,50 @@ export function FormPage({
 
       <div className="form-page__body">
         <div className="form-page__form">
-          <p className="form-page__notice" role="note">
-            Online submission is being finalized.{' '}
-            {phone ? (
-              <>
-                To reach us now, call{' '}
-                <a href={`tel:${phone.replace(/[^0-9+]/g, '')}`}>{phone}</a>.
-              </>
-            ) : (
-              <>Please call the practice to schedule in the meantime.</>
-            )}
-          </p>
+          {email ? (
+            <p className="form-page__notice" role="note">
+              Send us your name and number and we&apos;ll call you back. Your
+              details go straight to our team by email — nothing is stored on
+              this website.{' '}
+              {phone ? (
+                <>
+                  Prefer to talk now? Call{' '}
+                  <a href={telHref}>{phone}</a>.
+                </>
+              ) : null}
+            </p>
+          ) : (
+            <p className="form-page__notice" role="note">
+              Online submission is being finalized.{' '}
+              {phone ? (
+                <>
+                  To reach us now, call <a href={telHref}>{phone}</a>.
+                </>
+              ) : (
+                <>Please call the practice to schedule in the meantime.</>
+              )}
+            </p>
+          )}
+
+          {sent ? (
+            <p className="form-page__notice" role="status">
+              Thanks — your message is ready to send in your email app. We&apos;ll
+              call you back to confirm.
+            </p>
+          ) : null}
 
           <Form
             aria-label={formLabel}
+            onSubmit={handleSubmit}
             footer={
-              <Button type="submit" variant="primary" disabled>
+              <Button type="submit" variant="primary" disabled={!email}>
                 {submitLabel}
               </Button>
             }
           >
-            {fields.map(renderField)}
+            {fields.map((field) =>
+              renderField(field, values[field.name] ?? '', handleChange),
+            )}
           </Form>
         </div>
 
