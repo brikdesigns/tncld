@@ -13,12 +13,12 @@ TNCLD is a dental practice in Franklin, TN. Regulatory regimes that apply:
 | **HIPAA Privacy + Security Rules** | Yes | Covered entity (dental provider handling PHI) |
 | **ADA Title III** (28 CFR § 36) | Yes | Public accommodation — professional office of a health care provider |
 | **Tennessee Human Rights Act** (T.C.A. § 4-21-501) | Yes | State-level disability non-discrimination in public accommodations |
-| **Section 1557 of ACA** | No | Confirmed 2026-04-20 — TNCLD does not accept Medicare/Medicaid |
+| **Section 1557 of ACA** | No | TNCLD does not accept Medicare/Medicaid |
 | **Section 504 Rehab Act** | No | Same rationale as 1557 — no federal financial assistance received |
 
 **Accessibility target:** WCAG 2.1 Level AA (the standard DOJ applies under Title III). No AAA bump.
 
-**Canonical accessibility + compliance standard:** [`@brikdesigns/bds/content-system/compliance/healthcare-ada.md`](https://design.brikdesigns.com/docs/content-system/compliance/Healthcare-ADA) — promoted to BDS 2026-04-21. The TNCLD remediation work seeded this canonical doc; the original draft at [markdown/legal-drafts/BRIK-HEALTHCARE-ADA-STANDARDS.md](markdown/legal-drafts/BRIK-HEALTHCARE-ADA-STANDARDS.md) is retained only as historical reference. Every content or design change to this site must honor the canonical BDS doc. Companion: [`brik-llm/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md`](https://github.com/brikdesigns/brik-llm/blob/main/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md) — universal Brik a11y baseline.
+**Canonical a11y + compliance standard:** [`healthcare-ada.md`](https://design.brikdesigns.com/docs/content-system/compliance/Healthcare-ADA) — every content or design change must honor it; companion universal baseline: [`CLIENT-ACCESSIBILITY-STANDARDS.md`](https://github.com/brikdesigns/brik-llm/blob/main/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md).
 
 **Required roles at TNCLD:**
 - **HIPAA Privacy Officer** (45 CFR § 164.530) — must be a named individual; appears in Privacy Policy + NPP
@@ -30,7 +30,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ## Project References
 
-> **Renamed 2026-05-05.** This section was previously titled "Project Credentials" — that was a misnomer. The values below are project IDs (Webflow Site ID, Notion DB ID) which are public per the canonical token registry. None of these are secrets. Actual credential discipline is in § Security below.
+> The values below are public project IDs (Webflow Site ID, Notion DB ID) per the canonical token registry — not secrets. Actual credential discipline is in § Security below.
 
 | Item | Value |
 |------|-------|
@@ -41,7 +41,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ## Security — read the canonical 5 before any credential work
 
-> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN`, stored in 1Password (Development vault, item id `v7yjeqrzuqolnt7boicclvheb4` — title `Webflow - TNCLD (tncld-claude-20260122)`, field `credential`). Read it with `op read "op://Development/v7yjeqrzuqolnt7boicclvheb4/credential"`. Used by build automation in `brik-llm/scripts/webflow/`, and callable directly for Data API operations (page DOM read/text + html-embed edits, site publish) — verified working headless 2026-07-09.
+> **TNCLD credential:** the only Brik-managed runtime secret is `WEBFLOW_API_TOKEN` in 1Password (Development vault, item `v7yjeqrzuqolnt7boicclvheb4`, field `credential`) — read with `op read "op://Development/v7yjeqrzuqolnt7boicclvheb4/credential"`; used by [`brik-llm/scripts/webflow/`](https://github.com/brikdesigns/brik-llm/tree/main/scripts/webflow) automation and for Data API ops (DOM/text + html-embed edits, publish).
 >
 > Read the canonical 5 doctrine docs before doing anything credential-related:
 >
@@ -51,7 +51,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 > 4. **Rotation doctrine:** [`brik-llm/operations/security/when-to-rotate.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/when-to-rotate.md) — **HARD RULE: agents never initiate rotation.**
 > 5. **Manual procedure:** [`brik-llm/operations/macos/openclaw/runbooks/token-rotation.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/macos/openclaw/runbooks/token-rotation.md)
 >
-> **Source-of-truth for all credentials: 1Password Development vault** (NOT the legacy "Notion API Keys" Notion page that was previously linked here). Never paste secrets into chat or commits. Reference 1P items by ID, not title.
+> **Credential source-of-truth: 1Password Development vault** — NEVER paste secrets into chat or commits, and reference 1P items by ID, not title.
 
 ---
 
@@ -61,7 +61,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 **Always prefer direct API calls using tokens from `.env` over MCP OAuth connections.**
 
-Why:
+Rationale:
 - Webflow MCP OAuth tokens expire and require browser re-authentication
 - Direct API with stored tokens is more reliable and reduces session friction
 - `.env` tokens are documented and instantly accessible
@@ -103,7 +103,7 @@ curl -s "https://api.webflow.com/v2/collections/{collection_id}/items" \
 
 ### Why pinned and not `@main` (2026-08-19, tncld#33)
 
-`@main` was unusable. jsDelivr caches each `Accept-Encoding` variant as a separate object and **a purge does not clear them together**. Four purges returning `{"status":"finished"}` left the gzip object stale for ~40 minutes while a bare `curl` — which asks for `identity` — served the correct file the whole time. Browsers negotiate gzip/br, so the site served CSS that was two commits old.
+`@main` is unusable: jsDelivr caches each `Accept-Encoding` variant separately and a purge does not clear them together, so browsers can negotiate a stale gzip object while a plain `identity` curl still looks correct.
 
 ```
 same @main URL:  [identity] 22089 bytes, rule present   <-- what curl sees
@@ -126,7 +126,7 @@ Replace `<SHA>` with the full 40-char commit hash — short hashes work but are 
 <script src="https://cdn.jsdelivr.net/gh/brikdesigns/tncld@<SHA>/footer.js"></script>
 ```
 
-This is an **App-only** edit, so in practice a dashboard one. The site token cannot do it — re-verified 2026-08-20 against site `694f1891a016a6340049f761`:
+This is an **App-only** edit — in practice a dashboard one; the site token cannot do it:
 
 | Attempt | Result |
 |---|---|
@@ -134,7 +134,7 @@ This is an **App-only** edit, so in practice a dashboard one. The site token can
 | `GET /v2/sites/{id}/registered_scripts` | `403 invalid_auth_version` |
 | `GET /v2/sites/{id}/custom_code/hosted` | `404` |
 
-The reason is the token type, not the endpoint's absence. Per [Webflow's docs](https://developers.webflow.com/data/docs/working-with-custom-code): *"Only Webflow Apps with OAuth tokens can call the custom code API endpoints, not clients with site or Workspace tokens."* An OAuth App with `custom_code:read`/`custom_code:write` could script the bump; TNCLD has no such App, and building one was judged not worth it for a surface #44 retires (see the #34 decision record).
+Custom-code API endpoints need a Webflow OAuth App — site/Workspace tokens get `403 invalid_auth_version` ([Webflow docs](https://developers.webflow.com/data/docs/working-with-custom-code)); TNCLD has no such App and building one is not worth it for a surface #44 retires.
 
 ### Deploying a change
 
@@ -161,9 +161,9 @@ npm test
 
 ### The gate
 
-`scripts/verify-live-assets.sh` reads `tncld.com`, extracts the jsDelivr URL the page **actually requests** for each asset, and fails if those bytes differ from the working tree. `deploy.sh` and `.github/workflows/verify-live-assets.yml` both call it, so the check lives in one place.
+`scripts/verify-live-assets.sh` reads `tncld.com`, extracts the jsDelivr URL the page **actually requests** per asset, and fails if those bytes differ from the working tree — both `deploy.sh` and [`verify-live-assets.yml`](.github/workflows/verify-live-assets.yml) call it.
 
-It goes **red on the push that changes an asset** — the pin has not been bumped at that moment — and prints the exact tags to paste. Re-run after publishing. A weekly scheduled run catches drift the push trigger cannot see, such as a Webflow republish that drops the custom code.
+It goes **red on the asset-changing push** (pin not yet bumped) and prints the exact tags to paste — re-run after publishing; a weekly scheduled run catches drift the push trigger can't see, e.g. a Webflow republish that drops the custom code.
 
 Three earlier versions of this gate each reported green while the site was broken, which is why it is shaped this way:
 
@@ -185,7 +185,7 @@ Each verified a URL the *script* chose. This one derives the URL from the live H
 
 ### Troubleshooting: Changes Not Appearing
 
-1. **Check the pin first** — `bash scripts/verify-live-assets.sh` answers this directly, comparing the live site's bytes to your tree. Raw look: `curl -sL https://tncld.com/ | grep -o 'tncld@[a-z0-9]*'`. If those bytes differ, the pin was never bumped. This is the most likely cause.
+1. **Check the pin first** — `bash scripts/verify-live-assets.sh` compares live bytes to your tree; raw look `curl -sL https://tncld.com/ | grep -o 'tncld@[a-z0-9]*'`. Differing bytes = pin never bumped (the most likely cause).
 2. **Hard-refresh**: Cmd+Shift+R. The browser holds its own 7-day copy.
 3. **Check the encoding browsers get, not the one curl defaults to.** A bare `curl` asks for `identity` and can be correct while gzip is stale:
    ```bash
