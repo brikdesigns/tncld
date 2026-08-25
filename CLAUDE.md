@@ -2,6 +2,15 @@
 
 This file provides project-specific context for Claude Code.
 
+> **Platform status (2026-08-25).** The Next.js rebuild is **live on Netlify**
+> in the two-site model (staging + prod, both `noindex` pre-launch) — see
+> [rag:static-site-deploy-model]. The **off-hours DNS cutover is still pending**
+> ([#44](https://github.com/brikdesigns/tncld/issues/44)), so `tncld.com` continues
+> to serve the **legacy Webflow site via SHA-pinned jsDelivr custom code**. The
+> "Custom Code Deployment (jsDelivr)" and Webflow sections below therefore still
+> describe the **currently-live** surface and are retired **with** the cutover,
+> not before.
+
 ---
 
 ## Compliance Profile
