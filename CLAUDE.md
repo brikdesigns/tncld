@@ -46,7 +46,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 | **Client** | Tennessee Center for Laser Dentistry (TNCLD) |
 | **Stack** | Webflow (legacy — see cross-repo CLAUDE.md § "Stack by surface") |
 | **Webflow Site ID** | `694f1891a016a6340049f761` (public Webflow site ref, not a secret) |
-| **Notion Services DB** | `2ca97d34-ed28-8040-80eb-000b9234418f` (public Notion DB ref, not a secret) |
+| **Notion content DB** | `1f797d34ed288002a614e70707e88ba4` — "TNCLD Website" (public Notion DB ref, not a secret) |
 
 ## Security — read the canonical 5 before any credential work
 
@@ -269,7 +269,47 @@ extract is the source of truth for its ~58 flat fields.
 
 | Database | ID | Purpose |
 |----------|----|---------|
-| TNCLD Services | `2ca97d34-ed28-8040-80eb-000b9234418f` | Service page content |
+| **TNCLD Website** | `1f797d34ed288002a614e70707e88ba4` | **The content source of record** — 36 pages, section-structured, for every route on the site |
+
+Data source (for the Notion MCP / SQL queries): `collection://1f797d34-ed28-8162-9c60-000bcae32c74`.
+
+> **Corrected 2026-08-25.** This table previously named `2ca97d34-ed28-8040-80eb-000b9234418f`
+> ("TNCLD Services"). That ID **does not exist** — the Notion API returns
+> `404 object_not_found` for it, while the ID above returns `200`:
+>
+> ```bash
+> TOK=$(op read "op://Development/qc4jca2wmakrglct6oxaz3iu2y/credential")
+> curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+>   "https://api.notion.com/v1/databases/1f797d34ed288002a614e70707e88ba4/query" \
+>   -H "Authorization: Bearer $TOK" -H 'Notion-Version: 2022-06-28' \
+>   -H 'Content-Type: application/json' -d '{"page_size":1}'   # 200
+> ```
+>
+> `scripts/migrate-from-notion.ts:49` always had the correct ID — only this file
+> was wrong. The cost of that: an agent reads CLAUDE.md first (as instructed),
+> queries a dead ID, finds nothing, and concludes the content does not exist.
+> Six pages were filed in [#56](https://github.com/brikdesigns/tncld/issues/56)
+> as "no source at all" when five of them are authored in the DB above.
+
+### What the DB holds, and why it is the fidelity source
+
+`Status` per page is the authoring state — `Ready for Review` means the copy is
+written. Four properties carry the **original Webflow site's** content, which is
+what a faithful rebuild ([#13](https://github.com/brikdesigns/tncld/issues/13)'s
+corrected charter) has to match:
+
+| Property | Holds |
+|---|---|
+| `Original Web Copy` | the live page's body copy |
+| `Original Page Title` | the live `<title>` |
+| `Original Meta Description` | the live meta description |
+| `Original URL` | the live page it was captured from |
+
+Read it with the Notion MCP (`notion-fetch` on a page URL, or
+`notion-query-data-sources` against the `collection://` URL above) — **not**
+`WebFetch`, which has no credentials. Per-page bodies come back as
+section-delimited markdown with layout hints (`Section-01: Hero`, `Layout:`,
+`Display:`).
 
 ---
 
@@ -277,8 +317,9 @@ extract is the source of truth for its ~58 flat fields.
 
 ### Refresh Services content from Notion
 The rebuild's content pipeline is Notion → `json/cms-data.json`, **not** Notion
-→ Webflow. The ETL reads the TNCLD Services DB
-(`2ca97d34-ed28-8040-80eb-000b9234418f`) and is re-runnable and non-destructive
+→ Webflow. The ETL reads the **TNCLD Website** DB
+(`1f797d34ed288002a614e70707e88ba4`, see § Notion Databases) and is re-runnable
+and non-destructive
 — STAGE 1 writes derived maps to a gitignored `--out` **dir** and does *not*
 overwrite `json/cms-data.json` itself:
 
