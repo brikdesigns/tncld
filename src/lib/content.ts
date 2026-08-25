@@ -23,10 +23,119 @@ export interface ServiceItem {
   description: string;
 }
 
+/**
+ * Home page sections (tncld#89). The home is an ordered list of typed sections
+ * that mirror the section set of the original Webflow homepage — a hero,
+ * social-proof reviews, feature "split" teasers, a numbered process, a
+ * treatments showcase, patient stories, payment options, and closing CTAs.
+ * The section templates in src/components/sections render whatever the source
+ * holds and never hardcode copy, so the model, not the template, owns the IA.
+ */
+export interface SectionAction {
+  label: string;
+  href: string;
+  variant?: 'primary' | 'secondary';
+}
+
+/** Full-width intro. `image` is a key into HomeContent.images. */
+export interface HeroSection {
+  type: 'hero';
+  title: string;
+  body: string;
+  image?: string;
+  actions?: SectionAction[];
+}
+
+/** Social-proof band — an aggregate review count + star rating. */
+export interface ReviewsSection {
+  type: 'reviews';
+  stat: string;
+  rating: number;
+  label: string;
+  body: string;
+}
+
+/** Feature teaser: copy on one side, image on the other. */
+export interface SplitSection {
+  type: 'split';
+  eyebrow?: string;
+  title: string;
+  body: string;
+  image?: string;
+  mediaSide?: 'left' | 'right';
+  action?: SectionAction;
+}
+
+export interface StepItem {
+  label: string;
+  body: string;
+}
+
+/** Numbered "how it works" process. */
+export interface StepsSection {
+  type: 'steps';
+  title: string;
+  steps: StepItem[];
+  action?: SectionAction;
+}
+
+export interface ShowcaseItem {
+  title: string;
+  body: string;
+}
+
+/** A card grid of highlighted treatments / solutions. */
+export interface ShowcaseSection {
+  type: 'showcase';
+  title: string;
+  body?: string;
+  items: ShowcaseItem[];
+}
+
+export interface StoryItem {
+  title: string;
+  body: string;
+}
+
+/** Patient-stories band. */
+export interface TestimonialsSection {
+  type: 'testimonials';
+  title: string;
+  body?: string;
+  stories: StoryItem[];
+}
+
+/** Payment / insurance options. */
+export interface PaymentsSection {
+  type: 'payments';
+  title: string;
+  body: string;
+  methods: string[];
+}
+
+/** Closing call to action, either split-with-image or centered. */
+export interface CtaSection {
+  type: 'cta';
+  variant?: 'split' | 'center';
+  title: string;
+  body: string;
+  image?: string;
+  action?: SectionAction;
+}
+
+export type HomeSection =
+  | HeroSection
+  | ReviewsSection
+  | SplitSection
+  | StepsSection
+  | ShowcaseSection
+  | TestimonialsSection
+  | PaymentsSection
+  | CtaSection;
+
 export interface HomeContent {
-  hero: HeroContent;
   images: Record<string, string>;
-  cta: HeroContent;
+  sections: HomeSection[];
 }
 
 export interface ServicesContent {
@@ -103,7 +212,13 @@ interface IndustryContent {
 }
 
 function industry(): IndustryContent {
-  return (cmsData as Record<string, IndustryContent>)[INDUSTRY];
+  // Boundary cast through `unknown`: the shared cms-data.json is industry-scoped
+  // and heterogeneous — only `dental` conforms to IndustryContent's rich shape
+  // (the other industries keep the old thin `home`), and a JSON import widens
+  // section discriminants (`type`) to `string`, which a direct assertion can't
+  // reconcile with the HomeSection union. The data is validated separately by
+  // scripts/check-content.mjs and the tncld#89 section map.
+  return (cmsData as unknown as Record<string, IndustryContent>)[INDUSTRY];
 }
 
 export function getHomeContent(): HomeContent {
