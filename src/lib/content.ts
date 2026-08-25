@@ -144,11 +144,17 @@ export interface ServicesContent {
   serviceList: ServiceItem[];
 }
 
+/**
+ * About page (tncld#89). Like the home, `about` is an ordered list of typed
+ * marketing sections mirroring the original Webflow /about IA — an interior
+ * hero, "Meet Our Team" / "Tour Our Office" / "Technologies" split teasers, and
+ * a closing CTA — rendered by the shared PageSections templates. This is the
+ * reusable pattern for the remaining interior pages (services, technology,
+ * meet-the-doctors, patient-resources, why-laser-dentistry).
+ */
 export interface AboutContent {
-  title: string;
-  description: string;
   images: Record<string, string>;
-  topics: ServiceItem[];
+  sections: HomeSection[];
 }
 
 /**
