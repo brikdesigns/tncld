@@ -49,3 +49,6 @@ scripts/.migration-output/
 
 # Notion migration extract output (regenerated on demand, #70)
 scripts/.notion-migration-output/
+
+# fidelity-shot.mjs output (tncld#95) — screenshots are build artifacts
+.fidelity/
