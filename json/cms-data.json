@@ -3,10 +3,6 @@
     "slug": "dental",
     "name": "Dental",
     "home": {
-      "hero": {
-        "title": "Better science. Better service. Exceptional dentistry.",
-        "description": "Experience advanced, comfortable dentistry designed around your health and confidence — from preventive visits to implants, hybrids, and Invisalign."
-      },
       "images": {
         "location1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
         "location2": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
@@ -15,10 +11,174 @@
         "person2": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684f04d26602a96b979e9578_frame_8_2x.webp",
         "person3": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e53a3554dd4189506b0_image_wrapper_2x.webp"
       },
-      "cta": {
-        "title": "Ready to Book? We Make It Simple.",
-        "description": "Clear expectations, transparent payment options, and a supportive team focused on your comfort and long-term oral health."
-      }
+      "sections": [
+        {
+          "type": "hero",
+          "title": "Better Science. Better Service. Exceptional Dentistry.",
+          "body": "Experience advanced, comfortable dentistry designed around your health and confidence — from preventive visits to implants, hybrids, and Invisalign.",
+          "image": "location1",
+          "actions": [
+            {
+              "label": "Request an Appointment",
+              "href": "/request-appointment",
+              "variant": "primary"
+            },
+            {
+              "label": "New Patients",
+              "href": "/patient-resources/new-patients",
+              "variant": "secondary"
+            }
+          ]
+        },
+        {
+          "type": "reviews",
+          "stat": "Over 1,000",
+          "rating": 5,
+          "label": "Reviews",
+          "body": "Trusted by families across Franklin who want modern dentistry with a premium experience."
+        },
+        {
+          "type": "split",
+          "eyebrow": "New Patients",
+          "title": "Dental Care Should Be Clear, Comfortable, and Stress-Free",
+          "body": "If you've been putting off care because of anxiety, uncertainty, or past experiences, you're not alone. Our approach is designed to help new patients feel calm, informed, and supported from the very first visit.",
+          "image": "person1",
+          "mediaSide": "right",
+          "action": {
+            "label": "What to Expect as a New Patient",
+            "href": "/patient-resources/new-patients"
+          }
+        },
+        {
+          "type": "steps",
+          "title": "Your Path to a Healthier Smile",
+          "steps": [
+            {
+              "label": "Request an Appointment",
+              "body": "Request online or contact our team."
+            },
+            {
+              "label": "Get a Personalized Treatment Plan",
+              "body": "Clear recommendations tailored to your goals."
+            },
+            {
+              "label": "Enjoy Confident Results",
+              "body": "Comfortable, modern care at every step."
+            }
+          ],
+          "action": {
+            "label": "Request an Appointment",
+            "href": "/request-appointment"
+          }
+        },
+        {
+          "type": "split",
+          "eyebrow": "What Sets Us Apart",
+          "title": "Why “Laser Dentistry” Is Our Standard",
+          "body": "Laser dentistry isn't a specialty — it's our commitment to comfort, precision, and a higher standard of care. We invest in advanced technology and training so your experience feels easier, more predictable, and more supportive.",
+          "image": "location3",
+          "mediaSide": "left",
+          "action": {
+            "label": "Explore Our Difference",
+            "href": "/why-laser-dentistry"
+          }
+        },
+        {
+          "type": "showcase",
+          "title": "Transformative Dental Solutions",
+          "body": "From restoring function to enhancing confidence, our treatments are thoughtfully designed around your goals, comfort, and long-term health.",
+          "items": [
+            {
+              "title": "Cosmetic Dentistry",
+              "body": "Transform your appearance with permanent stability and confidence."
+            },
+            {
+              "title": "Hybrid Dentures",
+              "body": "Secure, full-arch restoration — a stable, comfortable alternative to removable dentures."
+            },
+            {
+              "title": "Invisalign",
+              "body": "Discreet smile alignment — straighten your smile discreetly and comfortably."
+            }
+          ]
+        },
+        {
+          "type": "split",
+          "eyebrow": "Technology",
+          "title": "Where Comfort Meets Precision",
+          "body": "We integrate precision-driven systems and modern diagnostics to improve comfort, efficiency, and clarity at every visit. From same-day solutions to detailed imaging and gentle laser-assisted procedures, our approach is designed to make your experience smoother and your results more predictable.",
+          "image": "location2",
+          "mediaSide": "right",
+          "action": {
+            "label": "How Technology Improves Your Visit",
+            "href": "/technology"
+          }
+        },
+        {
+          "type": "split",
+          "eyebrow": "Our Team",
+          "title": "Experienced Clinicians. Elevated Care.",
+          "body": "Skilled, compassionate doctors dedicated to precise, modern, patient-centered dentistry.",
+          "image": "person3",
+          "mediaSide": "left",
+          "action": {
+            "label": "Meet the Doctors",
+            "href": "/meet-the-doctors"
+          }
+        },
+        {
+          "type": "testimonials",
+          "title": "Real Patients. Real Confidence. Real Results.",
+          "body": "Real transformations. Real confidence. Real results.",
+          "stories": [
+            {
+              "title": "A Life-Changing Transformation",
+              "body": "After a full mouth restoration, this patient shares how supported and cared for they felt every step of the way — and why trusting the right team made all the difference."
+            },
+            {
+              "title": "A Great First Visit",
+              "body": "As a first-time patient — and a technology professional — this patient was impressed by our modern approach, professionalism, and attention to detail."
+            },
+            {
+              "title": "Comfort for Every Age",
+              "body": "From kids to adults, our team focuses on making every visit positive, comfortable, and fun — even for our youngest patients."
+            }
+          ]
+        },
+        {
+          "type": "payments",
+          "title": "Clear, Flexible Payment Options",
+          "body": "We accept a wide range of insurance plans and offer a transparent, easy-to-understand Membership Plan for predictable care and savings, and provide CareCredit financing to make treatment accessible.",
+          "methods": [
+            "Credit / Debit card",
+            "Cash",
+            "Check",
+            "CareCredit",
+            "Membership Plan"
+          ]
+        },
+        {
+          "type": "cta",
+          "variant": "split",
+          "title": "State-of-the-Art Office. Designed for Comfort.",
+          "body": "Experience a beautiful, modern environment crafted to enhance your comfort and care.",
+          "image": "location3",
+          "action": {
+            "label": "Take the Virtual Tour",
+            "href": "/about"
+          }
+        },
+        {
+          "type": "cta",
+          "variant": "center",
+          "title": "Ready to Book? We Make It Simple.",
+          "body": "Clear expectations, transparent payment options, and a supportive team focused on your comfort and long-term oral health.",
+          "action": {
+            "label": "Schedule an Appointment",
+            "href": "/request-appointment"
+          }
+        }
+      ]
     },
     "about": {
       "title": "About Us",

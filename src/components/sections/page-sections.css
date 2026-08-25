@@ -1,0 +1,325 @@
+/* Marketing section templates (tncld#89). Canonical BDS color/border tokens via
+   var() (see src/styles/theme-tncld.css); spacing is raw rem, matching the
+   shell, home, and legal shells. Every band shares one content max-width so the
+   sections align down the page. */
+
+.section-hero,
+.section-split,
+.section-steps,
+.section-showcase,
+.section-testimonials,
+.section-payments,
+.section-cta {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────── */
+.section-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 4rem 1.5rem;
+}
+.section-hero__copy {
+  flex: 1 1 22rem;
+}
+.section-hero__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-hero__lede {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+  max-width: 44ch;
+}
+.section-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.section-hero__image {
+  flex: 1 1 22rem;
+  width: 100%;
+  height: auto;
+  max-width: 36rem;
+  border-radius: var(--border-radius-lg);
+  object-fit: cover;
+}
+
+/* ── Reviews (social proof) ─────────────────────────────────────────── */
+.section-reviews {
+  background: var(--background-secondary);
+  text-align: center;
+}
+.section-reviews__stat {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 0;
+  color: var(--text-primary);
+  font-family: var(--font-family-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.section-reviews__stars {
+  margin: 0.5rem 0 0;
+  color: var(--text-brand-primary);
+  font-size: 1.5rem;
+  letter-spacing: 0.15em;
+}
+.section-reviews__label {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+}
+.section-reviews__body {
+  margin: 1rem auto 0;
+  padding: 0 1.5rem 3rem;
+  max-width: 44ch;
+  color: var(--text-secondary);
+}
+
+/* ── Split (feature teaser) ─────────────────────────────────────────── */
+.section-split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 4rem 1.5rem;
+}
+.section-split--media-left {
+  flex-direction: row-reverse;
+}
+.section-split__copy {
+  flex: 1 1 22rem;
+}
+.section-split__eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--text-brand-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.section-split__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-split__body {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+.section-split__image {
+  flex: 1 1 22rem;
+  width: 100%;
+  height: auto;
+  max-width: 34rem;
+  border-radius: var(--border-radius-lg);
+  object-fit: cover;
+}
+
+/* ── Steps (process) ────────────────────────────────────────────────── */
+.section-steps {
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+.section-steps__title {
+  margin: 0 0 2rem;
+  color: var(--text-primary);
+}
+.section-steps__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.5rem;
+}
+.section-steps__item {
+  padding: 1.5rem;
+}
+.section-steps__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--background-brand-primary);
+  color: var(--text-inverse);
+  font-weight: 700;
+}
+.section-steps__item-title {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+.section-steps__item-body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+.section-steps__cta {
+  margin-top: 2rem;
+}
+
+/* ── Showcase (treatments card grid) ────────────────────────────────── */
+.section-showcase {
+  padding: 4rem 1.5rem;
+}
+.section-showcase__intro {
+  max-width: 52ch;
+  margin: 0 0 2rem;
+}
+.section-showcase__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-showcase__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+.section-showcase__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1.5rem;
+}
+.section-showcase__card {
+  padding: 1.5rem;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+}
+.section-showcase__card-title {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+.section-showcase__card-body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* ── Testimonials (patient stories) ─────────────────────────────────── */
+.section-testimonials {
+  padding: 4rem 1.5rem;
+}
+.section-testimonials__intro {
+  margin: 0 0 2rem;
+  text-align: center;
+}
+.section-testimonials__title {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+.section-testimonials__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+.section-testimonials__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 1.5rem;
+}
+.section-testimonials__card {
+  padding: 1.5rem;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+}
+.section-testimonials__card-title {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+.section-testimonials__card-body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* ── Payments ───────────────────────────────────────────────────────── */
+.section-payments {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 4rem 1.5rem;
+}
+.section-payments__copy {
+  flex: 1 1 24rem;
+}
+.section-payments__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-payments__body {
+  margin: 0;
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+.section-payments__methods {
+  flex: 1 1 16rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.section-payments__method {
+  padding: 0.5rem 1rem;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+/* ── CTA ────────────────────────────────────────────────────────────── */
+.section-cta--center {
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+.section-cta--center .section-cta__copy {
+  max-width: 60rem;
+  margin: 0 auto;
+}
+.section-cta--split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 4rem 1.5rem;
+}
+.section-cta--split .section-cta__copy {
+  flex: 1 1 24rem;
+}
+.section-cta__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-cta__body {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+.section-cta--center .section-cta__body {
+  margin-left: auto;
+  margin-right: auto;
+}
+.section-cta__image {
+  flex: 1 1 22rem;
+  width: 100%;
+  height: auto;
+  max-width: 34rem;
+  border-radius: var(--border-radius-lg);
+  object-fit: cover;
+}

@@ -1,0 +1,309 @@
+import { Button } from '@brikdesigns/bds';
+import type {
+  CtaSection,
+  HeroSection,
+  HomeSection,
+  PaymentsSection,
+  ReviewsSection,
+  SectionAction,
+  ShowcaseSection,
+  SplitSection,
+  StepsSection,
+  TestimonialsSection,
+} from '@/lib/content';
+import './page-sections.css';
+
+/**
+ * Section-template renderer for the marketing pages (tncld#89). A page's
+ * content model is an ordered list of typed sections; this switches on
+ * `section.type` and renders the matching BDS-token template. Templates render
+ * only what the source holds — no hardcoded copy — so the model owns the page
+ * IA and interior pages can reuse the same section set as their content lands.
+ *
+ * `images` maps the image keys used by hero/split/cta sections to their URLs
+ * (the migrated Webflow CDN assets in `home.images`; localizing them is
+ * tracked in tncld#56).
+ */
+export function PageSections({
+  sections,
+  images,
+}: {
+  sections: HomeSection[];
+  images: Record<string, string>;
+}) {
+  return (
+    <>
+      {sections.map((section, index) => {
+        const key = `${section.type}-${index}`;
+        switch (section.type) {
+          case 'hero':
+            return <Hero key={key} section={section} images={images} eager />;
+          case 'reviews':
+            return <Reviews key={key} section={section} />;
+          case 'split':
+            return <Split key={key} section={section} images={images} />;
+          case 'steps':
+            return <Steps key={key} section={section} />;
+          case 'showcase':
+            return <Showcase key={key} section={section} />;
+          case 'testimonials':
+            return <Testimonials key={key} section={section} />;
+          case 'payments':
+            return <Payments key={key} section={section} />;
+          case 'cta':
+            return <Cta key={key} section={section} images={images} />;
+        }
+      })}
+    </>
+  );
+}
+
+function ActionButton({
+  action,
+  variant,
+}: {
+  action: SectionAction;
+  variant?: 'primary' | 'secondary';
+}) {
+  return (
+    <Button href={action.href} variant={action.variant ?? variant ?? 'primary'}>
+      {action.label}
+    </Button>
+  );
+}
+
+// Migrated Webflow CDN asset; localizing assets is tracked in tncld#56.
+function SectionImage({
+  src,
+  className,
+  eager,
+}: {
+  src: string;
+  className: string;
+  eager?: boolean;
+}) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className={className}
+      src={src}
+      alt=""
+      loading={eager ? 'eager' : 'lazy'}
+    />
+  );
+}
+
+function Hero({
+  section,
+  images,
+  eager,
+}: {
+  section: HeroSection;
+  images: Record<string, string>;
+  eager?: boolean;
+}) {
+  const image = section.image ? images[section.image] : undefined;
+  return (
+    <section className="section-hero">
+      <div className="section-hero__copy">
+        <h1 className="section-hero__title">{section.title}</h1>
+        <p className="section-hero__lede">{section.body}</p>
+        {section.actions?.length ? (
+          <div className="section-hero__actions">
+            {section.actions.map((action) => (
+              <ActionButton key={action.href} action={action} />
+            ))}
+          </div>
+        ) : null}
+      </div>
+      {image ? (
+        <SectionImage src={image} className="section-hero__image" eager={eager} />
+      ) : null}
+    </section>
+  );
+}
+
+function Reviews({ section }: { section: ReviewsSection }) {
+  return (
+    <section className="section-reviews" aria-label="Patient reviews">
+      <p className="section-reviews__stat">{section.stat}</p>
+      <p
+        className="section-reviews__stars"
+        role="img"
+        aria-label={`${section.rating} out of 5 stars`}
+      >
+        {'★'.repeat(section.rating)}
+      </p>
+      <p className="section-reviews__label">{section.label}</p>
+      <p className="section-reviews__body">{section.body}</p>
+    </section>
+  );
+}
+
+function Split({
+  section,
+  images,
+}: {
+  section: SplitSection;
+  images: Record<string, string>;
+}) {
+  const image = section.image ? images[section.image] : undefined;
+  const headingId = `split-${section.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')}`;
+  return (
+    <section
+      className={`section-split section-split--media-${section.mediaSide ?? 'right'}`}
+      aria-labelledby={headingId}
+    >
+      <div className="section-split__copy">
+        {section.eyebrow ? (
+          <p className="section-split__eyebrow">{section.eyebrow}</p>
+        ) : null}
+        <h2 id={headingId} className="section-split__title">
+          {section.title}
+        </h2>
+        <p className="section-split__body">{section.body}</p>
+        {section.action ? <ActionButton action={section.action} /> : null}
+      </div>
+      {image ? (
+        <SectionImage src={image} className="section-split__image" />
+      ) : null}
+    </section>
+  );
+}
+
+function Steps({ section }: { section: StepsSection }) {
+  return (
+    <section className="section-steps" aria-labelledby="section-steps-heading">
+      <h2 id="section-steps-heading" className="section-steps__title">
+        {section.title}
+      </h2>
+      <ol className="section-steps__list">
+        {section.steps.map((step, index) => (
+          <li key={step.label} className="section-steps__item">
+            <span className="section-steps__number" aria-hidden="true">
+              {index + 1}
+            </span>
+            <h3 className="section-steps__item-title">{step.label}</h3>
+            <p className="section-steps__item-body">{step.body}</p>
+          </li>
+        ))}
+      </ol>
+      {section.action ? (
+        <div className="section-steps__cta">
+          <ActionButton action={section.action} />
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function Showcase({ section }: { section: ShowcaseSection }) {
+  return (
+    <section
+      className="section-showcase"
+      aria-labelledby="section-showcase-heading"
+    >
+      <div className="section-showcase__intro">
+        <h2 id="section-showcase-heading" className="section-showcase__title">
+          {section.title}
+        </h2>
+        {section.body ? (
+          <p className="section-showcase__body">{section.body}</p>
+        ) : null}
+      </div>
+      <ul className="section-showcase__grid">
+        {section.items.map((item) => (
+          <li key={item.title} className="section-showcase__card">
+            <h3 className="section-showcase__card-title">{item.title}</h3>
+            <p className="section-showcase__card-body">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function Testimonials({ section }: { section: TestimonialsSection }) {
+  return (
+    <section
+      className="section-testimonials"
+      aria-labelledby="section-testimonials-heading"
+    >
+      <div className="section-testimonials__intro">
+        <h2
+          id="section-testimonials-heading"
+          className="section-testimonials__title"
+        >
+          {section.title}
+        </h2>
+        {section.body ? (
+          <p className="section-testimonials__body">{section.body}</p>
+        ) : null}
+      </div>
+      <ul className="section-testimonials__grid">
+        {section.stories.map((story) => (
+          <li key={story.title} className="section-testimonials__card">
+            <h3 className="section-testimonials__card-title">{story.title}</h3>
+            <p className="section-testimonials__card-body">{story.body}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function Payments({ section }: { section: PaymentsSection }) {
+  return (
+    <section
+      className="section-payments"
+      aria-labelledby="section-payments-heading"
+    >
+      <div className="section-payments__copy">
+        <h2 id="section-payments-heading" className="section-payments__title">
+          {section.title}
+        </h2>
+        <p className="section-payments__body">{section.body}</p>
+      </div>
+      <ul className="section-payments__methods">
+        {section.methods.map((method) => (
+          <li key={method} className="section-payments__method">
+            {method}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function Cta({
+  section,
+  images,
+}: {
+  section: CtaSection;
+  images: Record<string, string>;
+}) {
+  const image =
+    section.variant === 'split' && section.image
+      ? images[section.image]
+      : undefined;
+  return (
+    <section
+      className={`section-cta section-cta--${section.variant ?? 'center'}`}
+      aria-labelledby="section-cta-heading"
+    >
+      <div className="section-cta__copy">
+        <h2 id="section-cta-heading" className="section-cta__title">
+          {section.title}
+        </h2>
+        <p className="section-cta__body">{section.body}</p>
+        {section.action ? <ActionButton action={section.action} /> : null}
+      </div>
+      {image ? (
+        <SectionImage src={image} className="section-cta__image" />
+      ) : null}
+    </section>
+  );
+}
