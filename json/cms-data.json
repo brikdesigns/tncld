@@ -181,8 +181,6 @@
       ]
     },
     "about": {
-      "title": "About Us",
-      "description": "We are a locally owned, general dentistry practice providing a comprehensive list of services for the entire family. We strive to offer our community a unique dental experience using lasers and the latest technological advancements available to us today. Our primary goal is to learn new and effective ways to perform traditional dental procedures and educate our patients to save time and have an overall more comfortable experience.",
       "images": {
         "image1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
         "image2": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e3c831b9c9befb709af_img-lg.jpg",
@@ -190,18 +188,55 @@
         "image4": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e53a3554dd4189506b0_image_wrapper_2x.webp",
         "image5": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e5bb76f5b253dc1fc31_image-wrapper.jpg"
       },
-      "topics": [
+      "sections": [
         {
+          "type": "hero",
+          "title": "About",
+          "body": "We are a locally owned, general dentistry practice providing a comprehensive list of services for the entire family. We strive to offer our community a unique dental experience using lasers and the latest technological advancements available to us today. Our primary goal is to learn new and effective ways to perform traditional dental procedures and educate our patients to save time and have an overall more comfortable experience.",
+          "image": "image1"
+        },
+        {
+          "type": "split",
           "title": "Meet Our Team",
-          "description": "Our highly-skilled team truly cares about your dental needs. Get to know everyone on our team by clicking the button below."
+          "body": "Our highly-skilled team truly cares about your dental needs. Get to know everyone on our team by clicking the button below.",
+          "image": "image2",
+          "mediaSide": "right",
+          "action": {
+            "label": "Meet the Doctors",
+            "href": "/meet-the-doctors"
+          }
         },
         {
+          "type": "split",
           "title": "Tour Our Office",
-          "description": "Want to know what our office looks like? Click below for high-quality images and a virtual tour of our Franklin office."
+          "body": "Want to know what our office looks like? Click below for high-quality images and a virtual tour of our Franklin office.",
+          "image": "image3",
+          "mediaSide": "left",
+          "action": {
+            "label": "Patient Resources",
+            "href": "/patient-resources"
+          }
         },
         {
+          "type": "split",
           "title": "Technologies",
-          "description": "We are a family, cosmetic and general dental practice that uses lasers and other advanced technologies to provide a modern, pleasant dental experience."
+          "body": "We are a family, cosmetic and general dental practice that uses lasers and other advanced technologies to provide a modern, pleasant dental experience.",
+          "image": "image4",
+          "mediaSide": "right",
+          "action": {
+            "label": "Explore Our Technology",
+            "href": "/technology"
+          }
+        },
+        {
+          "type": "cta",
+          "variant": "center",
+          "title": "Schedule an Appointment Today!",
+          "body": "Clear expectations, transparent payment options, and a membership plan designed for accessible preventive care.",
+          "action": {
+            "label": "Request an Appointment",
+            "href": "/request-appointment"
+          }
         }
       ]
     },
