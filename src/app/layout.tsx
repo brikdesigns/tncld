@@ -11,22 +11,21 @@ export const metadata: Metadata = {
 };
 
 /**
- * Anti-FOUC script: reads localStorage/prefers-color-scheme and sets
- * data-theme on <html> before React hydrates, so the dark-mode token block in
- * theme-tncld.css resolves without a flash of the wrong theme.
+ * The site is dark, unconditionally — the Webflow original renders white on
+ * black on every section and ships no light scheme or theme switcher
+ * (tncld#95). This previously read `prefers-color-scheme` and served a light
+ * page to light-OS visitors, so the rebuild had two appearances and neither
+ * was the original's. Nothing in the app writes `localStorage.theme`, so that
+ * branch was dead anyway.
+ *
+ * Set as an inline pre-hydration script rather than a static attribute so
+ * `colorScheme` is applied before first paint: it is what makes form controls,
+ * scrollbars, and the overscroll gutter render dark instead of flashing white.
  */
 const themeScript = `
 (function() {
-  try {
-    var saved = localStorage.getItem('theme');
-    var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-  } catch (e) {
-    // localStorage / matchMedia unavailable (e.g. private mode) — leave the
-    // default (light) theme rather than blocking first paint.
-    console.warn('theme init skipped', e);
-  }
+  document.documentElement.dataset.theme = 'dark';
+  document.documentElement.style.colorScheme = 'dark';
 })();
 `;
 

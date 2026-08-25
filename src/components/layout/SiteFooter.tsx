@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { LEGAL_PAGES } from '@/lib/legal';
 import { PRIMARY_NAV, APPOINTMENT_CTA, PRACTICE_NAME } from './site-nav';
@@ -16,7 +17,17 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="site-footer__inner">
         <div className="site-footer__brand">
-          <p className="site-footer__brand-name">{PRACTICE_NAME}</p>
+          {/* Matches the original's footer, which repeats the header lockup
+              (tncld#94). Decorative here: PRACTICE_NAME already names the
+              practice in the copyright line below, so alt is empty rather than
+              announcing the same words twice. */}
+          <Image
+            className="site-footer__brand-mark"
+            src="/images/tncld-logo.svg"
+            alt=""
+            width={204}
+            height={62}
+          />
           <Link href={APPOINTMENT_CTA.href} className="site-footer__cta-link">
             {APPOINTMENT_CTA.label}
           </Link>

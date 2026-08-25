@@ -6,11 +6,19 @@
  * cascade layer by src/app/globals.css.
  *
  * Selector contract (mirrors brikdesigns `.theme-brand-brik`): `.theme-tncld`
- * is applied to <body> in layout.tsx. Light-mode tokens live on `.theme-tncld`;
- * dark-mode tokens on `:root[data-theme="dark"] .theme-tncld`.
+ * is applied to <body> in layout.tsx. The site's OWN tokens live on
+ * `.theme-tncld`; the opposite scheme lives on `:root[data-theme="…"]
+ * .theme-tncld`.
  *
- * Atmosphere: minimal-clinical (dental precedent — pure white, zero-effect).
- * The current canonical atmosphere is inert; its content is inlined at the end.
+ * DARK IS THE SITE'S DEFAULT, not a mode (tncld#95). Measured from the live
+ * Webflow original: every h1/h2 renders white on an `rgb(0, 0, 0)` backdrop —
+ * all 12 homepage sections, no light section anywhere. The rebuild shipped
+ * light because it inherited the BDS default, which is why /` and /about read
+ * as a different site. Flipping the default here rather than per section keeps
+ * one source of truth and means new sections inherit the right scheme.
+ *
+ * Atmosphere: minimal-clinical. The canonical atmosphere is inert (adds no
+ * color); its content is inlined at the end.
  *
  * TOKEN DISCIPLINE: every semantic token below is a name defined in
  * @brikdesigns/bds dist/tokens.css (validated against the registry). Only the
@@ -23,13 +31,13 @@
 
 .theme-tncld {
   /* ── Brand primitives ──────────────────────────────────────────────
-   * TODO: confirm TNCLD brand. Derived from the live Webflow site's
-   * design-tokens/webflow-tokens.json, which maps semantic tokens onto the
-   * BDS "blue" theme palette (design-tokens/tokens.json → theme.blue-*).
-   * Hover/pressed/secondary tonal stops taken from that same blue ramp; the
-   * ramp has no dedicated interaction stops, so these are best-fit placeholders
-   * pending a confirmed brand palette. */
-  --tncld-blue:           #4665f5; /* theme.blue-blue-light — primary */
+   * Measured from the live Webflow original, not derived from the template
+   * palette (tncld#95): the primary action renders `rgb(0, 101, 255)` and the
+   * page sits on `rgb(0, 0, 0)` with one `rgb(24, 24, 24)` panel tone.
+   * Hover/pressed stops have no counterpart in the original — it ships no
+   * interaction states — so those remain best-fit stops on the same ramp. */
+  --tncld-blue:           #0065ff; /* measured: primary action background */
+  --tncld-off-black:      #181818; /* measured: raised panel tone on black */
   --tncld-blue-lighter:   #79b0d9; /* theme.blue-blue-lighter */
   --tncld-blue-lightest:  #edf2f6; /* theme.blue-blue-lightest */
   --tncld-blue-dark:      #0e212a; /* theme.blue-blue-dark — deep navy */
@@ -45,67 +53,58 @@
   --tncld-gray-lightest:  #f2f2f2;
 
   /* ── Fonts (TNCLD = Poppins, per design-tokens) ────────────────────── */
-  --font-family-display:  Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-heading:  Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-subtitle: Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-body:     Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-label:    Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-display:  Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-heading:  Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-subtitle: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-body:     Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-label:    Inter, -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* ── Light-mode semantic overrides (minimal-clinical: white surfaces) ── */
+  /* ── Site-default semantics: black surfaces, white type ──────────────
+   * Matches the measured original. Contrast ratios below are against
+   * `--tncld-black`, the surface these actually render on. */
   --background-brand-primary:         var(--tncld-blue);
   --background-brand-primary-hover:   var(--tncld-blue-lighter);
   --background-brand-primary-pressed: var(--tncld-blue-dark);
-  --background-brand-secondary:       var(--tncld-blue-lightest);
-  --background-primary:               var(--tncld-white);
-  --background-secondary:             var(--tncld-white);
-  --background-tertiary:              var(--tncld-gray-lightest);
-  --background-inverse:               var(--tncld-blue-dark);
-  --background-input:                 var(--tncld-white);
+  --background-brand-secondary:       var(--tncld-off-black);
+  --background-primary:               var(--tncld-black);
+  --background-secondary:             var(--tncld-black);
+  --background-tertiary:              var(--tncld-off-black);
+  --background-inverse:               var(--tncld-white);
+  --background-input:                 var(--tncld-off-black);
 
-  --surface-primary:   var(--tncld-white);
-  --surface-secondary: var(--tncld-white);
+  --surface-primary:   var(--tncld-black);
+  --surface-secondary: var(--tncld-off-black);
 
-  --text-primary:       var(--tncld-gray-darkest); /* 12.6:1 on white */
-  --text-secondary:     var(--tncld-gray-darker);  /* 9.0:1 on white */
-  --text-muted:         var(--tncld-gray-dark);     /* 3.5:1 — decorative/placeholder use */
-  --text-inverse:       var(--tncld-white);
-  --text-brand-primary: var(--tncld-blue);          /* 4.67:1 on white — passes AA */
-  --text-on-color-light: var(--tncld-gray-darkest);
-  --text-link:          var(--tncld-blue);
-
-  --border-primary:       var(--tncld-gray-light);
-  --border-brand-primary: var(--tncld-blue);
-  --border-input:         var(--tncld-gray-light);
-
-  --page-primary: var(--tncld-white);
-  --page-accent:  var(--tncld-blue-lightest);
-}
-
-/* ── Dark-mode divergences ─────────────────────────────────────────── */
-:root[data-theme="dark"] .theme-tncld {
-  --background-primary:   var(--tncld-blue-dark);
-  --background-secondary: var(--tncld-blue-dark);
-  --background-tertiary:  var(--tncld-blue-dark);
-  --background-inverse:   var(--tncld-white);
-  --background-input:     var(--tncld-blue-dark);
-
-  --surface-primary:   var(--tncld-blue-dark);
-  --surface-secondary: var(--tncld-blue-dark);
-
-  --text-primary:       var(--tncld-white);
-  --text-secondary:     var(--tncld-gray-lighter);
-  --text-muted:         var(--tncld-gray-light);
+  --text-primary:       var(--tncld-white);         /* 21.00:1 on black */
+  --text-secondary:     var(--tncld-gray-lighter);  /* 15.91:1 on black */
+  --text-muted:         var(--tncld-gray-light);    /* 11.18:1 on black */
   --text-inverse:       var(--tncld-gray-darkest);
-  /* Blue brand primitive fails AA on the navy surface, so brand text/links use
-     the green accent in dark mode (9.3:1 on --tncld-blue-dark). */
+  /* DELIBERATE DEVIATION (WCAG 2.1 AA, per the repo Compliance Profile):
+     the original renders brand-blue TEXT on black at 4.31:1, below the 4.5:1
+     AA threshold for body copy. Brand text and links therefore use the green
+     accent (11.99:1 on black). The blue is reproduced faithfully where it is a
+     BACKGROUND — white on --tncld-blue is 4.88:1 and passes. */
   --text-brand-primary: var(--tncld-green);
+  --text-on-color-light: var(--tncld-gray-darkest);
   --text-link:          var(--tncld-green);
 
-  --border-primary: var(--tncld-gray-dark);
+  /* --tncld-gray-darker (#4f4f4f) is only 2.56:1 on black and would fail the
+     3:1 floor for UI-component boundaries (WCAG 1.4.11). --tncld-gray-dark is
+     5.46:1. */
+  --border-primary:       var(--tncld-gray-dark);
+  --border-brand-primary: var(--tncld-blue);
+  --border-input:         var(--tncld-gray-dark);
 
-  --page-primary: var(--tncld-blue-dark);
-  --page-accent:  var(--tncld-blue-dark);
+  --page-primary: var(--tncld-black);
+  --page-accent:  var(--tncld-off-black);
 }
+
+/* No light-scheme block. The original ships no light scheme and no switcher,
+ * layout.tsx pins data-theme="dark", and nothing in the app writes
+ * localStorage.theme — so a `[data-theme="light"]` block here would be
+ * unreachable. The dark values above are the site's only palette, which is
+ * also why they live on `.theme-tncld` itself: server-rendered HTML is correct
+ * before the pre-hydration script runs, so there is no flash. */
 
 /* Heading font family (mirrors the dental precedent theme). */
 .theme-tncld h1,

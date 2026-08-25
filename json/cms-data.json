@@ -4,19 +4,19 @@
     "name": "Dental",
     "home": {
       "images": {
-        "location1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
-        "location2": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
-        "location3": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684f04d26602a96b979e9578_frame_8_2x.webp",
-        "person1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e5bb76f5b253dc1fc31_image-wrapper.jpg",
-        "person2": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684f04d26602a96b979e9578_frame_8_2x.webp",
-        "person3": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e53a3554dd4189506b0_image_wrapper_2x.webp"
+        "hero": "/images/tncld-landscape-2x-11.webp",
+        "newPatients": "/images/tncld-landscape-4x-14.webp",
+        "whyLaser": "/images/tncld-landscape-2x-12.webp",
+        "technology": "/images/tncld-landscape-4x-15.webp",
+        "team": "/images/tncld-landscape-4x-22.webp",
+        "office": "/images/tncld-landscape-4x-13.webp"
       },
       "sections": [
         {
           "type": "hero",
           "title": "Better Science. Better Service. Exceptional Dentistry.",
           "body": "Experience advanced, comfortable dentistry designed around your health and confidence — from preventive visits to implants, hybrids, and Invisalign.",
-          "image": "location1",
+          "image": "hero",
           "actions": [
             {
               "label": "Request an Appointment",
@@ -42,7 +42,7 @@
           "eyebrow": "New Patients",
           "title": "Dental Care Should Be Clear, Comfortable, and Stress-Free",
           "body": "If you've been putting off care because of anxiety, uncertainty, or past experiences, you're not alone. Our approach is designed to help new patients feel calm, informed, and supported from the very first visit.",
-          "image": "person1",
+          "image": "newPatients",
           "mediaSide": "right",
           "action": {
             "label": "What to Expect as a New Patient",
@@ -76,7 +76,7 @@
           "eyebrow": "What Sets Us Apart",
           "title": "Why “Laser Dentistry” Is Our Standard",
           "body": "Laser dentistry isn't a specialty — it's our commitment to comfort, precision, and a higher standard of care. We invest in advanced technology and training so your experience feels easier, more predictable, and more supportive.",
-          "image": "location3",
+          "image": "whyLaser",
           "mediaSide": "left",
           "action": {
             "label": "Explore Our Difference",
@@ -107,7 +107,7 @@
           "eyebrow": "Technology",
           "title": "Where Comfort Meets Precision",
           "body": "We integrate precision-driven systems and modern diagnostics to improve comfort, efficiency, and clarity at every visit. From same-day solutions to detailed imaging and gentle laser-assisted procedures, our approach is designed to make your experience smoother and your results more predictable.",
-          "image": "location2",
+          "image": "technology",
           "mediaSide": "right",
           "action": {
             "label": "How Technology Improves Your Visit",
@@ -119,7 +119,7 @@
           "eyebrow": "Our Team",
           "title": "Experienced Clinicians. Elevated Care.",
           "body": "Skilled, compassionate doctors dedicated to precise, modern, patient-centered dentistry.",
-          "image": "person3",
+          "image": "team",
           "mediaSide": "left",
           "action": {
             "label": "Meet the Doctors",
@@ -162,7 +162,7 @@
           "variant": "split",
           "title": "State-of-the-Art Office. Designed for Comfort.",
           "body": "Experience a beautiful, modern environment crafted to enhance your comfort and care.",
-          "image": "location3",
+          "image": "office",
           "action": {
             "label": "Take the Virtual Tour",
             "href": "/about"
@@ -182,24 +182,21 @@
     },
     "about": {
       "images": {
-        "image1": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e4a3b83bb1794cbaa74_img_lg_2x.webp",
-        "image2": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e3c831b9c9befb709af_img-lg.jpg",
-        "image3": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2c90bb1ce869f5959a0d_Frame%208.jpg",
-        "image4": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e53a3554dd4189506b0_image_wrapper_2x.webp",
-        "image5": "https://cdn.prod.website-files.com/67c4e62250923072710d478a/684c2e5bb76f5b253dc1fc31_image-wrapper.jpg"
+        "team": "/images/tncld-landscape-4x-19.webp",
+        "office": "/images/tncld-landscape-4x-14.webp",
+        "technologies": "/images/tncld-landscape-4x-17.webp"
       },
       "sections": [
         {
           "type": "hero",
           "title": "About",
-          "body": "We are a locally owned, general dentistry practice providing a comprehensive list of services for the entire family. We strive to offer our community a unique dental experience using lasers and the latest technological advancements available to us today. Our primary goal is to learn new and effective ways to perform traditional dental procedures and educate our patients to save time and have an overall more comfortable experience.",
-          "image": "image1"
+          "body": "We are a locally owned, general dentistry practice providing a comprehensive list of services for the entire family. We strive to offer our community a unique dental experience using lasers and the latest technological advancements available to us today. Our primary goal is to learn new and effective ways to perform traditional dental procedures and educate our patients to save time and have an overall more comfortable experience."
         },
         {
           "type": "split",
           "title": "Meet Our Team",
           "body": "Our highly-skilled team truly cares about your dental needs. Get to know everyone on our team by clicking the button below.",
-          "image": "image2",
+          "image": "team",
           "mediaSide": "right",
           "action": {
             "label": "Meet the Doctors",
@@ -210,7 +207,7 @@
           "type": "split",
           "title": "Tour Our Office",
           "body": "Want to know what our office looks like? Click below for high-quality images and a virtual tour of our Franklin office.",
-          "image": "image3",
+          "image": "office",
           "mediaSide": "left",
           "action": {
             "label": "Patient Resources",
@@ -221,7 +218,7 @@
           "type": "split",
           "title": "Technologies",
           "body": "We are a family, cosmetic and general dental practice that uses lasers and other advanced technologies to provide a modern, pleasant dental experience.",
-          "image": "image4",
+          "image": "technologies",
           "mediaSide": "right",
           "action": {
             "label": "Explore Our Technology",

@@ -3,7 +3,6 @@
    shell, home, and legal shells. Every band shares one content max-width so the
    sections align down the page. */
 
-.section-hero,
 .section-split,
 .section-steps,
 .section-showcase,
@@ -14,38 +13,79 @@
   margin: 0 auto;
 }
 
+/* Section headings all render at one size in the original — 45.5px / 54.6px
+   line-height / weight 700, measured on every h2 on the homepage. The rebuild
+   inherited the BDS default ramp instead, which is why the page read as flat.
+   The vw term reproduces the original's scaling between breakpoints. */
+.section-split__title,
+.section-steps__title,
+.section-showcase__title,
+.section-testimonials__title,
+.section-payments__title,
+.section-cta__title {
+  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
 /* ── Hero ───────────────────────────────────────────────────────────── */
+/* Full-bleed media with the copy overlaid, matching the original: an 800px-tall
+   section at 1440 wide, media filling it behind a 40% black scrim, copy
+   left-aligned on a 16px page gutter. This was a boxed two-column split — copy
+   left, 16:9 image right — which is the single biggest reason `/` did not read
+   as the same site. The hero is deliberately outside the shared 80rem rule
+   above; it is the one band that spans the viewport. */
 .section-hero {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 2.5rem;
-  padding: 4rem 1.5rem;
+  min-height: 50rem;
+  padding: 4rem 1rem;
+  overflow: hidden;
+  isolation: isolate;
 }
 .section-hero__copy {
-  flex: 1 1 22rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
 }
 .section-hero__title {
-  margin: 0 0 1rem;
+  margin: 0;
+  /* 92.2px at the original's 1440 reference width. */
+  font-size: clamp(2.5rem, 6.4vw, 5.7625rem);
+  line-height: 1;
   color: var(--text-primary);
 }
 .section-hero__lede {
-  margin: 0 0 1.5rem;
-  color: var(--text-secondary);
-  max-width: 44ch;
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
 }
 .section-hero__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
+/* Media layer: fills the section rather than sitting in a 16:9 frame. */
 .section-hero__image {
-  flex: 1 1 22rem;
-  width: 100%;
-  height: auto;
-  max-width: 36rem;
-  border-radius: var(--border-radius-lg);
-  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 0;
+}
+/* The original's scrim — `rgba(0, 0, 0, 0.4)` — is what keeps white copy
+   legible over arbitrary video frames. Reproduced, and load-bearing for
+   contrast: without it the hero text has no guaranteed ratio at all. */
+.section-hero__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.4);
 }
 
 /* ── Reviews (social proof) ─────────────────────────────────────────── */
@@ -53,28 +93,31 @@
   background: var(--background-secondary);
   text-align: center;
 }
-.section-reviews__stat {
+/* Stat, stars and label share one baseline at the original's 57.5px. */
+.section-reviews__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
   max-width: 60rem;
   margin: 0 auto;
   padding: 3rem 1.5rem 0;
   color: var(--text-primary);
   font-family: var(--font-family-display);
-  font-size: 2.5rem;
+  font-size: clamp(1.75rem, 4vw, 3.59375rem);
   font-weight: 700;
   line-height: 1.1;
 }
+/* Blue, as the original renders them. The brand blue is 4.31:1 on black, below
+   the 4.5:1 AA floor for TEXT — which is why --text-brand-primary is green —
+   but these stars are a graphic (role="img", with the rating in aria-label), so
+   the applicable floor is 3:1 for non-text contrast (WCAG 1.4.11) and blue
+   clears it. Local primitive rather than a semantic token: no BDS semantic name
+   means "brand colour, graphics only". */
 .section-reviews__stars {
-  margin: 0.5rem 0 0;
-  color: var(--text-brand-primary);
-  font-size: 1.5rem;
-  letter-spacing: 0.15em;
-}
-.section-reviews__label {
-  margin: 0.25rem 0 0;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.875rem;
+  color: var(--tncld-blue);
+  letter-spacing: 0.05em;
 }
 .section-reviews__body {
   margin: 1rem auto 0;
@@ -117,10 +160,11 @@
 .section-split__image {
   flex: 1 1 22rem;
   width: 100%;
-  height: auto;
   max-width: 34rem;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
   border-radius: var(--border-radius-lg);
-  object-fit: cover;
 }
 
 /* ── Steps (process) ────────────────────────────────────────────────── */
@@ -318,8 +362,9 @@
 .section-cta__image {
   flex: 1 1 22rem;
   width: 100%;
-  height: auto;
   max-width: 34rem;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
   border-radius: var(--border-radius-lg);
-  object-fit: cover;
 }

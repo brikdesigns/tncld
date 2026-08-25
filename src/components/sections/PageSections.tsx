@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Button } from '@brikdesigns/bds';
 import type {
   CtaSection,
@@ -72,7 +73,20 @@ function ActionButton({
   );
 }
 
-// Migrated Webflow CDN asset; localizing assets is tracked in tncld#56.
+/**
+ * Section photography, served from `public/images` (tncld#95).
+ *
+ * These used to be `<img>` tags pointing at `cdn.prod.website-files.com/
+ * 67c4e62250923072710d478a/...` — the BDS *template's* Webflow site, not
+ * TNCLD's (`694f1891a016a6340049f761`). Every homepage and /about photo was
+ * therefore generic stock hotlinked off a third party, where the original uses
+ * the practice's own photography.
+ *
+ * `fill` rather than intrinsic sizing because the paths come from
+ * `cms-data.json` at runtime, so there is no static import to read dimensions
+ * from. The 16:9 frame is the original's own (`img-frame-16-9-wide`) and lives
+ * in the CSS beside the other frame rules.
+ */
 function SectionImage({
   src,
   className,
@@ -83,13 +97,16 @@ function SectionImage({
   eager?: boolean;
 }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      className={className}
-      src={src}
-      alt=""
-      loading={eager ? 'eager' : 'lazy'}
-    />
+    <span className={className}>
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="(max-width: 767px) 100vw, 36rem"
+        priority={eager}
+        style={{ objectFit: 'cover' }}
+      />
+    </span>
   );
 }
 
@@ -126,15 +143,20 @@ function Hero({
 function Reviews({ section }: { section: ReviewsSection }) {
   return (
     <section className="section-reviews" aria-label="Patient reviews">
-      <p className="section-reviews__stat">{section.stat}</p>
-      <p
-        className="section-reviews__stars"
-        role="img"
-        aria-label={`${section.rating} out of 5 stars`}
-      >
-        {'★'.repeat(section.rating)}
+      {/* One headline line — `Over 1,000 ★★★★★ Reviews` — as the original sets
+          it. These were three stacked <p>s at three different sizes, which lost
+          the original's single-statement reading. */}
+      <p className="section-reviews__headline">
+        <span className="section-reviews__stat">{section.stat}</span>
+        <span
+          className="section-reviews__stars"
+          role="img"
+          aria-label={`${section.rating} out of 5 stars`}
+        >
+          {'★'.repeat(section.rating)}
+        </span>
+        <span className="section-reviews__label">{section.label}</span>
       </p>
-      <p className="section-reviews__label">{section.label}</p>
       <p className="section-reviews__body">{section.body}</p>
     </section>
   );
