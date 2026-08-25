@@ -67,8 +67,11 @@ export interface SplitSection {
 }
 
 export interface StepItem {
+  /** Carries the original's own numbering, e.g. "1. Request an Appointment". */
   label: string;
   body: string;
+  /** Path under /public — the original gives each step a line-art glyph. */
+  icon?: string;
 }
 
 /** Numbered "how it works" process. */

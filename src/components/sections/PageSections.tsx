@@ -102,7 +102,9 @@ function SectionImage({
         src={src}
         alt=""
         fill
-        sizes="(max-width: 767px) 100vw, 36rem"
+        // Every section photo now spans the viewport or near it — the hero and
+        // the CTA are full-bleed, the split images inset only 36px at 1440.
+        sizes="100vw"
         priority={eager}
         style={{ objectFit: 'cover' }}
       />
@@ -175,19 +177,29 @@ function Split({
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')}`;
   return (
-    <section
-      className={`section-split section-split--media-${section.mediaSide ?? 'right'}`}
-      aria-labelledby={headingId}
-    >
-      <div className="section-split__copy">
-        {section.eyebrow ? (
-          <p className="section-split__eyebrow">{section.eyebrow}</p>
+    // `mediaSide` is deliberately not read. Webflow's `2-column-content-split`
+    // names two columns of TEXT — copy left, action right — above one
+    // full-width image; it never places the image beside the copy. All four
+    // homepage splits measure identically (image 1368x770 at x=36, 1440 wide),
+    // so there is no left/right variant in the original to reproduce. The field
+    // stays on the type because the interior pages #92 covers are not audited
+    // yet and may still need it.
+    <section className="section-split" aria-labelledby={headingId}>
+      <div className="section-split__head">
+        <div className="section-split__copy">
+          {section.eyebrow ? (
+            <p className="section-split__eyebrow">{section.eyebrow}</p>
+          ) : null}
+          <h2 id={headingId} className="section-split__title">
+            {section.title}
+          </h2>
+          <p className="section-split__body">{section.body}</p>
+        </div>
+        {section.action ? (
+          <div className="section-split__actions">
+            <ActionButton action={section.action} />
+          </div>
         ) : null}
-        <h2 id={headingId} className="section-split__title">
-          {section.title}
-        </h2>
-        <p className="section-split__body">{section.body}</p>
-        {section.action ? <ActionButton action={section.action} /> : null}
       </div>
       {image ? (
         <SectionImage src={image} className="section-split__image" />
@@ -202,14 +214,26 @@ function Steps({ section }: { section: StepsSection }) {
       <h2 id="section-steps-heading" className="section-steps__title">
         {section.title}
       </h2>
+      {/* The original numbers each step inside the label text itself ("1.
+          Request an Appointment") rather than rendering a separate numeral, so
+          the standalone `__number` badge is gone — it duplicated the number for
+          sighted users and was aria-hidden from everyone else. */}
       <ol className="section-steps__list">
-        {section.steps.map((step, index) => (
+        {section.steps.map((step) => (
           <li key={step.label} className="section-steps__item">
-            <span className="section-steps__number" aria-hidden="true">
-              {index + 1}
-            </span>
-            <h3 className="section-steps__item-title">{step.label}</h3>
-            <p className="section-steps__item-body">{step.body}</p>
+            {step.icon ? (
+              <Image
+                className="section-steps__icon"
+                src={step.icon}
+                alt=""
+                width={133}
+                height={133}
+              />
+            ) : null}
+            <div className="section-steps__item-text">
+              <h3 className="section-steps__item-title">{step.label}</h3>
+              <p className="section-steps__item-body">{step.body}</p>
+            </div>
           </li>
         ))}
       </ol>

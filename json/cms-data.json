@@ -54,16 +54,19 @@
           "title": "Your Path to a Healthier Smile",
           "steps": [
             {
-              "label": "Request an Appointment",
-              "body": "Request online or contact our team."
+              "label": "1. Request an Appointment",
+              "body": "Request online or contact our team.",
+              "icon": "/images/calendar---dark.svg"
             },
             {
-              "label": "Get a Personalized Treatment Plan",
-              "body": "Clear recommendations tailored to your goals."
+              "label": "2. Get a Personalized Treatment Plan",
+              "body": "Clear recommendations tailored to your goals.",
+              "icon": "/images/patient-resources.svg"
             },
             {
-              "label": "Enjoy Confident Results",
-              "body": "Comfortable, modern care at every step."
+              "label": "3. Enjoy Confident Results",
+              "body": "Comfortable, modern care at every step.",
+              "icon": "/images/tooth.svg"
             }
           ],
           "action": {
