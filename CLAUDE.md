@@ -13,6 +13,38 @@ This file provides project-specific context for Claude Code.
 
 ---
 
+## Branch & worktree model
+
+| Branch | Role |
+|---|---|
+| `staging` | **The base branch.** Task branches cut from it, PRs target it. |
+| `main` | The **published** state. Promoting `staging` → `main` deploys. Lags `staging` by design. |
+
+**The primary worktree tracks `staging`, not `main`** — the same as
+[treehouse-pediatric-dentistry](https://github.com/brikdesigns/treehouse-pediatric-dentistry),
+the other client site on this model. The cross-repo rule "never switch the
+primary worktree off the base branch" means `staging` here.
+
+This is load-bearing, not a preference. `scripts/new-task.sh` must run from the
+primary worktree, so the primary's checkout **is** the copy of that script that
+every session executes. With the primary on `main`, any fix to repo tooling sits
+unreachable on `staging` until a publish promotes it:
+
+```
+$ ./scripts/new-task.sh --issue 89 marketing-omitted-ctas
+Unknown flag: --issue          # main's old copy, ~4h after #105 fixed it on staging
+```
+
+That was [#111](https://github.com/brikdesigns/tncld/issues/111): [#105](https://github.com/brikdesigns/tncld/issues/105)
+flipped the base branch to `staging` and added the ticket-overlap gate, and
+neither took effect where the script is actually invoked. Two worktrees had to be
+created by hand that session. A tooling fix is only live once the primary can see
+it — so the primary follows `staging`.
+
+Promotion PRs are the exception and target `main`: `./scripts/new-task.sh --base main {slug}`.
+
+---
+
 ## Compliance Profile
 
 TNCLD is a dental practice in Franklin, TN. Regulatory regimes that apply:
