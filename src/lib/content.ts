@@ -48,6 +48,13 @@ export interface HeroSection {
   title: string;
   body: string;
   image?: string;
+  /**
+   * Mux playback id for the homepage hero's background video (tncld#97). The
+   * original runs it `autoplay muted loop` behind the copy; `image` stays set
+   * and is the poster, so a reduced-motion visitor still gets the original's
+   * framing rather than an empty box.
+   */
+  videoPlaybackId?: string;
   /** Interior hero only — the label beside the body column. */
   eyebrow?: string;
   /** Path under /public — the glyph the original sets before the eyebrow. */
@@ -91,24 +98,52 @@ export interface StepsSection {
   action?: SectionAction;
 }
 
-export interface ShowcaseItem {
+export interface TabItem {
   title: string;
-  body: string;
+  /** The one-liner under the title *in the tab control*, not in the panel. */
+  summary: string;
+  /**
+   * The open panel's copy. The original sets it as two centred lines, so this
+   * is an array rather than one string with a `<br>` baked into it.
+   */
+  body: string[];
   /** Path under /public — the original gives each treatment a square photo. */
   image?: string;
+  /** The panel's own link, e.g. Learn More → /services/invisalign. */
+  action?: SectionAction;
 }
 
-/** A card grid of highlighted treatments / solutions. */
-export interface ShowcaseSection {
-  type: 'showcase';
+/**
+ * Treatments as a tab strip — the original's `2-column-tabbed-stacked`
+ * (tncld#97). This was a static card grid under #13's superseded no-pixel-parity
+ * charter, which flattened the tab control, the per-tab summary and the panel
+ * copy into one card body. Reproducing the interaction needs all three back.
+ */
+export interface TabsSection {
+  type: 'tabs';
   title: string;
   body?: string;
-  items: ShowcaseItem[];
+  /** The section-level link the original sets beside the intro. */
+  action?: SectionAction;
+  items: TabItem[];
+  /**
+   * Which tab opens on load. The original ships `data-current="Tab 3"` — the
+   * third treatment, not the first — so this is faithful, not a default.
+   */
+  defaultIndex?: number;
 }
 
 export interface StoryItem {
   title: string;
   body: string;
+  /**
+   * Mux playback id (tncld#97). Drives both the card's animated poster and the
+   * modal player, exactly as the original's `modal-1..3` do. Absent means a
+   * text-only card, which is what every story rendered as before #97.
+   */
+  playbackId?: string;
+  /** The card's button label — the original repeats it per card. */
+  videoLabel?: string;
 }
 
 /** Patient-stories band. */
@@ -149,7 +184,7 @@ export type HomeSection =
   | ReviewsSection
   | SplitSection
   | StepsSection
-  | ShowcaseSection
+  | TabsSection
   | TestimonialsSection
   | PaymentsSection
   | CtaSection;

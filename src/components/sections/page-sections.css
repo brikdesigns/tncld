@@ -5,7 +5,7 @@
 
 .section-split,
 .section-steps,
-.section-showcase,
+.section-tabs,
 .section-testimonials,
 .section-payments,
 .section-cta {
@@ -20,7 +20,7 @@
 /* .section-steps__title is deliberately absent — the original sets that one a
    step down the ramp; see its own rule below. */
 .section-split__title,
-.section-showcase__title,
+.section-tabs__title,
 .section-testimonials__title,
 .section-payments__title,
 .section-cta__title {
@@ -133,14 +133,37 @@
   z-index: 0;
   border-radius: 0;
 }
+/* The original's background video (tncld#97), layered over the still rather
+   than replacing it: the still is the reduced-motion rendering and the poster
+   until the stream is playable. `--media-object-fit` is mux-player's own hook
+   for the inner <video> (node_modules/@mux/mux-player/dist/mux-player.mjs);
+   `object-fit` on the host element alone would not reach it. */
+.section-hero__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  --media-object-fit: cover;
+  /* Suppresses all player chrome — mux-player reads it as
+     `--media-control-display` (dist/base.mjs:3). A custom property set on the
+     host inherits into the shadow tree, which is where that rule lives. */
+  --controls: none;
+}
 /* The original's scrim — `rgba(0, 0, 0, 0.4)` — is what keeps white copy
    legible over arbitrary video frames. Reproduced, and load-bearing for
-   contrast: without it the hero text has no guaranteed ratio at all. */
-.section-hero__image::after {
+   contrast: without it the hero text has no guaranteed ratio at all.
+   It hangs off the SECTION, not off `.section-hero__image`, so that it covers
+   the video too. On the image it would have sat under the video layer, and the
+   hero copy would have had no guaranteed ratio over a moving frame — the exact
+   failure this rule exists to prevent. */
+.section-hero::after {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: rgb(0 0 0 / 0.4);
+  pointer-events: none;
 }
 
 /* ── Reviews (social proof) ─────────────────────────────────────────── */
@@ -334,57 +357,132 @@
   margin-top: var(--space-1200);
 }
 
-/* ── Showcase (treatments card grid) ─────────────────────── */
-/* Card language shared with steps and stories: 381x~320 panels on the raised
-   surface, 40px radius, 24px padding, 20px gutter. These were bordered boxes on
-   the page background, which read as a different component entirely. */
-.section-showcase {
+/* ── Tabs (treatments) ───────────────────────────────────── */
+/* The original's `2-column-tabbed-stacked` (tncld#97). The class name is
+   literal: a 412px COLUMN of tab buttons beside an 868px panel, not a
+   horizontal strip above one. Every value below was read off the rendered
+   export at 1440 with getComputedStyle, per markdown/fidelity-method.md § Step
+   3 — the tab strip's own `flex-direction: column` is the thing a screenshot
+   does not tell you.
+     tab button    396x180, radius 12px, padding 20px 24px, 16px gap
+     resting       bg rgb(0,101,255) / text white
+     open          bg rgb(255,255,255) / text rgb(24,24,24)
+     panel         868 wide, padding 128px 0, 28px gap, centred,
+                   bg rgb(24,24,24), radius 12px
+     panel image   347x162, radius 0, object-fit cover
+   The brand blue is a BACKGROUND here, which is the case theme-tncld.css
+   reproduces faithfully — white on it is 4.88:1 and clears AA. */
+.section-tabs {
   padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
 }
-.section-showcase__intro {
-  max-width: 52ch;
+.section-tabs__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
   margin: 0 0 var(--space-1200);
 }
-.section-showcase__title {
+.section-tabs__intro-copy {
+  max-width: 52ch;
+}
+.section-tabs__title {
   margin: 0 0 1rem;
   color: var(--text-primary);
 }
-.section-showcase__body {
+.section-tabs__body {
   margin: 0;
   color: var(--text-secondary);
 }
-.section-showcase__grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* The two columns. 412 + 868 + 16px gap is the original's 1296 content width;
+   `minmax(0, …)` so a wide panel image cannot blow the track out. */
+.section-tabs__layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: minmax(0, 412fr) minmax(0, 868fr);
+  gap: 1rem;
+  align-items: start;
 }
-.section-showcase__card {
+.section-tabs__tablist {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  background: var(--surface-secondary);
-  border-radius: 2.5rem;
+  gap: 1rem;
 }
-/* 347x162 in the original's open tab panel. */
-.section-showcase__card-image {
-  width: 100%;
-  height: auto;
-  border-radius: 1rem;
-}
-.section-showcase__card-title {
-  margin: 0 0 0.5rem;
+.section-tabs__tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 11.25rem;
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  cursor: pointer;
+  /* --background-* , not --surface-* : theme-tncld.css themes the former, and
+     BDS defaults --surface-brand-primary to poppy, which would render this
+     Brik orange instead of TNCLD blue. */
+  background: var(--background-brand-primary);
   color: var(--text-primary);
+  border: var(--border-width-100) solid transparent;
+  border-radius: var(--border-radius-md);
+}
+/* The original gives hover the same treatment as the open tab. */
+.section-tabs__tab:hover,
+.section-tabs__tab[aria-selected='true'] {
+  background: var(--background-inverse);
+  color: var(--text-inverse);
+}
+.section-tabs__tab:focus-visible {
+  outline: var(--border-width-200) solid var(--border-focus);
+  outline-offset: 2px;
+}
+/* Inherit, so the open tab's dark-on-white applies to the title too. The
+   resting state is white-on-blue and the open state rgb(51,51,51)-on-white —
+   the original computes rgb(24,24,24) there, and --text-inverse is the
+   canonical token nearest it (12.63:1 on white, comfortably AA). */
+.section-tabs__tab-title {
   font-size: 1.40625rem;
   line-height: 1.25;
+  font-weight: 700;
+  color: inherit;
 }
-.section-showcase__card-body {
+.section-tabs__tab-summary {
+  font-size: 1rem;
+  color: inherit;
+}
+.section-tabs__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: var(--space-2400) 0;
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+}
+/* 347x162 with square-ish sources, so the frame crops rather than letterboxes
+   — the original's own `object-fit: cover` at radius 0. */
+.section-tabs__panel-image {
+  width: 21.6875rem;
+  max-width: 100%;
+  height: 10.125rem;
+  object-fit: cover;
+}
+.section-tabs__panel-copy {
+  text-align: center;
+}
+.section-tabs__panel-line {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+}
+/* Below the original's 991 breakpoint the two columns cannot both hold their
+   measured width, so the tab column goes full-width above the panel. */
+@media (max-width: 61.9375rem) {
+  .section-tabs__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .section-tabs__tab {
+    min-height: 0;
+  }
+  .section-tabs__panel {
+    padding: var(--space-1200) 1.5rem;
+  }
 }
 
 /* ── Testimonials (patient stories) ───────────────────── */
@@ -431,6 +529,82 @@
 .section-testimonials__card-body {
   margin: 0;
   color: var(--text-secondary);
+}
+/* The animated Mux poster the original puts at the top of each story card
+   (tncld#97). `.section-testimonials__card` already measures 381x320 with 24px
+   padding and a 16px gap, matching the original; the poster is the piece that
+   was missing entirely, not a re-layout. It bleeds to the card's inner edges
+   the way the original's `.code-gif` does. */
+.section-testimonials__card-poster {
+  width: 100%;
+  height: 9rem;
+  object-fit: cover;
+  border-radius: var(--border-radius-md);
+}
+/* The copy block, so the card's button stays pinned to the bottom edge
+   regardless of how many lines the story runs to. */
+.section-testimonials__card-copy {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ── Story video modal ─────────────────────────── */
+/* The original's `modal-1..3`: a centred video frame with a dismiss icon above
+   it. Native <dialog>, so the backdrop, Esc, focus trapping and focus return
+   are the element's own behaviour rather than hand-rolled. */
+.story-dialog {
+  width: min(64rem, 92vw);
+  padding: 1.5rem;
+  border: 0;
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+}
+.story-dialog::backdrop {
+  /* Matches the hero's own scrim weight. */
+  background: rgb(0 0 0 / 70%);
+}
+.story-dialog__bar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 1rem;
+}
+.story-dialog__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 44x44 — the WCAG 2.5.5 target floor the original's bare icon misses. */
+  width: 2.75rem;
+  height: 2.75rem;
+  cursor: pointer;
+  background: none;
+  color: var(--text-primary);
+  border: var(--border-width-100) solid var(--border-primary);
+  border-radius: var(--border-radius-circle);
+}
+.story-dialog__dismiss:focus-visible {
+  outline: var(--border-width-200) solid var(--border-focus);
+  outline-offset: 2px;
+}
+.story-dialog__dismiss-glyph {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+/* The accessible name only — the original's affordance is icon-only, and an
+   icon with no name is the part that fails, not the missing text. */
+.story-dialog__dismiss-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.story-dialog__player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
 }
 
 /* ── Payments ──────────────────────────────────── */
