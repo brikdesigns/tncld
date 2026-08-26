@@ -86,7 +86,13 @@ Search for "Miler" across the site — may appear in multiple places (contact pa
 
 ADA Title III (28 CFR § 36.303) requires dental practices to offer auxiliary aids and effective communication. Add to the contact page below the address/phone block:
 
-> **Accessibility:** Our office is wheelchair-accessible with ADA parking available. For sign-language interpreters, alternative formats, or other accommodations, please call (615) 595-8070 or email accessibility@tncld.com. **TTY users: dial 711 (Tennessee Relay Service).**
+<!-- UNSOURCED: this block previously opened "Our office is wheelchair-accessible
+     with ADA parking available" — an agent-written premises claim with no client
+     source. Removed per brik-llm#2649. The auxiliary-aids offer below stands on
+     its own and is what 28 CFR § 36.303 actually requires; a premises claim is
+     not required here. Restore only if TNCLD confirms it in their own words. -->
+
+> **Accessibility:** For sign-language interpreters, alternative formats, or other accommodations, please call (615) 595-8070 or email accessibility@tncld.com. **TTY users: dial 711 (Tennessee Relay Service).**
 
 This mirrors commitments in the new Accessibility Statement page and gives the content a second touchpoint (contact is higher-traffic than /legal/accessibility).
 

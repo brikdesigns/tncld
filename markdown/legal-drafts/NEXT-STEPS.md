@@ -52,10 +52,11 @@ Cannot publish legal pages to Webflow until TNCLD resolves these.
 - **Confirmed:** Williamson County (for governing law clause)
 - No action needed unless TNCLD wants a different suite number or formatting
 
-### 1.5 Confirm physical accessibility claims
+### 1.5 ~~Confirm physical accessibility claims~~ — struck; the claims were removed
 
-- [`accessibility-statement.md`](accessibility-statement.md) currently asserts ADA-compliant parking, step-free entrance, accessible restrooms, accessible treatment rooms
-- **Action:** TNCLD confirms each claim is accurate (don't publish unverified accessibility claims — that's its own liability)
+- The four premises claims (ADA-compliant parking, step-free entrance, accessible restrooms, accessible treatment rooms) were agent-written with no client source, and a fifth sat in [`PUBLISH-TO-WEBFLOW.md`](PUBLISH-TO-WEBFLOW.md). All five are removed.
+- Asking TNCLD to ratify agent-invented claims was the wrong direction: the agent should not have written them. See brik-llm#2649.
+- **No action required of TNCLD.** If they *volunteer* specific accessibility features in their own words, those may be added as a sourced list — that is a new statement, not a confirmation of this one.
 
 ---
 
