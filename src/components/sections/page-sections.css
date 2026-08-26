@@ -3,7 +3,6 @@
    shell, home, and legal shells. Every band shares one content max-width so the
    sections align down the page. */
 
-.section-hero,
 .section-split,
 .section-steps,
 .section-showcase,
@@ -14,38 +13,128 @@
   margin: 0 auto;
 }
 
+/* Section headings all render at one size in the original — 45.5px / 54.6px
+   line-height / weight 700, measured on every h2 on the homepage. The rebuild
+   inherited the BDS default ramp instead, which is why the page read as flat.
+   The vw term reproduces the original's scaling between breakpoints. */
+/* .section-steps__title is deliberately absent — the original sets that one a
+   step down the ramp; see its own rule below. */
+.section-split__title,
+.section-showcase__title,
+.section-testimonials__title,
+.section-payments__title,
+.section-cta__title {
+  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
 /* ── Hero ───────────────────────────────────────────────────────────── */
+/* Full-bleed media with the copy overlaid, matching the original: an 800px-tall
+   section at 1440 wide, media filling it behind a 40% black scrim, copy
+   left-aligned on a 16px page gutter. This was a boxed two-column split — copy
+   left, 16:9 image right — which is the single biggest reason `/` did not read
+   as the same site. The hero is deliberately outside the shared 80rem rule
+   above; it is the one band that spans the viewport. */
 .section-hero {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 2.5rem;
-  padding: 4rem 1.5rem;
+  min-height: 50rem;
+  padding: 4rem 1rem;
+  overflow: hidden;
+  isolation: isolate;
 }
 .section-hero__copy {
-  flex: 1 1 22rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
 }
 .section-hero__title {
-  margin: 0 0 1rem;
+  margin: 0;
+  /* 92.2px at the original's 1440 reference width. */
+  font-size: clamp(2.5rem, 6.4vw, 5.7625rem);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Interior hero (2-column-hero-split) ────────────────────────────────
+ * /about and the five pages #92 covers open with this, not the homepage's
+ * full-bleed media hero: a title, a hairline rule, then the eyebrow and the
+ * body in two columns. Selected by the absence of `image`, so no new
+ * discriminant is needed on the content model. */
+.section-hero--interior {
+  display: block;
+  min-height: 0;
+  padding: 2.5rem 5rem 4rem;
+}
+.section-hero--interior .section-hero__title {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+}
+.section-hero__rule {
+  margin: 1.5rem 0 2.5rem;
+  border: 0;
+  border-top: 1px solid var(--border-primary);
+}
+.section-hero__columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 3rem;
+}
+.section-hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 20rem;
+  margin: 0;
+  color: var(--text-brand-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.section-hero__eyebrow-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.section-hero--interior .section-hero__lede {
+  flex: 1 1 34rem;
+  max-width: 56.625rem; /* 906px — the original's body column */
+  font-size: 1rem;
+  line-height: 1.5;
   color: var(--text-primary);
 }
 .section-hero__lede {
-  margin: 0 0 1.5rem;
-  color: var(--text-secondary);
-  max-width: 44ch;
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
 }
 .section-hero__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
+/* Media layer: fills the section rather than sitting in a 16:9 frame. */
 .section-hero__image {
-  flex: 1 1 22rem;
-  width: 100%;
-  height: auto;
-  max-width: 36rem;
-  border-radius: var(--border-radius-lg);
-  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 0;
+}
+/* The original's scrim — `rgba(0, 0, 0, 0.4)` — is what keeps white copy
+   legible over arbitrary video frames. Reproduced, and load-bearing for
+   contrast: without it the hero text has no guaranteed ratio at all. */
+.section-hero__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.4);
 }
 
 /* ── Reviews (social proof) ─────────────────────────────────────────── */
@@ -53,28 +142,31 @@
   background: var(--background-secondary);
   text-align: center;
 }
-.section-reviews__stat {
+/* Stat, stars and label share one baseline at the original's 57.5px. */
+.section-reviews__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
   max-width: 60rem;
   margin: 0 auto;
   padding: 3rem 1.5rem 0;
   color: var(--text-primary);
   font-family: var(--font-family-display);
-  font-size: 2.5rem;
+  font-size: clamp(1.75rem, 4vw, 3.59375rem);
   font-weight: 700;
   line-height: 1.1;
 }
+/* Blue, as the original renders them. The brand blue is 4.31:1 on black, below
+   the 4.5:1 AA floor for TEXT — which is why --text-brand-primary is green —
+   but these stars are a graphic (role="img", with the rating in aria-label), so
+   the applicable floor is 3:1 for non-text contrast (WCAG 1.4.11) and blue
+   clears it. Local primitive rather than a semantic token: no BDS semantic name
+   means "brand colour, graphics only". */
 .section-reviews__stars {
-  margin: 0.5rem 0 0;
-  color: var(--text-brand-primary);
-  font-size: 1.5rem;
-  letter-spacing: 0.15em;
-}
-.section-reviews__label {
-  margin: 0.25rem 0 0;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.875rem;
+  color: var(--tncld-blue);
+  letter-spacing: 0.05em;
 }
 .section-reviews__body {
   margin: 1rem auto 0;
@@ -83,19 +175,28 @@
   color: var(--text-secondary);
 }
 
-/* ── Split (feature teaser) ─────────────────────────────────────────── */
+/* ── Split (feature teaser) ─────────────────────────────────────────────
+ * Measured on all four homepage splits, which are identical: section padding
+ * 40px top / 48px bottom and NO horizontal padding; a copy row inset 96px with
+ * the action pinned to the opposite edge; then a full-width 16:9 image inset
+ * only 36px. The rebuild had copy and image side by side in a 34rem box, which
+ * is why these bands came out at roughly a third of the original's height. */
 .section-split {
+  max-width: none;
+  padding: 2.5rem 0 3rem;
+}
+.section-split__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 2.5rem;
-  padding: 4rem 1.5rem;
-}
-.section-split--media-left {
-  flex-direction: row-reverse;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  /* 96px inset at the original's 1440 reference width. */
+  padding: 0 6rem 2.5rem;
 }
 .section-split__copy {
-  flex: 1 1 22rem;
+  flex: 1 1 34rem;
+  max-width: 54.625rem; /* 874px — the original's heading measure */
 }
 .section-split__eyebrow {
   margin: 0 0 0.5rem;
@@ -110,17 +211,24 @@
   color: var(--text-primary);
 }
 .section-split__body {
-  margin: 0 0 1.5rem;
+  margin: 0;
   color: var(--text-secondary);
-  max-width: 52ch;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 38.5rem; /* 616px */
 }
+.section-split__actions {
+  flex: 0 0 auto;
+}
+/* 1368x770 at 1440 wide — a 36px gutter each side, square corners. */
 .section-split__image {
-  flex: 1 1 22rem;
-  width: 100%;
-  height: auto;
-  max-width: 34rem;
-  border-radius: var(--border-radius-lg);
-  object-fit: cover;
+  display: block;
+  width: auto;
+  margin: 0 2.25rem;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0;
 }
 
 /* ── Steps (process) ────────────────────────────────────────────────── */
@@ -128,52 +236,69 @@
   padding: 4rem 1.5rem;
   text-align: center;
 }
+/* 36px/45px here, not the 45.5px the other section headings use — the original
+   sets this one a step down the ramp. */
 .section-steps__title {
-  margin: 0 0 2rem;
+  margin: 0 0 2.5rem;
   color: var(--text-primary);
+  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  line-height: 1.25;
 }
+/* Three raised panels, 381x400 at 1440 with a 20px gutter — measured on the
+   original. They were unstyled 15rem grid cells with a numeral badge, so the
+   band collapsed to roughly half the original's height. */
 .section-steps__list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
 }
+/* Icon sits at the top, copy at the bottom, space between — the original's
+   card leaves a deliberate gap so the three labels align across the row even
+   when one of them wraps to two lines. */
 .section-steps__item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 25rem;
   padding: 1.5rem;
+  text-align: left;
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
 }
-.section-steps__number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  margin: 0 auto 1rem;
-  border-radius: 50%;
-  background: var(--background-brand-primary);
-  color: var(--text-inverse);
-  font-weight: 700;
+.section-steps__icon {
+  width: 8.3125rem;
+  height: 8.3125rem;
 }
 .section-steps__item-title {
   margin: 0 0 0.5rem;
   color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
 }
 .section-steps__item-body {
   margin: 0;
   color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
 }
 .section-steps__cta {
   margin-top: 2rem;
 }
 
-/* ── Showcase (treatments card grid) ────────────────────────────────── */
+/* ── Showcase (treatments card grid) ─────────────────────── */
+/* Card language shared with steps and stories: 381x~320 panels on the raised
+   surface, 40px radius, 24px padding, 20px gutter. These were bordered boxes on
+   the page background, which read as a different component entirely. */
 .section-showcase {
   padding: 4rem 1.5rem;
 }
 .section-showcase__intro {
   max-width: 52ch;
-  margin: 0 0 2rem;
+  margin: 0 0 2.5rem;
 }
 .section-showcase__title {
   margin: 0 0 1rem;
@@ -188,30 +313,41 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
 }
 .section-showcase__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
   padding: 1.5rem;
-  background: var(--surface-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+/* 347x162 in the original's open tab panel. */
+.section-showcase__card-image {
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
 }
 .section-showcase__card-title {
   margin: 0 0 0.5rem;
   color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
 }
 .section-showcase__card-body {
   margin: 0;
   color: var(--text-secondary);
 }
 
-/* ── Testimonials (patient stories) ─────────────────────────────────── */
+/* ── Testimonials (patient stories) ───────────────────── */
 .section-testimonials {
   padding: 4rem 1.5rem;
 }
 .section-testimonials__intro {
-  margin: 0 0 2rem;
+  margin: 0 0 2.5rem;
   text-align: center;
 }
 .section-testimonials__title {
@@ -222,68 +358,84 @@
   margin: 0;
   color: var(--text-secondary);
 }
+/* 381x320 panels, 20px gutter — measured on the original's story cards. */
 .section-testimonials__grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
 }
 .section-testimonials__card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 20rem;
   padding: 1.5rem;
-  background: var(--surface-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
 }
 .section-testimonials__card-title {
-  margin: 0 0 0.5rem;
+  margin: 0;
   color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
 }
 .section-testimonials__card-body {
   margin: 0;
   color: var(--text-secondary);
 }
 
-/* ── Payments ───────────────────────────────────────────────────────── */
+/* ── Payments ──────────────────────────────────── */
+/* Centered intro over a row of glyph-and-label methods, as the original sets
+   it. Was a two-column flex with the methods rendered as bordered pills. */
 .section-payments {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2.5rem;
   padding: 4rem 1.5rem;
+  text-align: center;
 }
 .section-payments__copy {
-  flex: 1 1 24rem;
+  max-width: 60rem;
+  margin: 0 auto 3rem;
 }
 .section-payments__title {
   margin: 0 0 1rem;
   color: var(--text-primary);
 }
 .section-payments__body {
-  margin: 0;
+  margin: 0 auto;
   color: var(--text-secondary);
-  max-width: 52ch;
+  max-width: 68ch;
 }
 .section-payments__methods {
-  flex: 1 1 16rem;
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3rem;
 }
 .section-payments__method {
-  padding: 0.5rem 1rem;
-  background: var(--surface-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  color: var(--text-primary);
-  font-size: 0.9375rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.section-payments__method-icon {
+  width: 7.5625rem;
+  height: auto;
+}
+.section-payments__method-label {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
-/* ── CTA ────────────────────────────────────────────────────────────── */
+/* ── CTA ─────────────────────────────────────── */
 .section-cta--center {
   padding: 4rem 1.5rem;
   text-align: center;
@@ -292,19 +444,41 @@
   max-width: 60rem;
   margin: 0 auto;
 }
+/* Full-bleed photo with a solid blue card floated over it on the right — the
+   original runs the image 1440x1000 and the card 400x312 at radius 12. It was a
+   side-by-side flex row with a 34rem image. */
 .section-cta--split {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 2.5rem;
+  justify-content: flex-end;
+  max-width: none;
+  min-height: 50rem;
   padding: 4rem 1.5rem;
+  overflow: hidden;
+  isolation: isolate;
 }
 .section-cta--split .section-cta__copy {
-  flex: 1 1 24rem;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 25rem;
+  padding: 1.75rem;
+  background: var(--background-brand-primary);
+  border-radius: 0.75rem;
+}
+/* White on --tncld-blue is 4.88:1 — passes AA for body copy. */
+.section-cta--split .section-cta__title,
+.section-cta--split .section-cta__body {
+  color: var(--tncld-white);
 }
 .section-cta__title {
   margin: 0 0 1rem;
   color: var(--text-primary);
+}
+.section-cta--split .section-cta__title {
+  font-size: 1.40625rem;
+  line-height: 1.25;
 }
 .section-cta__body {
   margin: 0 0 1.5rem;
@@ -315,11 +489,12 @@
   margin-left: auto;
   margin-right: auto;
 }
-.section-cta__image {
-  flex: 1 1 22rem;
-  width: 100%;
-  height: auto;
-  max-width: 34rem;
-  border-radius: var(--border-radius-lg);
-  object-fit: cover;
+.section-cta--split .section-cta__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: auto;
+  margin: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
 }

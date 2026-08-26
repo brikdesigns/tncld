@@ -37,12 +37,21 @@ export interface SectionAction {
   variant?: 'primary' | 'secondary';
 }
 
-/** Full-width intro. `image` is a key into HomeContent.images. */
+/**
+ * Page intro. Two shapes in the original, told apart by `image`:
+ * with one it is the homepage's full-bleed media hero; without one it is the
+ * interior `2-column-hero-split` — title, rule, then an eyebrow column beside
+ * the body. `image` is a key into the page's `images` map.
+ */
 export interface HeroSection {
   type: 'hero';
   title: string;
   body: string;
   image?: string;
+  /** Interior hero only — the label beside the body column. */
+  eyebrow?: string;
+  /** Path under /public — the glyph the original sets before the eyebrow. */
+  eyebrowIcon?: string;
   actions?: SectionAction[];
 }
 
@@ -67,8 +76,11 @@ export interface SplitSection {
 }
 
 export interface StepItem {
+  /** Carries the original's own numbering, e.g. "1. Request an Appointment". */
   label: string;
   body: string;
+  /** Path under /public — the original gives each step a line-art glyph. */
+  icon?: string;
 }
 
 /** Numbered "how it works" process. */
@@ -82,6 +94,8 @@ export interface StepsSection {
 export interface ShowcaseItem {
   title: string;
   body: string;
+  /** Path under /public — the original gives each treatment a square photo. */
+  image?: string;
 }
 
 /** A card grid of highlighted treatments / solutions. */
@@ -106,11 +120,18 @@ export interface TestimonialsSection {
 }
 
 /** Payment / insurance options. */
+export interface PaymentMethod {
+  label: string;
+  /** Path under /public — card/cash/check glyph or a financing partner mark. */
+  icon?: string;
+}
+
 export interface PaymentsSection {
   type: 'payments';
   title: string;
   body: string;
-  methods: string[];
+  /** Was `string[]`; the original pairs every method with a glyph. */
+  methods: PaymentMethod[];
 }
 
 /** Closing call to action, either split-with-image or centered. */
