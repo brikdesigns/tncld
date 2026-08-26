@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # new-task.sh — Create an isolated git worktree for a single BDS task.
 #
-# Branches from origin/main. Enforces task/{scope}-{name} naming.
+# Branches from origin/staging. Enforces task/{scope}-{name} naming.
 # Installs dependencies in the new worktree.
 #
 # Usage:
 #   ./scripts/new-task.sh {scope}-{name}
-#   ./scripts/new-task.sh infra-worktree-guard
+#   ./scripts/new-task.sh --issue 102 marketing-section-rhythm  # gate on the ticket
+#   ./scripts/new-task.sh --base main launch-promotion          # promotion PR
 #   ./scripts/new-task.sh content-pricing-copy
 #
 # Creates:
@@ -35,15 +36,24 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # ── Config ──
-# tncld has no `staging` branch yet — PRs target `main`. When #44 puts this
-# site on Netlify's two-site model, add `staging` and flip this default.
-BASE_BRANCH="main"
+# staging, not main: this site is on Netlify's two-site model, so task branches
+# PR into `staging` and promoting `staging` → `main` publishes. The old default
+# here was `main` with a comment claiming no `staging` branch existed — it has
+# existed since #88, so a worktree cut from `main` started behind and PR'd into
+# the wrong base unless the author noticed (#100).
+BASE_BRANCH="staging"
+ISSUE_REF=""
 
 # ── Resolve repo root ──
 # Derive the worktree dir from the repo name so a copy of this script into
 # another repo lands worktrees beside *that* repo, not a hardcoded one (#53).
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 WORKTREE_BASE="$(dirname "$PROJECT_ROOT")/$(basename "$PROJECT_ROOT")-worktrees"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Ticket-overlap gate (brik-llm#1533). Sourced, not executed, so it can prompt.
+# shellcheck source=scripts/lib/issue-overlap.sh
+source "${SCRIPT_DIR}/lib/issue-overlap.sh"
 
 # ── Must run from the primary worktree on main ──
 # Running new-task.sh from inside another task worktree creates nested state
@@ -90,6 +100,10 @@ while [[ $# -gt 0 ]]; do
       BASE_BRANCH="$2"
       shift 2
       ;;
+    --issue)
+      ISSUE_REF="$2"
+      shift 2
+      ;;
     -*)
       echo -e "${RED}Unknown flag: $1${NC}"
       exit 1
@@ -108,15 +122,18 @@ fi
 
 # ── Validate input ──
 if [ $# -lt 1 ]; then
-  echo -e "${RED}Usage: $0 [--base branch] {scope}-{name}${NC}"
+  echo -e "${RED}Usage: $0 [--base branch] [--issue N] {scope}-{name}${NC}"
   echo ""
   echo "  scope = area of the site (marketing, content, seo, site, infra, docs, intel)"
   echo "  name  = what the task delivers (hero-rework, pricing-copy, analytics-4-setup)"
   echo ""
-  echo "  Example: $0 marketing-hero-rework"
+  echo "  Example: $0 --issue 102 marketing-section-rhythm"
   echo "  Example: $0 content-pricing-copy"
   echo ""
   echo "  Base branch: ${BASE_BRANCH} (override with --base)"
+  echo ""
+  echo "  --issue takes 102 or owner/repo#102 and warns if a branch or PR already"
+  echo "  references that ticket in any repo — a parallel session on the same work."
   exit 1
 fi
 
@@ -217,6 +234,45 @@ if ! git ls-remote --exit-code --heads origin "${BASE_BRANCH}" >/dev/null 2>&1; 
   echo ""
   echo "  Pass an existing branch with --base, e.g. --base main."
   exit 1
+fi
+
+# ── Fetch and branch from base ──
+# ── Ticket-overlap gate ──
+if [ -n "$ISSUE_REF" ]; then
+  # Guarded, and the guard is load-bearing in BOTH directions (brik-llm#2422,
+  # ported here by #100).
+  #
+  # Findings return 0 — an overlap warns and proceeds, which is brik-llm#1692 and
+  # must not regress. But rc 4 (no such issue) and rc 5 (unreadable) mean the
+  # gate DID NOT RUN, and creating the worktree on that is the fail-open. A bare
+  # call reads an unanswered lookup as an all-clear, so a dead network or an
+  # expired token creates the branch with no check at all — the brik-llm#1485
+  # duplicate-work class the gate exists to stop.
+  overlap_rc=0
+  check_issue_overlap "$ISSUE_REF" || overlap_rc=$?
+  if [ "$overlap_rc" -ne 0 ]; then
+    echo ""
+    echo -e "${RED}✗ Refusing to create a worktree — the overlap gate could not run.${NC}"
+    echo ""
+    echo -e "${RED}  Worktrees isolate files, not intent. Without this check nothing${NC}"
+    echo -e "${RED}  catches a parallel session on the same ticket (brik-llm#1485,${NC}"
+    echo -e "${RED}  where #1525 was built twice).${NC}"
+    echo ""
+    case "$overlap_rc" in
+      2) echo -e "${YELLOW}  The reference could not be parsed. Use 102 or owner/repo#102.${NC}" ;;
+      4) echo -e "${YELLOW}  That issue does not exist in the repo the number resolved against.${NC}"
+         echo -e "${YELLOW}  Check the number, or pass the cross-repo form owner/repo#N.${NC}" ;;
+      5) echo -e "${YELLOW}  The read failed rather than came back empty — usually transient.${NC}"
+         echo -e "${YELLOW}  Re-run the same command; it retries once on its own first.${NC}" ;;
+      *) echo -e "${YELLOW}  Unexpected gate status ${overlap_rc}.${NC}" ;;
+    esac
+    echo ""
+    echo -e "${YELLOW}  Deliberately proceeding without the gate: omit --issue to skip it.${NC}"
+    exit 1
+  fi
+else
+  echo -e "${YELLOW}⚠  No --issue given — skipping the ticket-overlap gate.${NC}"
+  echo -e "${YELLOW}   Pass --issue N so a parallel track on the same ticket is caught.${NC}"
 fi
 
 # ── Fetch and branch from base ──
