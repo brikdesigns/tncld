@@ -175,6 +175,10 @@
             {
               "label": "Membership Plan",
               "icon": "/images/cherry-logo.svg"
+            },
+            {
+              "label": "Apple Pay",
+              "icon": "/images/ApplePay.svg"
             }
           ]
         },

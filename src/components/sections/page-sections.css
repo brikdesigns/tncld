@@ -499,7 +499,11 @@
   align-items: center;
   justify-content: flex-end;
   max-width: none;
-  min-height: 50rem;
+  /* 1000px, measured on the original's block (`div.section-map`, which despite
+     the class name is this office/virtual-tour card over a full-bleed photo).
+     This was 50rem/800px — the same value as the homepage hero, carried over
+     rather than measured, and it is 200px of what #102 still had missing. */
+  min-height: 62.5rem;
   padding: 4rem 1.5rem;
   overflow: hidden;
   isolation: isolate;
