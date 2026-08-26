@@ -7,13 +7,17 @@
   border-top: 1px solid var(--border-primary);
   background: var(--background-secondary);
 }
+/* 128px top and bottom, as the original's nav_footer sets it (tncld#102). This
+   was 48/32, and it is the same shortfall the section templates had — it showed
+   up as ~200px missing on the LAST band of both pages, because the footer falls
+   inside the final band by construction. */
 .site-footer__inner {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem 3rem;
   max-width: 80rem;
   margin: 0 auto;
-  padding: 3rem 1.5rem 2rem;
+  padding: var(--space-2400) 1.5rem;
 }
 
 .site-footer__brand {
