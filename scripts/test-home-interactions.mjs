@@ -8,10 +8,16 @@
  * Every geometry and colour value asserted here was measured on the rendered
  * Webflow export at 1440 (markdown/fidelity-method.md § Step 3), not chosen.
  *
- * Needs a running dev/prod server. Note the default origin is `localhost`, not
- * `127.0.0.1`: Next 16's dev server answers 403 on /_next/static/chunks/* for a
- * non-localhost origin, so the page arrives unhydrated and every interaction
- * assertion fails for a reason that has nothing to do with the code.
+ * Needs a running dev/prod server. Two traps this file is shaped around:
+ *
+ * 1. The default origin is `localhost`, NOT `127.0.0.1`. Next 16's dev server
+ *    answers 403 on /_next/static/chunks/* for a non-localhost origin, so the
+ *    page arrives unhydrated and every interaction assertion fails for a reason
+ *    that has nothing to do with the code.
+ * 2. It never waits on `networkidle`. The hero video this suite asserts is an
+ *    autoplaying HLS loop, so the network is never idle and the wait simply
+ *    times out — reliably so against a deploy preview, where the segments keep
+ *    arriving. Waits are on the elements instead.
  *
  * Run: npm run test:interactions            (server on :3000)
  *      npm run test:interactions -- --origin http://localhost:3100
@@ -48,17 +54,28 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e).slice(0, 200)));
-await page.goto(ORIGIN + '/', { waitUntil: 'networkidle' });
+await page.goto(ORIGIN + '/', { waitUntil: 'domcontentloaded' });
 
-// Hydration is the precondition for everything below. Assert it directly so a
-// hydration failure reports as itself instead of as nine broken interactions.
-const hydrated = await page.evaluate(
+/**
+ * Wait for the tab widget to be genuinely INTERACTIVE, not merely present.
+ *
+ * Do not wait on `[aria-selected="true"]` — the server renders that already, so
+ * it is true before any handler is attached and the keyboard assertions then run
+ * against dead markup. Against the Netlify preview that produced three failures
+ * while the story modals lower down passed, which is the giveaway: the page was
+ * hydrating fine, the wait was just measuring the wrong thing.
+ *
+ * React's per-node internal keys are the signal that the fiber owns the element.
+ */
+await page.waitForFunction(
   () =>
-    Object.keys(document.querySelector('.section-tabs__tab') ?? {}).filter((k) =>
+    Object.keys(document.querySelector('.section-tabs__tab') ?? {}).some((k) =>
       k.startsWith('__react'),
-    ).length > 0,
+    ),
+  null,
+  { timeout: 30_000 },
 );
-check('page hydrates (precondition)', hydrated, errors[0] ?? '');
+check('tab widget is hydrated and interactive (precondition)', true, errors[0] ?? '');
 
 // ── Tabbed treatments ───────────────────────────────────────────────────
 const tabs = page.getByRole('tab');
@@ -276,7 +293,14 @@ const reduced = await browser.newContext({
   reducedMotion: 'reduce',
 });
 const reducedPage = await reduced.newPage();
-await reducedPage.goto(ORIGIN + '/', { waitUntil: 'networkidle' });
+await reducedPage.goto(ORIGIN + '/', { waitUntil: 'domcontentloaded' });
+await reducedPage.locator('.section-hero__image img').waitFor({
+  state: 'attached',
+  timeout: 30_000,
+});
+// The video mounts from an effect, so give it the chance to appear before
+// asserting that it did not — otherwise this passes for the wrong reason.
+await reducedPage.waitForTimeout(2000);
 const fallback = await reducedPage.evaluate(() => ({
   video: Boolean(document.querySelector('.section-hero__video')),
   still: Boolean(document.querySelector('.section-hero__image img')),
