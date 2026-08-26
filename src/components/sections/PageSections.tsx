@@ -8,11 +8,13 @@ import type {
   PaymentsSection,
   ReviewsSection,
   SectionAction,
-  ShowcaseSection,
   SplitSection,
   StepsSection,
   TestimonialsSection,
 } from '@/lib/content';
+import { HeroVideo } from './HeroVideo';
+import { StoryVideo } from './StoryVideo';
+import { TreatmentTabs } from './TreatmentTabs';
 import './page-sections.css';
 
 /**
@@ -46,8 +48,8 @@ export function PageSections({
             return <Split key={key} section={section} images={images} />;
           case 'steps':
             return <Steps key={key} section={section} />;
-          case 'showcase':
-            return <Showcase key={key} section={section} />;
+          case 'tabs':
+            return <TreatmentTabs key={key} section={section} />;
           case 'testimonials':
             return <Testimonials key={key} section={section} />;
           case 'payments':
@@ -165,6 +167,12 @@ function Hero({
         ) : null}
       </div>
       <SectionImage src={image} className="section-hero__image" eager={eager} />
+      {/* Layered over the still, not instead of it — the still is both the
+          reduced-motion rendering and what shows until the stream is
+          playable. */}
+      {section.videoPlaybackId ? (
+        <HeroVideo playbackId={section.videoPlaybackId} />
+      ) : null}
     </section>
   );
 }
@@ -273,47 +281,6 @@ function Steps({ section }: { section: StepsSection }) {
   );
 }
 
-function Showcase({ section }: { section: ShowcaseSection }) {
-  return (
-    <section
-      className="section-showcase"
-      aria-labelledby="section-showcase-heading"
-    >
-      <div className="section-showcase__intro">
-        <h2 id="section-showcase-heading" className="section-showcase__title">
-          {section.title}
-        </h2>
-        {section.body ? (
-          <p className="section-showcase__body">{section.body}</p>
-        ) : null}
-      </div>
-      {/* Static card grid. The original switches these three treatments through
-          a tab strip (`2-column-tabbed-stacked`), which is #97's scope; #95
-          gives the panels the original's card language and its real treatment
-          photography so #97 adds behaviour rather than redoing the visuals. */}
-      <ul className="section-showcase__grid">
-        {section.items.map((item) => (
-          <li key={item.title} className="section-showcase__card">
-            {item.image ? (
-              <Image
-                className="section-showcase__card-image"
-                src={item.image}
-                alt=""
-                width={347}
-                height={162}
-              />
-            ) : null}
-            <div>
-              <h3 className="section-showcase__card-title">{item.title}</h3>
-              <p className="section-showcase__card-body">{item.body}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 function Testimonials({ section }: { section: TestimonialsSection }) {
   return (
     <section
@@ -334,8 +301,20 @@ function Testimonials({ section }: { section: TestimonialsSection }) {
       <ul className="section-testimonials__grid">
         {section.stories.map((story) => (
           <li key={story.title} className="section-testimonials__card">
-            <h3 className="section-testimonials__card-title">{story.title}</h3>
-            <p className="section-testimonials__card-body">{story.body}</p>
+            {/* A story with a playback id gets the original's card: animated
+                Mux poster, copy, and a button opening the video in a modal
+                (tncld#97). Without one it stays the text-only card — the shape
+                every story had while the videos were flattened out. */}
+            {story.playbackId ? (
+              <StoryVideo story={{ ...story, playbackId: story.playbackId }} />
+            ) : (
+              <>
+                <h3 className="section-testimonials__card-title">
+                  {story.title}
+                </h3>
+                <p className="section-testimonials__card-body">{story.body}</p>
+              </>
+            )}
           </li>
         ))}
       </ul>

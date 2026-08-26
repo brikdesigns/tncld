@@ -19,7 +19,7 @@ placeholder-adjacent copy is tracked in tncld#56.
 | 3 | `2-column-content-split` — New Patients | `split` | `Split` |
 | 4 | `3-column-card` — Your Path to a Healthier Smile | `steps` | `Steps` |
 | 5 | `2-column-content-split` — Why Laser Dentistry | `split` | `Split` |
-| 6 | `2-column-tabbed-stacked` — Transformative Dental Solutions | `showcase` | `Showcase` |
+| 6 | `2-column-tabbed-stacked` — Transformative Dental Solutions | `tabs` | `TreatmentTabs` |
 | 7 | `2-column-content-split` — Technology | `split` | `Split` |
 | 8 | `2-column-content-split` — Our Team | `split` | `Split` |
 | 9 | Patient stories (Real Patients…) | `testimonials` | `Testimonials` |
@@ -29,14 +29,15 @@ placeholder-adjacent copy is tracked in tncld#56.
 
 ## Deliberate deviations
 
-- **Tabbed treatments → card grid.** The original's tab interaction
-  (`2-column-tabbed-stacked`) is rendered as a static card grid (`showcase`).
-  Same three items and copy (Cosmetic / Hybrid Dentures / Invisalign); the tab
-  UI is presentation, not content, and #13 dropped pixel-parity.
-- **Patient-story videos → text cards.** The original links each story to a
-  video modal on `/patient-stories`; that route isn't rebuilt yet, so stories
-  render as text cards with no link (avoids a 404). Wiring the videos is
-  downstream of the `/patient-stories` page (nav-listed, unbuilt).
+> Two entries were removed here in tncld#97 — the tabbed treatments and the
+> patient-story videos. Both rested on #13's superseded no-pixel-parity charter
+> ("the tab UI is presentation, not content"), which the 2026-08-25 correction
+> retired, and the story-video entry was also factually wrong: the original
+> opens an in-place modal (`modal-1..3`), it does not link to
+> `/patient-stories`, so the unbuilt route never was the blocker. Both
+> interactions are now reproduced. The hero background video went the same way
+> in the same change, by operator decision 2026-08-26.
+
 - **CTA targets remapped to rebuilt routes.** Original destinations without a
   rebuilt page point to the nearest existing route:
   - "What to Expect as a New Patient" → `/patient-resources` (no `/new-patients`)

@@ -17,6 +17,7 @@
           "title": "Better Science. Better Service. Exceptional Dentistry.",
           "body": "Experience advanced, comfortable dentistry designed around your health and confidence — from preventive visits to implants, hybrids, and Invisalign.",
           "image": "hero",
+          "videoPlaybackId": "r92oSj01u7jQ8cbg2lazj16yAtoEScCvFsdFd4ceLHWU",
           "actions": [
             {
               "label": "Request an Appointment",
@@ -87,24 +88,53 @@
           }
         },
         {
-          "type": "showcase",
+          "type": "tabs",
           "title": "Transformative Dental Solutions",
           "body": "From restoring function to enhancing confidence, our treatments are thoughtfully designed around your goals, comfort, and long-term health.",
+          "action": {
+            "label": "View All Services",
+            "href": "/services"
+          },
+          "defaultIndex": 2,
           "items": [
             {
               "title": "Cosmetic Dentistry",
-              "body": "Transform your appearance with permanent stability and confidence.",
-              "image": "/images/square_cosmetic_dentistry_4x.webp"
+              "summary": "Transform your appearance",
+              "body": [
+                "Permanent stability and confidence.",
+                "Designed to restore strength, function, and confidence."
+              ],
+              "image": "/images/square_cosmetic_dentistry_4x.webp",
+              "action": {
+                "label": "Learn More",
+                "href": "/services/dental-implants"
+              }
             },
             {
               "title": "Hybrid Dentures",
-              "body": "Secure, full-arch restoration — a stable, comfortable alternative to removable dentures.",
-              "image": "/images/square_hybrid_dentures_2x.webp"
+              "summary": "Secure, full-arch restoration.",
+              "body": [
+                "Secure, full-arch restoration.",
+                "A stable, comfortable alternative to removable dentures."
+              ],
+              "image": "/images/square_hybrid_dentures_2x.webp",
+              "action": {
+                "label": "Learn More",
+                "href": "/services/hybrid-dentures"
+              }
             },
             {
               "title": "Invisalign",
-              "body": "Discreet smile alignment — straighten your smile discreetly and comfortably.",
-              "image": "/images/square_invisalign_2x.webp"
+              "summary": "Discreet smile alignment.",
+              "body": [
+                "Discreet smile alignment.",
+                "Straighten your smile discreetly and comfortably."
+              ],
+              "image": "/images/square_invisalign_2x.webp",
+              "action": {
+                "label": "Learn More",
+                "href": "/services/invisalign"
+              }
             }
           ]
         },
@@ -139,15 +169,21 @@
           "stories": [
             {
               "title": "A Life-Changing Transformation",
-              "body": "After a full mouth restoration, this patient shares how supported and cared for they felt every step of the way — and why trusting the right team made all the difference."
+              "body": "After a full mouth restoration, this patient shares how supported and cared for they felt every step of the way — and why trusting the right team made all the difference.",
+              "playbackId": "dHGGUOQu8aOCHgitzLmQqdzZb5F4f1DDe1qF48yRTqE",
+              "videoLabel": "Watch Their Story"
             },
             {
               "title": "A Great First Visit",
-              "body": "As a first-time patient — and a technology professional — this patient was impressed by our modern approach, professionalism, and attention to detail."
+              "body": "As a first-time patient — and a technology professional — this patient was impressed by our modern approach, professionalism, and attention to detail.",
+              "playbackId": "Fiikx6lOPjNe2PmaAiOAwujwi026WYlGDs21gZcVRzJM",
+              "videoLabel": "Watch Their Story"
             },
             {
               "title": "Comfort for Every Age",
-              "body": "From kids to adults, our team focuses on making every visit positive, comfortable, and fun — even for our youngest patients."
+              "body": "From kids to adults, our team focuses on making every visit positive, comfortable, and fun — even for our youngest patients.",
+              "playbackId": "5eTr5CPDOUTVVht4a8ZjG4IT6Os1WVhWwXl9ywhzRn8",
+              "videoLabel": "Watch Their Story"
             }
           ]
         },
