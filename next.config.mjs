@@ -4,6 +4,10 @@ const nextConfig = {
     remotePatterns: [
       { hostname: '*.supabase.co' },
       { hostname: 'cdn.prod.website-files.com' }, // Webflow CDN (legacy assets during migration)
+      // Animated posters for the patient-story videos (tncld#97). Unlike the
+      // Webflow CDN entry above, this is not a migration leftover: these are
+      // TNCLD's own Mux assets, and the original loads them from this host too.
+      { hostname: 'image.mux.com' },
     ],
   },
   async headers() {
