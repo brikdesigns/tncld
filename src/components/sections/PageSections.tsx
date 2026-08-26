@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import Image from 'next/image';
 import { Button } from '@brikdesigns/bds';
 import type {
@@ -64,7 +65,8 @@ function ActionButton({
   variant,
 }: {
   action: SectionAction;
-  variant?: 'primary' | 'secondary';
+  /** BDS ButtonVariant — `on-color` is the one for brand-filled surfaces. */
+  variant?: ComponentProps<typeof Button>['variant'];
 }) {
   return (
     <Button href={action.href} variant={action.variant ?? variant ?? 'primary'}>
@@ -260,11 +262,26 @@ function Showcase({ section }: { section: ShowcaseSection }) {
           <p className="section-showcase__body">{section.body}</p>
         ) : null}
       </div>
+      {/* Static card grid. The original switches these three treatments through
+          a tab strip (`2-column-tabbed-stacked`), which is #97's scope; #95
+          gives the panels the original's card language and its real treatment
+          photography so #97 adds behaviour rather than redoing the visuals. */}
       <ul className="section-showcase__grid">
         {section.items.map((item) => (
           <li key={item.title} className="section-showcase__card">
-            <h3 className="section-showcase__card-title">{item.title}</h3>
-            <p className="section-showcase__card-body">{item.body}</p>
+            {item.image ? (
+              <Image
+                className="section-showcase__card-image"
+                src={item.image}
+                alt=""
+                width={347}
+                height={162}
+              />
+            ) : null}
+            <div>
+              <h3 className="section-showcase__card-title">{item.title}</h3>
+              <p className="section-showcase__card-body">{item.body}</p>
+            </div>
           </li>
         ))}
       </ul>
@@ -313,10 +330,21 @@ function Payments({ section }: { section: PaymentsSection }) {
         </h2>
         <p className="section-payments__body">{section.body}</p>
       </div>
+      {/* Each method carries a glyph in the original — a card/cash/check mark or
+          a financing partner's logo — above its label. */}
       <ul className="section-payments__methods">
         {section.methods.map((method) => (
-          <li key={method} className="section-payments__method">
-            {method}
+          <li key={method.label} className="section-payments__method">
+            {method.icon ? (
+              <Image
+                className="section-payments__method-icon"
+                src={method.icon}
+                alt=""
+                width={121}
+                height={81}
+              />
+            ) : null}
+            <span className="section-payments__method-label">{method.label}</span>
           </li>
         ))}
       </ul>
@@ -336,20 +364,32 @@ function Cta({
       ? images[section.image]
       : undefined;
   return (
+    // The split variant is not a two-column layout: the original runs the photo
+    // full-bleed (1440x1000) and floats a solid blue card over it on the right
+    // (400x312, radius 12, padding 28). The copy therefore sits ON the media,
+    // so it renders after the image in source order and above it in z-order.
     <section
       className={`section-cta section-cta--${section.variant ?? 'center'}`}
       aria-labelledby="section-cta-heading"
     >
+      {image ? (
+        <SectionImage src={image} className="section-cta__image" />
+      ) : null}
       <div className="section-cta__copy">
         <h2 id="section-cta-heading" className="section-cta__title">
           {section.title}
         </h2>
         <p className="section-cta__body">{section.body}</p>
-        {section.action ? <ActionButton action={section.action} /> : null}
+        {section.action ? (
+          // The split CTA's card is brand-filled, so its action needs the
+          // variant built for that surface rather than another blue-on-blue
+          // fill. `on-color` deliberately does not flip with the theme.
+          <ActionButton
+            action={section.action}
+            variant={section.variant === 'split' ? 'on-color' : undefined}
+          />
+        ) : null}
       </div>
-      {image ? (
-        <SectionImage src={image} className="section-cta__image" />
-      ) : null}
     </section>
   );
 }

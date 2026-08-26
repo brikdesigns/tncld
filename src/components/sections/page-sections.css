@@ -241,13 +241,16 @@
   margin-top: 2rem;
 }
 
-/* ── Showcase (treatments card grid) ────────────────────────────────── */
+/* ── Showcase (treatments card grid) ─────────────────────── */
+/* Card language shared with steps and stories: 381x~320 panels on the raised
+   surface, 40px radius, 24px padding, 20px gutter. These were bordered boxes on
+   the page background, which read as a different component entirely. */
 .section-showcase {
   padding: 4rem 1.5rem;
 }
 .section-showcase__intro {
   max-width: 52ch;
-  margin: 0 0 2rem;
+  margin: 0 0 2.5rem;
 }
 .section-showcase__title {
   margin: 0 0 1rem;
@@ -262,30 +265,41 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
 }
 .section-showcase__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
   padding: 1.5rem;
-  background: var(--surface-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+/* 347x162 in the original's open tab panel. */
+.section-showcase__card-image {
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
 }
 .section-showcase__card-title {
   margin: 0 0 0.5rem;
   color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
 }
 .section-showcase__card-body {
   margin: 0;
   color: var(--text-secondary);
 }
 
-/* ── Testimonials (patient stories) ─────────────────────────────────── */
+/* ── Testimonials (patient stories) ───────────────────── */
 .section-testimonials {
   padding: 4rem 1.5rem;
 }
 .section-testimonials__intro {
-  margin: 0 0 2rem;
+  margin: 0 0 2.5rem;
   text-align: center;
 }
 .section-testimonials__title {
@@ -296,68 +310,84 @@
   margin: 0;
   color: var(--text-secondary);
 }
+/* 381x320 panels, 20px gutter — measured on the original's story cards. */
 .section-testimonials__grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
 }
 .section-testimonials__card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 20rem;
   padding: 1.5rem;
-  background: var(--surface-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
 }
 .section-testimonials__card-title {
-  margin: 0 0 0.5rem;
+  margin: 0;
   color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
 }
 .section-testimonials__card-body {
   margin: 0;
   color: var(--text-secondary);
 }
 
-/* ── Payments ───────────────────────────────────────────────────────── */
+/* ── Payments ──────────────────────────────────── */
+/* Centered intro over a row of glyph-and-label methods, as the original sets
+   it. Was a two-column flex with the methods rendered as bordered pills. */
 .section-payments {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2.5rem;
   padding: 4rem 1.5rem;
+  text-align: center;
 }
 .section-payments__copy {
-  flex: 1 1 24rem;
+  max-width: 60rem;
+  margin: 0 auto 3rem;
 }
 .section-payments__title {
   margin: 0 0 1rem;
   color: var(--text-primary);
 }
 .section-payments__body {
-  margin: 0;
+  margin: 0 auto;
   color: var(--text-secondary);
-  max-width: 52ch;
+  max-width: 68ch;
 }
 .section-payments__methods {
-  flex: 1 1 16rem;
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3rem;
 }
 .section-payments__method {
-  padding: 0.5rem 1rem;
-  background: var(--surface-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  color: var(--text-primary);
-  font-size: 0.9375rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.section-payments__method-icon {
+  width: 7.5625rem;
+  height: auto;
+}
+.section-payments__method-label {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
-/* ── CTA ────────────────────────────────────────────────────────────── */
+/* ── CTA ─────────────────────────────────────── */
 .section-cta--center {
   padding: 4rem 1.5rem;
   text-align: center;
@@ -366,19 +396,41 @@
   max-width: 60rem;
   margin: 0 auto;
 }
+/* Full-bleed photo with a solid blue card floated over it on the right — the
+   original runs the image 1440x1000 and the card 400x312 at radius 12. It was a
+   side-by-side flex row with a 34rem image. */
 .section-cta--split {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 2.5rem;
+  justify-content: flex-end;
+  max-width: none;
+  min-height: 50rem;
   padding: 4rem 1.5rem;
+  overflow: hidden;
+  isolation: isolate;
 }
 .section-cta--split .section-cta__copy {
-  flex: 1 1 24rem;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 25rem;
+  padding: 1.75rem;
+  background: var(--background-brand-primary);
+  border-radius: 0.75rem;
+}
+/* White on --tncld-blue is 4.88:1 — passes AA for body copy. */
+.section-cta--split .section-cta__title,
+.section-cta--split .section-cta__body {
+  color: var(--tncld-white);
 }
 .section-cta__title {
   margin: 0 0 1rem;
   color: var(--text-primary);
+}
+.section-cta--split .section-cta__title {
+  font-size: 1.40625rem;
+  line-height: 1.25;
 }
 .section-cta__body {
   margin: 0 0 1.5rem;
@@ -389,12 +441,12 @@
   margin-left: auto;
   margin-right: auto;
 }
-.section-cta__image {
-  flex: 1 1 22rem;
-  width: 100%;
-  max-width: 34rem;
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: var(--border-radius-lg);
+.section-cta--split .section-cta__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: auto;
+  margin: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
 }

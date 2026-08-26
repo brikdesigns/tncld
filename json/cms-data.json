@@ -93,15 +93,18 @@
           "items": [
             {
               "title": "Cosmetic Dentistry",
-              "body": "Transform your appearance with permanent stability and confidence."
+              "body": "Transform your appearance with permanent stability and confidence.",
+              "image": "/images/square_cosmetic_dentistry_4x.webp"
             },
             {
               "title": "Hybrid Dentures",
-              "body": "Secure, full-arch restoration — a stable, comfortable alternative to removable dentures."
+              "body": "Secure, full-arch restoration — a stable, comfortable alternative to removable dentures.",
+              "image": "/images/square_hybrid_dentures_2x.webp"
             },
             {
               "title": "Invisalign",
-              "body": "Discreet smile alignment — straighten your smile discreetly and comfortably."
+              "body": "Discreet smile alignment — straighten your smile discreetly and comfortably.",
+              "image": "/images/square_invisalign_2x.webp"
             }
           ]
         },
@@ -153,11 +156,26 @@
           "title": "Clear, Flexible Payment Options",
           "body": "We accept a wide range of insurance plans and offer a transparent, easy-to-understand Membership Plan for predictable care and savings, and provide CareCredit financing to make treatment accessible.",
           "methods": [
-            "Credit / Debit card",
-            "Cash",
-            "Check",
-            "CareCredit",
-            "Membership Plan"
+            {
+              "label": "Credit / Debit card",
+              "icon": "/images/debit.svg"
+            },
+            {
+              "label": "Cash",
+              "icon": "/images/cash.svg"
+            },
+            {
+              "label": "Check",
+              "icon": "/images/check.svg"
+            },
+            {
+              "label": "CareCredit",
+              "icon": "/images/care-credit-logo.svg"
+            },
+            {
+              "label": "Membership Plan",
+              "icon": "/images/cherry-logo.svg"
+            }
           ]
         },
         {

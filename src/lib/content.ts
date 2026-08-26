@@ -85,6 +85,8 @@ export interface StepsSection {
 export interface ShowcaseItem {
   title: string;
   body: string;
+  /** Path under /public — the original gives each treatment a square photo. */
+  image?: string;
 }
 
 /** A card grid of highlighted treatments / solutions. */
@@ -109,11 +111,18 @@ export interface TestimonialsSection {
 }
 
 /** Payment / insurance options. */
+export interface PaymentMethod {
+  label: string;
+  /** Path under /public — card/cash/check glyph or a financing partner mark. */
+  icon?: string;
+}
+
 export interface PaymentsSection {
   type: 'payments';
   title: string;
   body: string;
-  methods: string[];
+  /** Was `string[]`; the original pairs every method with a glyph. */
+  methods: PaymentMethod[];
 }
 
 /** Closing call to action, either split-with-image or centered. */
