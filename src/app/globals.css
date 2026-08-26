@@ -9,9 +9,12 @@
      theme → base (preflight) → components → utilities
      → bds-tokens → bds-components → client-theme → client-overrides
 */
-/* Client font (TNCLD = Poppins). Must sit at the top of the entry stylesheet,
-   NOT inside a layered import — a nested @import gets dropped by the optimizer. */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
+/* Client font (TNCLD = Inter). Must sit at the top of the entry stylesheet,
+   NOT inside a layered import — a nested @import gets dropped by the optimizer.
+   Inter, not Poppins: the live Webflow original resolves Inter on every h1/h2/p
+   (measured from the rendered export via scripts/fidelity-shot.mjs, tncld#95).
+   Its own webfont loader requests "Inter:300,400,500,600,700". */
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
 
 @layer theme, base, components, utilities;
 @layer bds-tokens, bds-components, client-theme, client-overrides;
@@ -28,11 +31,16 @@
 /* Tailwind layers */
 @import "tailwindcss";
 
-/* Match overscroll background to page color. */
+/* Paint the page background on <body>, NOT <html> (tncld#95).
+   `.theme-tncld` sits on <body>, and custom properties inherit downward only —
+   so an `html { background: var(--page-primary) }` rule resolves against the
+   BDS defaults on :root and cannot see the client theme at all. That is why
+   every section rendered on #1b1b1b (BDS dark) instead of the original's #000
+   even after the theme flip. With <html> left unpainted, CSS propagates body's
+   background to the canvas, so the overscroll gutter still matches. */
 html {
-  background-color: var(--page-primary);
   overflow-x: hidden;
 }
-:root[data-theme="dark"] {
-  background-color: var(--background-primary);
+body {
+  background-color: var(--page-primary);
 }
