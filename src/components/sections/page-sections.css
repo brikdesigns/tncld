@@ -181,9 +181,16 @@
  * the action pinned to the opposite edge; then a full-width 16:9 image inset
  * only 36px. The rebuild had copy and image side by side in a 34rem box, which
  * is why these bands came out at roughly a third of the original's height. */
+/* The section's own 40px row-gap sits between the copy block and the image; the
+   copy stack then carries 128px of its own bottom padding, and its inner stack
+   another 16px. 184px from the last line of copy to the top of the image — the
+   rebuild had 40px, which is these three bands' whole deficit. */
 .section-split {
+  display: flex;
+  flex-direction: column;
   max-width: none;
   padding: 2.5rem 0 3rem;
+  gap: var(--space-1000);
 }
 .section-split__head {
   display: flex;
@@ -191,8 +198,10 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1.5rem;
-  /* 96px inset at the original's 1440 reference width. */
-  padding: 0 6rem 2.5rem;
+  /* 96px inset at the original's 1440 reference width. The 16px top is the
+     original's own heading-wrapper padding, which sits inside the section's
+     40px and is why every split band read 16px short at the top. */
+  padding: var(--space-400) 6rem calc(var(--space-2400) + var(--space-400));
 }
 .section-split__copy {
   flex: 1 1 34rem;
@@ -231,15 +240,35 @@
   border-radius: 0;
 }
 
+/* ── Section rhythm (tncld#102) ──────────────────────────────────────────
+ * The original's full-width sections are `padding: 128px 0` with a 48px gap
+ * between the heading block and the content — measured with getComputedStyle
+ * on the rendered export, not read off the CSS. The rebuild had 64px and 40px,
+ * which is the whole of the 2,612px it was short on `/`: strict ink (text and
+ * replaced elements only) came out 81px OVER the original, so none of the
+ * deficit was content.
+ *
+ * Expressed on the fixed --space-* scale rather than --padding-huge or
+ * --gap-md. Those track [data-mode-spacing], and the original's rhythm is BDS
+ * `spacious` exactly (128px padding, 48px gap) — but its 40px split gap has no
+ * token in that mode, and nothing in src/ consumes the padding or gap token
+ * families today, so setting the attribute alone would move nothing. A
+ * --space-* name states the measured value exactly, which is what the AC asks
+ * for.
+ */
+
 /* ── Steps (process) ────────────────────────────────────────────────── */
 .section-steps {
-  padding: 4rem 1.5rem;
+  padding: var(--space-2400) 1.5rem;
   text-align: center;
 }
 /* 36px/45px here, not the 45.5px the other section headings use — the original
    sets this one a step down the ramp. */
+/* The original seats this heading in a wrapper with 16px of its own padding
+   top and bottom, then a 48px stack gap to the cards — so 16px above the
+   heading and 64px below it, not the flat 40px the rebuild had. */
 .section-steps__title {
-  margin: 0 0 2.5rem;
+  margin: var(--space-400) 0 calc(var(--space-400) + var(--space-1200));
   color: var(--text-primary);
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   line-height: 1.25;
@@ -285,8 +314,9 @@
   font-size: 1rem;
   line-height: 1.5;
 }
+/* 48px stack gap, same as the heading-to-cards gap above. */
 .section-steps__cta {
-  margin-top: 2rem;
+  margin-top: var(--space-1200);
 }
 
 /* ── Showcase (treatments card grid) ─────────────────────── */
@@ -294,11 +324,11 @@
    surface, 40px radius, 24px padding, 20px gutter. These were bordered boxes on
    the page background, which read as a different component entirely. */
 .section-showcase {
-  padding: 4rem 1.5rem;
+  padding: var(--space-2400) 1.5rem;
 }
 .section-showcase__intro {
   max-width: 52ch;
-  margin: 0 0 2.5rem;
+  margin: 0 0 var(--space-1200);
 }
 .section-showcase__title {
   margin: 0 0 1rem;
@@ -344,10 +374,10 @@
 
 /* ── Testimonials (patient stories) ───────────────────── */
 .section-testimonials {
-  padding: 4rem 1.5rem;
+  padding: var(--space-2400) 1.5rem;
 }
 .section-testimonials__intro {
-  margin: 0 0 2.5rem;
+  margin: 0 0 var(--space-1200);
   text-align: center;
 }
 .section-testimonials__title {
@@ -391,12 +421,12 @@
 /* Centered intro over a row of glyph-and-label methods, as the original sets
    it. Was a two-column flex with the methods rendered as bordered pills. */
 .section-payments {
-  padding: 4rem 1.5rem;
+  padding: var(--space-2400) 1.5rem;
   text-align: center;
 }
 .section-payments__copy {
   max-width: 60rem;
-  margin: 0 auto 3rem;
+  margin: 0 auto var(--space-1200);
 }
 .section-payments__title {
   margin: 0 0 1rem;
@@ -437,7 +467,7 @@
 
 /* ── CTA ─────────────────────────────────────── */
 .section-cta--center {
-  padding: 4rem 1.5rem;
+  padding: var(--space-2400) 1.5rem;
   text-align: center;
 }
 .section-cta--center .section-cta__copy {
