@@ -124,6 +124,33 @@ function Hero({
   eager?: boolean;
 }) {
   const image = section.image ? images[section.image] : undefined;
+  // No media means the interior `2-column-hero-split`, which the original lays
+  // out differently from the homepage's full-bleed hero: title, a rule, then
+  // the eyebrow and the body side by side. #92's five remaining pages all open
+  // with this shape.
+  if (!image) {
+    return (
+      <section className="section-hero section-hero--interior">
+        <h1 className="section-hero__title">{section.title}</h1>
+        <hr className="section-hero__rule" />
+        <div className="section-hero__columns">
+          <p className="section-hero__eyebrow">
+            {section.eyebrowIcon ? (
+              <Image
+                className="section-hero__eyebrow-icon"
+                src={section.eyebrowIcon}
+                alt=""
+                width={20}
+                height={20}
+              />
+            ) : null}
+            {section.eyebrow}
+          </p>
+          <p className="section-hero__lede">{section.body}</p>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="section-hero">
       <div className="section-hero__copy">
@@ -137,9 +164,7 @@ function Hero({
           </div>
         ) : null}
       </div>
-      {image ? (
-        <SectionImage src={image} className="section-hero__image" eager={eager} />
-      ) : null}
+      <SectionImage src={image} className="section-hero__image" eager={eager} />
     </section>
   );
 }

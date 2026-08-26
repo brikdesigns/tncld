@@ -37,12 +37,21 @@ export interface SectionAction {
   variant?: 'primary' | 'secondary';
 }
 
-/** Full-width intro. `image` is a key into HomeContent.images. */
+/**
+ * Page intro. Two shapes in the original, told apart by `image`:
+ * with one it is the homepage's full-bleed media hero; without one it is the
+ * interior `2-column-hero-split` — title, rule, then an eyebrow column beside
+ * the body. `image` is a key into the page's `images` map.
+ */
 export interface HeroSection {
   type: 'hero';
   title: string;
   body: string;
   image?: string;
+  /** Interior hero only — the label beside the body column. */
+  eyebrow?: string;
+  /** Path under /public — the glyph the original sets before the eyebrow. */
+  eyebrowIcon?: string;
   actions?: SectionAction[];
 }
 
