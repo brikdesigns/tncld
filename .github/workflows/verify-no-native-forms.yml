@@ -1,0 +1,40 @@
+# Verify the live intake pages carry no native Webflow form
+#
+# TNCLD is a HIPAA covered entity. Its contact + request-appointment pages must
+# post ONLY to the BAA-covered GoHighLevel embed, never to Webflow's own form
+# store. A GoHighLevel rollout once left the native Webflow forms in place and
+# both captured patient PHI in parallel (tncld#98). Removing the native forms is
+# a Webflow Designer edit with no code artifact, so this scheduled check is the
+# only guard against them being re-added or a republish restoring them.
+#
+# Expect RED if a native `wf-form`/`w-form` reappears on either page, or if the
+# GoHighLevel embed goes missing. See scripts/verify-no-native-forms.sh.
+
+name: Verify no native forms
+
+on:
+  schedule:
+    - cron: '23 13 * * 1'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Guard the detector itself before trusting it against the live site.
+      - name: Self-test the detector (fixtures, no network)
+        run: |
+          set -e
+          NATIVE_FORM_FIXTURES=scripts/fixtures/native-forms-gate/pass \
+            bash scripts/verify-no-native-forms.sh
+          if NATIVE_FORM_FIXTURES=scripts/fixtures/native-forms-gate/fail \
+               bash scripts/verify-no-native-forms.sh; then
+            echo "::error::detector passed a fixture that contains a native form"; exit 1
+          fi
+          echo "detector self-test OK"
+
+      - name: Verify the live pages carry no native Webflow form
+        run: bash scripts/verify-no-native-forms.sh
