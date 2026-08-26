@@ -274,7 +274,7 @@
 
 /* ── Steps (process) ────────────────────────────────────────────────── */
 .section-steps {
-  padding: var(--space-2400) 1.5rem;
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
   text-align: center;
 }
 /* 36px/45px here, not the 45.5px the other section headings use — the original
@@ -283,7 +283,7 @@
    top and bottom, then a 48px stack gap to the cards — so 16px above the
    heading and 64px below it, not the flat 40px the rebuild had. */
 .section-steps__title {
-  margin: var(--space-400) 0 calc(var(--space-400) + var(--space-1200));
+  margin: 0 0 calc(var(--space-400) + var(--space-1200));
   color: var(--text-primary);
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   line-height: 1.25;
@@ -339,7 +339,7 @@
    surface, 40px radius, 24px padding, 20px gutter. These were bordered boxes on
    the page background, which read as a different component entirely. */
 .section-showcase {
-  padding: var(--space-2400) 1.5rem;
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
 }
 .section-showcase__intro {
   max-width: 52ch;
@@ -389,14 +389,15 @@
 
 /* ── Testimonials (patient stories) ───────────────────── */
 .section-testimonials {
-  padding: var(--space-2400) 1.5rem;
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
 }
 .section-testimonials__intro {
   margin: 0 0 var(--space-1200);
   text-align: center;
 }
+/* 16px to the body, as the original's intro stack sets it — was 8px. */
 .section-testimonials__title {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-400);
   color: var(--text-primary);
 }
 .section-testimonials__body {
@@ -436,7 +437,7 @@
 /* Centered intro over a row of glyph-and-label methods, as the original sets
    it. Was a two-column flex with the methods rendered as bordered pills. */
 .section-payments {
-  padding: var(--space-2400) 1.5rem;
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
   text-align: center;
 }
 .section-payments__copy {
@@ -482,7 +483,7 @@
 
 /* ── CTA ─────────────────────────────────────── */
 .section-cta--center {
-  padding: var(--space-2400) 1.5rem;
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
   text-align: center;
 }
 .section-cta--center .section-cta__copy {
