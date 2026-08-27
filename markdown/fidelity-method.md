@@ -72,6 +72,33 @@ npm run dev                                       # rebuild on :3000
 node scripts/fidelity-shot.mjs --route /          # then --route /about
 ```
 
+### Use `localhost` for the rebuild, never `127.0.0.1` (tncld#118)
+
+They are not interchangeable here. **Next 16 answers `403` on every
+`/_next/static/chunks/*` for a non-localhost origin**, so the page arrives with
+no JS: it renders as the server-side shell, nothing hydrates, and the harness
+used to screenshot and measure *that* while printing a normal-looking band
+table. `--rebuild-origin` therefore defaults to `http://localhost:3000`.
+
+```
+127.0.0.1:3100  →  8 of 8 chunks net::ERR_ABORTED (403),  hydration markers: 0
+localhost:3100  →  no console errors,                     hydration markers: 2
+```
+
+Two hard failures now stop a wrong measurement rather than reporting it:
+
+| Guard | Catches |
+|---|---|
+| `body.theme-tncld` absent | another process holds the port. On brik-mini a Forgejo instance held `127.0.0.1:3000` while `next dev` bound IPv6 `*:3000`, so the "rebuild" was a different application entirely. |
+| no `__reactContainer$` on `document` after 30s | the page never hydrated — the 403 case above, or a genuine hydration break. |
+
+The hydration probe keys on `document`, not on a widget, because it has to hold
+on every route: keyed on `[role="tab"]` it failed `--route /about` for having no
+tabs. And the rebuild waits on `load`, not `networkidle` — since tncld#97 the
+hero is an autoplaying HLS loop, so the network never goes idle and the wait
+just burns its timeout. The export on `:8899` is static files, does go idle, and
+keeps `networkidle`.
+
 Output lands in `.fidelity/<page>/<width>/` (gitignored): a full-page shot of
 each side, one `NN-<heading>--orig.png` / `--rebuild.png` pair per band, and a
 `report.json`.
@@ -130,10 +157,18 @@ renders as a still and tncld#97 owns.
 
 ## Known limits
 
-- **Static only.** The export renders without ScrollSmoother, and the harness
-  forces revealed state, so it cannot verify motion. That is tncld#96's job.
+- **Static only, and this harness must not be used to verify motion.** The
+  export renders without ScrollSmoother, and `REVEAL` deliberately forces every
+  zero-opacity element visible after load — correct for a static comparison, and
+  precisely what makes it useless for tncld#96: it destroys the reveal-on-scroll
+  behaviour that ticket exists to reproduce. #96 needs an opacity-preserving mode
+  or a separate motion harness; the hydration guard above only proves the JS ran,
+  not that anything animated.
 - **One viewport by default.** `--width` takes any of Webflow's breakpoints
   (1440 / 991 / 767 / 479); the responsive pass means running it four times.
-- **Collapsed tab panels read as missing height.** Two of the three showcase
-  treatment images measure 0×0 in the original because their tab panels are
-  closed. Band 5's residual height gap is that interaction, which is tncld#97.
+  tncld#106 is open on this: `/` measured 80.5% at 991 and 106.9% at 479, so a
+  single 1440 figure does not mean the page is short everywhere.
+- **Collapsed tab panels read as missing height.** Two of the three treatment
+  images measured 0×0 in the original because their tab panels are closed.
+  Resolved by tncld#97, which made the rebuild a real tab widget; the band closed
+  from a residual gap to −46px.
