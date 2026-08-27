@@ -38,7 +38,12 @@ const ROUTES = {
 const route = arg('route', '/');
 const width = Number(arg('width', 1440));
 const origin = arg('orig-origin', 'http://127.0.0.1:8899');
-const rebuildOrigin = arg('rebuild-origin', 'http://127.0.0.1:3000');
+// `localhost`, NOT `127.0.0.1` (tncld#118). Next 16's dev server answers 403 on
+// every /_next/static/chunks/* for a non-localhost origin, so the rebuild
+// renders UNHYDRATED — and this script used to screenshot and measure that,
+// reporting a normal-looking band table. The export server on :8899 is plain
+// static files and has no such rule, so it keeps its address.
+const rebuildOrigin = arg('rebuild-origin', 'http://localhost:3000');
 const outDir = arg('out', join('.fidelity', route === '/' ? 'home' : route.slice(1), String(width)));
 
 const target = ROUTES[route];
@@ -61,15 +66,75 @@ const REVEAL = `
   }
 `;
 
+/**
+ * Refuse to measure the wrong page (tncld#118).
+ *
+ * Two ways this script used to produce plausible numbers for something that was
+ * not the rebuild, both hit in one session:
+ *
+ *   1. Port 3000 held another session's service (a Forgejo instance on
+ *      brik-mini), so the "rebuild" was a different application entirely.
+ *   2. A non-localhost origin got 403 on every JS chunk, so the page was the
+ *      server-rendered shell with nothing hydrated.
+ *
+ * Neither shows up in a band table — both produce one. A wrong measurement that
+ * looks right is worse than a crash, so these are hard failures.
+ */
+async function assertIsRebuild(page, label) {
+  // `body.theme-tncld` (src/app/layout.tsx) rather than page copy: it is on
+  // every route, so this check does not have to know which one is being
+  // measured, and no other app on a stray port will carry it.
+  const isTncld = await page.evaluate(() =>
+    document.body?.classList.contains('theme-tncld'),
+  );
+  if (!isTncld) {
+    const title = await page.title();
+    throw new Error(
+      `${label}: this origin is not serving the TNCLD rebuild — no ` +
+        `body.theme-tncld (page title: "${title}"). Another process may hold ` +
+        `the port; check lsof -nP -iTCP:3000 -sTCP:LISTEN and --rebuild-origin.`,
+    );
+  }
+  // React owns the DOM only once it has hydrated. Poll for the internal keys
+  // rather than for rendered markup — the server renders the markup too, so its
+  // presence proves nothing about interactivity.
+  //
+  // `__reactContainer$` on `document` is the signal because it is
+  // route-independent. Probing a specific widget is not: keying this on
+  // `[role="tab"]` made `--route /about` fail with "never hydrated" on a page
+  // that had hydrated perfectly well and simply has no tabs.
+  await page
+    .waitForFunction(
+      () =>
+        Object.keys(document).some((k) => k.startsWith('__reactContainer')),
+      null,
+      { timeout: 30000 },
+    )
+    .catch(() => {
+      throw new Error(
+        `${label}: the page never hydrated — measuring it would report the ` +
+          `static shell as if it were the app. If the origin is not ` +
+          `\`localhost\`, that is the cause: Next 16 serves 403 on ` +
+          `/_next/static/chunks/* to any other host (tncld#118).`,
+      );
+    });
+}
+
 async function capture(url, label) {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width, height: 1000 } });
   const failed = new Set();
   page.on('requestfailed', (r) => failed.add(new URL(r.url()).host));
 
+  // The rebuild cannot wait on `networkidle`: its hero is an autoplaying HLS
+  // loop since tncld#97, so segments keep arriving and the network is never
+  // idle — the wait just burns the full timeout. The export on :8899 is static
+  // files, does go idle, and its screenshots depend on that, so it keeps it.
+  const settle = label === 'rebuild' ? 'load' : 'networkidle';
   await page
-    .goto(url, { waitUntil: 'networkidle', timeout: 90000 })
+    .goto(url, { waitUntil: settle, timeout: 90000 })
     .catch((e) => console.error(`${label} nav: ${e.message}`));
+  if (label === 'rebuild') await assertIsRebuild(page, label);
   // Lazy images only decode once scrolled into view; walk the page so the
   // full-page screenshot is not a column of empty image boxes.
   await page.evaluate(async () => {
