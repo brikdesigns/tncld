@@ -270,9 +270,29 @@ if [ -n "$ISSUE_REF" ]; then
     echo -e "${YELLOW}  Deliberately proceeding without the gate: omit --issue to skip it.${NC}"
     exit 1
   fi
+  # Sibling-issue detection (#1663, wired here by brik-llm#2765). Catches the shape
+  # the number-keyed check structurally cannot see: another session filed its OWN
+  # issue for the same problem, so both number gates are satisfied while the work
+  # is identical. #2717 and #2747 were filed 18 hours apart under the same
+  # umbrella with this detector present in the lib and called by nobody.
+  #
+  # Advisory — it never refuses, and never aborts on an unreadable title either
+  # (the `|| return 0` in check_title_overlap), so it needs no guard.
+  check_title_overlap "$ISSUE_REF"
 else
   echo -e "${YELLOW}⚠  No --issue given — skipping the ticket-overlap gate.${NC}"
   echo -e "${YELLOW}   Pass --issue N so a parallel track on the same ticket is caught.${NC}"
+  # ...except this. With no ticket, the slug is the only statement of intent that
+  # exists, so score it against open issue TITLES: #1660 was a ticketless branch
+  # that duplicated open issue #1661 — the duplicate was a ticket nobody looked
+  # for. check_title_overlap cannot cover this; it needs an issue number to read a
+  # title off. #1663, wired here by brik-llm#2765.
+  #
+  # The transform is inlined rather than imported: brik-bds keeps slug_to_phrase in
+  # scripts/lib/slug-claim.sh, a lib this repo does not carry. Its reasoning holds
+  # verbatim — the IDF scorer tokenises on whitespace AND hyphens and drops tokens
+  # under 4 chars, so leaving the scope prefix in costs nothing.
+  check_phrase_overlap "$(printf '%s' "$TASK_NAME" | tr '-' ' ')"
 fi
 
 # ── Fetch and branch from base ──
