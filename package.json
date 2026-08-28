@@ -14,6 +14,7 @@
     "test:a11y": "node scripts/test-frame-title.js",
     "test:widget-width": "node scripts/test-review-widget-width.js",
     "test:interactions": "node scripts/test-home-interactions.mjs",
+    "test:motion": "node scripts/motion-shot.mjs",
     "deploy:cdn": "bash deploy.sh",
     "prepare": "husky"
   },
