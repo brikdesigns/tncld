@@ -40,6 +40,7 @@
         },
         {
           "type": "split",
+          "reveal": "start",
           "eyebrow": "New Patients",
           "title": "Dental Care Should Be Clear, Comfortable, and Stress-Free",
           "body": "If you’ve been putting off care because of anxiety, uncertainty, or past experiences, you’re not alone. Our approach is designed to help new patients feel calm, informed, and supported from the very first visit.",
@@ -52,6 +53,7 @@
         },
         {
           "type": "steps",
+          "reveal": "join",
           "title": "Your Path to a Healthier Smile",
           "steps": [
             {
@@ -77,6 +79,7 @@
         },
         {
           "type": "split",
+          "reveal": "start",
           "eyebrow": "What Sets Us Apart",
           "title": "Why “Laser Dentistry” Is Our Standard",
           "body": "Laser dentistry isn’t a specialty — it’s our commitment to comfort, precision, and a higher standard of care. We invest in advanced technology and training so your experience feels easier, more predictable, and more supportive.",
@@ -140,6 +143,7 @@
         },
         {
           "type": "split",
+          "reveal": "start",
           "eyebrow": "Technology",
           "title": "Where Comfort Meets Precision",
           "body": "We integrate precision-driven systems and modern diagnostics to improve comfort, efficiency, and clarity at every visit. From same-day solutions to detailed imaging and gentle laser-assisted procedures, our approach is designed to make your experience smoother and your results more predictable.",
@@ -152,6 +156,7 @@
         },
         {
           "type": "split",
+          "reveal": "start",
           "eyebrow": "Our Team",
           "title": "Experienced Clinicians. Elevated Care.",
           "body": "Skilled, compassionate doctors dedicated to precise, modern, patient-centered dentistry.",
@@ -164,6 +169,7 @@
         },
         {
           "type": "testimonials",
+          "reveal": "join",
           "title": "Real Patients. Real Confidence. Real Results.",
           "body": "Real transformations. Real confidence. Real results.",
           "stories": [
@@ -257,6 +263,7 @@
         },
         {
           "type": "split",
+          "reveal": "start",
           "title": "Meet Our Team",
           "body": "Our highly-skilled team truly cares about your dental needs. Get to know everyone on our team by clicking the button below.",
           "image": "team",
@@ -268,6 +275,7 @@
         },
         {
           "type": "split",
+          "reveal": "start",
           "title": "Tour Our Office",
           "body": "Want to know what our office looks like? Click below for high-quality images and a virtual tour of our Franklin office.",
           "image": "office",
@@ -279,6 +287,7 @@
         },
         {
           "type": "split",
+          "reveal": "start",
           "title": "Technologies",
           "body": "We are a family, cosmetic and general dental practice that uses lasers and other advanced technologies to provide a modern, pleasant dental experience.",
           "image": "technologies",

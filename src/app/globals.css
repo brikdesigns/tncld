@@ -40,6 +40,24 @@
    background to the canvas, so the overscroll gutter still matches. */
 html {
   overflow-x: hidden;
+  /* Anchor smooth-scroll (tncld#96 AC2). This is the whole of the original's
+     smooth-scroll behaviour, and it is native CSS in both places: the live
+     site's header.css:105 sets the same rule, and its custom JS adds a
+     `scrollIntoView({ behavior: 'smooth' })` handler on `a[href^="#"]` that
+     does nothing this does not.
+
+     The original's three GSAP bundles include ScrollSmoother, which is a Club
+     GreenSock plugin and was never published on cdnjs — the URL in the page
+     404s in production (tncld#36, re-confirmed here: the request fails on every
+     load of the checked-in export). So no visitor has ever seen
+     ScrollSmoother-driven scrolling on tncld.com, and reproducing momentum
+     scrolling would exceed the original rather than match it. */
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 body {
   background-color: var(--page-primary);

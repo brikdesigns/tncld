@@ -27,6 +27,34 @@ placeholder-adjacent copy is tracked in tncld#56.
 | 11 | `1-column-cta-right-img` — Virtual Tour | `cta` (`variant: split`) | `Cta` |
 | 12 | `1-column-cta-center` — Ready to Book | `cta` (`variant: center`) | `Cta` |
 
+## Scroll choreography (tncld#96)
+
+The original wraps its content blocks in four `<section class="section-tabbed
+comfortable center">` containers on `/`, each carrying the IX2 `fadeIn`
+data-w-id, and reveals **the container** — so blocks sharing one wrapper fade in
+together, not one after another. The rebuild's section list is flat, so
+membership is a `reveal` marker on the section in `json/cms-data.json`
+(`start` opens a group, `join` extends it) and
+`PageSections.tsx` wraps each group in one `<Reveal>`.
+
+| Original wrapper (`index.html`) | First heading | Rebuild sections | `reveal` |
+|---|---|---|---|
+| line 469 | Dental Care Should Be Clear, Comfortable, and Stress-Free | 2 `split` + 3 `steps` | `start`, `join` |
+| line 547 | Why "Laser Dentistry" Is Our Standard | 4 `split` | `start` |
+| line 657 | Technology That Elevates Your Care | 6 `split` | `start` |
+| line 687 | Experienced Clinicians. Elevated Care. | 7 `split` + 8 `testimonials` | `start`, `join` |
+
+Not revealed in the original, and so not in the rebuild: the hero, the
+`section_tabbed-accordion` treatments strip (line 577), and both
+`section_1-column` bands (payments + the two CTAs, lines 768 and 827) — none
+carries a `data-w-id`.
+
+`/about` follows the same shape with three revealed wrappers ("Meet Our Team",
+"Tour Our Office", "Technologies") and an unrevealed closing CTA.
+
+The envelope, the measurement, and why the payload's two other action lists are
+not reproduced are in [`../fidelity-method.md`](../fidelity-method.md) § Step 5.
+
 ## Deliberate deviations
 
 > Two entries were removed here in tncld#97 — the tabbed treatments and the

@@ -179,7 +179,23 @@ export interface CtaSection {
   action?: SectionAction;
 }
 
-export type HomeSection =
+/**
+ * Scroll-reveal membership (tncld#96). The original wraps several of its
+ * content blocks in one revealed container each, so the reveal unit is a *run*
+ * of rebuild sections, not a single section — e.g. the New Patients split and
+ * the "Your Path to a Healthier Smile" steps share one wrapper and therefore
+ * fade in together. `start` opens a run, `join` extends the run above it, and
+ * an absent value means the section is not revealed at all (the hero, the
+ * treatments tabs, payments and both CTAs are not, in the original).
+ *
+ * The mapping from original wrapper to rebuild sections is recorded in
+ * markdown/section-maps/home.md § Scroll choreography.
+ */
+export interface SectionMotion {
+  reveal?: 'start' | 'join';
+}
+
+export type HomeSection = (
   | HeroSection
   | ReviewsSection
   | SplitSection
@@ -187,7 +203,9 @@ export type HomeSection =
   | TabsSection
   | TestimonialsSection
   | PaymentsSection
-  | CtaSection;
+  | CtaSection
+) &
+  SectionMotion;
 
 export interface HomeContent {
   images: Record<string, string>;

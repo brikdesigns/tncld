@@ -24,6 +24,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
+import { assertIsRebuild } from './lib/assert-rebuild.mjs';
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -53,11 +54,17 @@ if (!target) {
 }
 mkdirSync(outDir, { recursive: true });
 
-// GSAP/ScrollTrigger gate the original's reveals and ScrollSmoother 404s from
-// cdnjs here (Club GreenSock plugin), which strands ~4 sections at inline
-// opacity:0. Motion fidelity is #96's problem; for a STATIC comparison the
-// reveals must simply be off in both renders, so force every element visible
-// after load. Without this the original screenshots come back as blank bands.
+// The original's reveals hold ~4 sections at opacity 0 until they scroll into
+// view, so a full-page screenshot catches them blank. For a STATIC comparison
+// the reveals must simply be off in both renders, so force every element
+// visible after load.
+//
+// They are driven by Webflow IX2, NOT by GSAP — this comment used to say
+// "GSAP/ScrollTrigger gate the original's reveals", which tncld#96 measured as
+// false: `ScrollTrigger.getAll()` returns 0 on the rendered export. ScrollSmoother
+// does 404 from cdnjs (Club GreenSock plugin), but nothing on the page uses it.
+// Motion fidelity belongs to scripts/motion-shot.mjs; see
+// markdown/fidelity-method.md § Step 5.
 const REVEAL = `
   for (const el of document.querySelectorAll('*')) {
     const cs = getComputedStyle(el);
@@ -65,60 +72,6 @@ const REVEAL = `
     if (cs.visibility === 'hidden') el.style.setProperty('visibility', 'visible', 'important');
   }
 `;
-
-/**
- * Refuse to measure the wrong page (tncld#118).
- *
- * Two ways this script used to produce plausible numbers for something that was
- * not the rebuild, both hit in one session:
- *
- *   1. Port 3000 held another session's service (a Forgejo instance on
- *      brik-mini), so the "rebuild" was a different application entirely.
- *   2. A non-localhost origin got 403 on every JS chunk, so the page was the
- *      server-rendered shell with nothing hydrated.
- *
- * Neither shows up in a band table — both produce one. A wrong measurement that
- * looks right is worse than a crash, so these are hard failures.
- */
-async function assertIsRebuild(page, label) {
-  // `body.theme-tncld` (src/app/layout.tsx) rather than page copy: it is on
-  // every route, so this check does not have to know which one is being
-  // measured, and no other app on a stray port will carry it.
-  const isTncld = await page.evaluate(() =>
-    document.body?.classList.contains('theme-tncld'),
-  );
-  if (!isTncld) {
-    const title = await page.title();
-    throw new Error(
-      `${label}: this origin is not serving the TNCLD rebuild — no ` +
-        `body.theme-tncld (page title: "${title}"). Another process may hold ` +
-        `the port; check lsof -nP -iTCP:3000 -sTCP:LISTEN and --rebuild-origin.`,
-    );
-  }
-  // React owns the DOM only once it has hydrated. Poll for the internal keys
-  // rather than for rendered markup — the server renders the markup too, so its
-  // presence proves nothing about interactivity.
-  //
-  // `__reactContainer$` on `document` is the signal because it is
-  // route-independent. Probing a specific widget is not: keying this on
-  // `[role="tab"]` made `--route /about` fail with "never hydrated" on a page
-  // that had hydrated perfectly well and simply has no tabs.
-  await page
-    .waitForFunction(
-      () =>
-        Object.keys(document).some((k) => k.startsWith('__reactContainer')),
-      null,
-      { timeout: 30000 },
-    )
-    .catch(() => {
-      throw new Error(
-        `${label}: the page never hydrated — measuring it would report the ` +
-          `static shell as if it were the app. If the origin is not ` +
-          `\`localhost\`, that is the cause: Next 16 serves 403 on ` +
-          `/_next/static/chunks/* to any other host (tncld#118).`,
-      );
-    });
-}
 
 async function capture(url, label) {
   const browser = await chromium.launch();
