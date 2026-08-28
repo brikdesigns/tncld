@@ -155,15 +155,101 @@ Anything reproduced *less* faithfully than the original needs an operator
 decision and a ticket, not a code comment — see the hero video, which #95
 renders as a still and tncld#97 owns.
 
+## Step 5 — motion, with the other harness
+
+`fidelity-shot.mjs` cannot verify motion and never will: its `REVEAL` step
+forces every zero-opacity element visible after load, which is exactly the
+state a scroll reveal is measured in. The two harnesses want opposite things
+from the same page, so motion has its own script (tncld#96):
+
+```bash
+python3 -m http.server 8899 --bind 127.0.0.1     # the export, repo root
+npx next dev -p 3100                             # or `next start`
+node scripts/motion-shot.mjs --rebuild-origin http://localhost:3100
+node scripts/motion-shot.mjs --route /about --rebuild-origin http://localhost:3100
+```
+
+It parks each revealing container just below the fold, scrolls it in, and
+samples computed opacity every frame — in both renders, in one run. It shares
+`fidelity-shot.mjs`'s wrong-page guard (`scripts/lib/assert-rebuild.mjs`), so a
+stray port or an unhydrated page is still a hard failure rather than a table.
+
+### What the original's choreography actually is
+
+**Not GSAP.** The page loads three GSAP bundles and uses none of them —
+measured on a local render of the export: `ScrollTrigger.getAll()` returns `0`,
+and the site's own `tncld_custom_js-1.0.0.js` (887 bytes) contains no `gsap`
+reference at all, only an anchor smooth-scroll handler. The whole scroll
+experience is **Webflow IX2**, whose payload is bundled into the export at
+`js/webflow.js` in a `Webflow.require("ix2").init({…})` call. Dump it with:
+
+```bash
+node -e 'const s=require("fs").readFileSync("js/webflow.js","utf8"),m=`ix2").init(`,i=s.indexOf(m);let d=0,e=0;for(let k=i+m.length;k<s.length;k++){if(s[k]==="{")d++;else if(s[k]==="}"&&--d===0){e=k+1;break}}console.log(JSON.stringify(new Function("return ("+s.slice(i+m.length,e)+")")(),null,2))'
+```
+
+One effect is live, and it is the entire spec:
+
+| Action list | Trigger | Envelope |
+|---|---|---|
+| `fadeIn` | `SCROLL_INTO_VIEW`, offset 0%, one-shot | opacity 0 → 1, 1000ms, `outQuart`, no transform, no stagger |
+
+The payload's two other lists are **observably inert**, which is why the
+rebuild does not reproduce them — sampled opacity never leaves 1.0 on either:
+
+- `a-37` / `a-40` ("Text Fade") put two conflicting `STYLE_OPACITY` items on the
+  same target in the same group, and set no initial state; the second wins.
+- `a` ("Home — Load", `PAGE_FINISH`) targets two element ids that appear in no
+  `.html` file in the export.
+
+`outQuart` is `1 - (1 - p)^4`. Sampled on the export, the reveal measures
+**1003ms nominal** with a max deviation of 0.025 from that curve — i.e. the
+config and the render agree, so the config is a usable spec.
+
+### Reading motion-shot's duration column
+
+The reported duration is **nominal, not observed**. `outQuart` is asymptotic —
+its last 0.1% of opacity takes 18% of the duration — so the only landmark a
+frame sampler can see is the first frame at opacity ≥ 0.999, which `outQuart`
+reaches at `p = 1 - 0.001^(1/4) = 0.8221`. The script divides by that. The first
+version compared the raw `t(0.999)` against 1000ms and failed the **original**
+at 825ms, flagging the reference render as non-conformant to the spec read out
+of its own config.
+
+### Where the rebuild is deliberately stricter than the original
+
+Three paths the original fails and the rebuild must not, each asserted by
+`motion-shot.mjs`:
+
+| Path | Original | Rebuild |
+|---|---|---|
+| `prefers-reduced-motion: reduce` | hides, then reveals regardless | never hides |
+| JavaScript disabled | content stranded at `opacity: 0` | never hides — the hidden state is behind `@media (scripting: enabled)` |
+| Keyboard focus into an unrevealed band | focus indicator invisible ~200ms, then a 1s fade | `onFocus` reveals the container at once |
+
+The third was measured, not assumed: before `Reveal.tsx` handled focus, tab 12
+on `/` landed on "What to Expect as a New Patient" inside a container at
+`opacity: 0`, still 0 after +100ms, 0.78 at +400ms, 1 at +1200ms — a focus
+indicator invisible exactly while the visitor is looking for it (WCAG 2.1 AA
+2.4.7).
+
+A container whose top is inside the viewport at load reports `on load` instead
+of a curve: its trigger fires immediately and there is nowhere to park above it.
+`/about`'s first band is one. The script still asserts both renders agree about
+*which* containers those are, so a rebuild whose bands drifted upward cannot
+quietly stop being measured.
+
 ## Known limits
 
-- **Static only, and this harness must not be used to verify motion.** The
-  export renders without ScrollSmoother, and `REVEAL` deliberately forces every
-  zero-opacity element visible after load — correct for a static comparison, and
-  precisely what makes it useless for tncld#96: it destroys the reveal-on-scroll
-  behaviour that ticket exists to reproduce. #96 needs an opacity-preserving mode
-  or a separate motion harness; the hydration guard above only proves the JS ran,
-  not that anything animated.
+- **`fidelity-shot.mjs` is static only and must not be used to verify motion.**
+  `REVEAL` forces every zero-opacity element visible after load — correct for a
+  static comparison, and precisely what makes it useless for a reveal. Use
+  `scripts/motion-shot.mjs` (Step 5); the hydration guard only proves the JS
+  ran, not that anything animated.
+- **Neither harness reads the live site.** Both render the checked-in export,
+  and the export omits nothing the live page's scroll behaviour depends on —
+  `js/webflow.js` carries the IX2 payload, and the Webflow-hosted custom JS is
+  fetched by the browser on load. Step 1's drift check is still what makes the
+  export a legitimate stand-in.
 - **One viewport by default.** `--width` takes any of Webflow's breakpoints
   (1440 / 991 / 767 / 479); the responsive pass means running it four times.
   tncld#106 is open on this: `/` measured 80.5% at 991 and 106.9% at 479, so a

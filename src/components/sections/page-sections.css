@@ -722,3 +722,41 @@
   aspect-ratio: auto;
   border-radius: 0;
 }
+
+/* ── Scroll reveal (tncld#96) ────────────────────────────────────────── */
+/* Reproduces the original's only scroll animation — Webflow IX2's `fadeIn`
+   action list, bundled in the checked-in export at js/webflow.js: opacity
+   0 → 1 over 1000ms with easing `outQuart`, one-shot, triggered when any part
+   of the group enters the viewport, no transform and no stagger. The spec and
+   why the payload's two other action lists are not reproduced are in
+   src/components/sections/Reveal.tsx.
+
+   `outQuart` is 1 - (1 - p)^4. The cubic-bezier below is the usual
+   approximation and is off by up to 0.044 opacity mid-curve; the linear()
+   override is that same curve sampled at 16 stops, which brings the error to
+   0.0055. It is written second so a browser without linear() easing keeps the
+   bezier rather than dropping the transition. */
+.section-reveal {
+  --reveal-duration: 1000ms;
+  --reveal-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --reveal-ease: linear(
+    0, 0.2275, 0.4138, 0.5642, 0.6836, 0.7766, 0.8474, 0.8999, 0.9375, 0.9634,
+    0.9802, 0.9905, 0.9961, 0.9988, 0.9998, 1
+  );
+}
+
+/* The hidden state is scoped to browsers that will actually run the observer
+   and to visitors who have not asked for less motion. Applying it globally and
+   undoing it in JS would strand content at opacity 0 whenever the script does
+   not run — the failure the original is exposed to and tncld#96 AC3 forbids.
+   A browser that does not know `scripting` simply never matches, and the
+   content stays visible. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .section-reveal {
+    opacity: 0;
+  }
+  .section-reveal[data-revealed] {
+    opacity: 1;
+    transition: opacity var(--reveal-duration) var(--reveal-ease);
+  }
+}

@@ -13,6 +13,7 @@ import type {
   TestimonialsSection,
 } from '@/lib/content';
 import { HeroVideo } from './HeroVideo';
+import { Reveal } from './Reveal';
 import { StoryVideo } from './StoryVideo';
 import { TreatmentTabs } from './TreatmentTabs';
 import './page-sections.css';
@@ -37,29 +38,86 @@ export function PageSections({
 }) {
   return (
     <>
-      {sections.map((section, index) => {
-        const key = `${section.type}-${index}`;
-        switch (section.type) {
-          case 'hero':
-            return <Hero key={key} section={section} images={images} eager />;
-          case 'reviews':
-            return <Reviews key={key} section={section} />;
-          case 'split':
-            return <Split key={key} section={section} images={images} />;
-          case 'steps':
-            return <Steps key={key} section={section} />;
-          case 'tabs':
-            return <TreatmentTabs key={key} section={section} />;
-          case 'testimonials':
-            return <Testimonials key={key} section={section} />;
-          case 'payments':
-            return <Payments key={key} section={section} />;
-          case 'cta':
-            return <Cta key={key} section={section} images={images} />;
-        }
-      })}
+      {revealRuns(sections).map((run) =>
+        run.reveal ? (
+          <Reveal key={run.key}>
+            {run.sections.map((entry) => renderSection(entry, images))}
+          </Reveal>
+        ) : (
+          run.sections.map((entry) => renderSection(entry, images))
+        ),
+      )}
     </>
   );
+}
+
+/** A section plus the index that keys it, so a run can carry both. */
+interface SectionEntry {
+  section: HomeSection;
+  index: number;
+}
+
+interface RevealRun {
+  key: string;
+  /** Whether this run is wrapped in the scroll-reveal container. */
+  reveal: boolean;
+  sections: SectionEntry[];
+}
+
+/**
+ * Group the flat section list into reveal runs (tncld#96). `reveal: 'start'`
+ * opens a revealed run and `'join'` extends it, mirroring the original's
+ * wrappers — several rebuild sections can sit inside one revealed container, so
+ * they fade in together on the container's trigger rather than each on its own.
+ * Sections with no `reveal` accumulate into unrevealed runs and render bare.
+ */
+function revealRuns(sections: HomeSection[]): RevealRun[] {
+  const runs: RevealRun[] = [];
+
+  sections.forEach((section, index) => {
+    const entry = { section, index };
+    const reveal = Boolean(section.reveal);
+    const last = runs[runs.length - 1];
+    // `start` always opens a run. Otherwise a section extends the run above it
+    // when both are on the same side of the reveal boundary — which also means
+    // a `join` with nothing revealed above it opens its own run rather than
+    // being dropped or silently un-revealed.
+    const extendsRun = Boolean(last) && last.reveal === reveal && section.reveal !== 'start';
+
+    if (extendsRun) {
+      last.sections.push(entry);
+      return;
+    }
+    runs.push({
+      key: `${reveal ? 'reveal' : 'plain'}-${index}`,
+      reveal,
+      sections: [entry],
+    });
+  });
+
+  return runs;
+}
+
+function renderSection({ section, index }: SectionEntry, images: Record<string, string>) {
+  const key = `${section.type}-${index}`;
+  switch (section.type) {
+    case 'hero':
+      return <Hero key={key} section={section} images={images} eager />;
+    case 'reviews':
+      return <Reviews key={key} section={section} />;
+    case 'split':
+      return <Split key={key} section={section} images={images} />;
+    case 'steps':
+      return <Steps key={key} section={section} />;
+    case 'tabs':
+      return <TreatmentTabs key={key} section={section} />;
+    case 'testimonials':
+      return <Testimonials key={key} section={section} />;
+    case 'payments':
+      return <Payments key={key} section={section} />;
+    case 'cta':
+      return <Cta key={key} section={section} images={images} />;
+  }
 }
 
 function ActionButton({
