@@ -328,13 +328,20 @@
 }
 /* Three raised panels, 381x400 at 1440 with a 20px gutter — measured on the
    original. They were unstyled 15rem grid cells with a numeral badge, so the
-   band collapsed to roughly half the original's height. */
+   band collapsed to roughly half the original's height.
+
+   Explicit columns, not `auto-fit` — the same correction #138 made to
+   `.section-cards__grid`. The original's `.layout-3-col` is `1fr 1fr 1fr`
+   (css/tncld.webflow.css:1753) and becomes `1fr` inside its authored
+   `@media (max-width: 991px)` (:5857). Measured on the export, the original's
+   step grid is 3 / 1 / 1 / 1 columns at 1440 / 991 / 767 / 479; `auto-fit`
+   gave the rebuild 3 / 3 / 2 / 1. */
 .section-steps__list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1.25rem;
 }
 /* Icon sits at the top, copy at the bottom, space between — the original's
@@ -351,9 +358,17 @@
   background: var(--surface-secondary);
   border-radius: 2.5rem;
 }
+/* The original's `.img-frame-1-1.sm` is a PERCENTAGE of the card's content
+   box, not a fixed square: 40% at 1440 (css/tncld.webflow.css:3466), 12%
+   inside `@media (max-width: 991px)` (:6070) and 20% inside
+   `@media (max-width: 479px)` (:6729). Measured on the export that is
+   133.3 / 99.4 / 72.5 / 86.2px at 1440 / 991 / 767 / 479 — the 8.3125rem the
+   rebuild carried is the 1440 value held at every width, which is the same
+   defect shape as the card `min-height` below (tncld#131). */
 .section-steps__icon {
-  width: 8.3125rem;
-  height: 8.3125rem;
+  width: 40%;
+  height: auto;
+  aspect-ratio: 1;
 }
 .section-steps__item-title {
   margin: 0 0 0.5rem;
@@ -517,13 +532,15 @@
   margin: 0;
   color: var(--text-secondary);
 }
-/* 381x320 panels, 20px gutter — measured on the original's story cards. */
+/* 381x320 panels, 20px gutter — measured on the original's story cards.
+   Same `.layout-3-col` as the step grid above, and the same authored 991
+   breakpoint: measured 3 / 1 / 1 / 1 columns against `auto-fit`'s 3 / 3 / 2 / 1. */
 .section-testimonials__grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1.25rem;
 }
 .section-testimonials__card {
@@ -1144,10 +1161,49 @@
   .section-cards--numeral .section-cards__card {
     min-height: 0;
   }
+  /* The step and story grids are the original's `.layout-3-col` too, so they
+     stack at this same authored breakpoint (tncld#131) — measured 1 column on
+     the original at 991, 767 and 479 alike — and the original drops their
+     gutter from 20px to 16px here. */
+  .section-steps__list,
+  .section-testimonials__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  /* 400px (steps) and 320px (stories) are the *three-across* card heights
+     measured at 1440; they are not properties of the card. Stacked, the
+     original's step card is content-height — 227.5 / 200.6 / 214.3px at
+     991 / 767 / 479, against the 400px this pinned it to.
+     The story card is released for the same reason, but its remaining deficit
+     is NOT this min-height: the original's poster is a fluid 16:9 box and the
+     rebuild crops it to a fixed 144px, which is tncld#143. */
+  .section-steps__item,
+  .section-testimonials__card {
+    min-height: 0;
+  }
+  .section-steps__icon {
+    width: 12%;
+  }
+  /* Same `.container-lg` correction #138 made for `.section-cards`: the
+     original's container measures 876px inside a 991 viewport and 652px inside
+     767 — 57.5px of inline padding at both, against the 24px the rebuild
+     carried up from 1440. `--space-1400` (56px) is the nearest canonical token. */
+  .section-steps,
+  .section-testimonials {
+    padding-inline: var(--space-1400);
+  }
 }
 @media (max-width: 47.9375rem) {
   .section-split__head {
     padding-bottom: var(--space-2100); /* 96px against the measured 94px */
+  }
+}
+/* The original's only other step for this icon — 20% inside its own 479
+   breakpoint, i.e. it grows again below 767 rather than shrinking monotonically
+   (css/tncld.webflow.css:6729). */
+@media (max-width: 29.9375rem) {
+  .section-steps__icon {
+    width: 20%;
   }
 }
 
