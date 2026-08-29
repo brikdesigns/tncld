@@ -264,18 +264,33 @@
   line-height: 1.5;
   max-width: 38.5rem; /* 616px */
 }
+/* The original stacks the two buttons of a `/services` split in one wrapper,
+   primary then secondary, and wraps them rather than shrinking. */
 .section-split__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
   flex: 0 0 auto;
 }
-/* 1368x770 at 1440 wide — a 36px gutter each side, square corners. */
 .section-split__image {
   display: block;
+  position: relative;
+  overflow: hidden;
+}
+/* 1368x770 at 1440 wide — a 36px gutter each side, square corners. */
+.section-split__image--wide {
   width: auto;
   margin: 0 2.25rem;
-  position: relative;
   aspect-ratio: 16 / 9;
-  overflow: hidden;
   border-radius: 0;
+}
+/* /services runs a 547x547 `img-frame-1-1` right-aligned in a full-bleed row
+   instead of the 16:9 band, radius 12 — measured on the export (tncld#92). */
+.section-split__image--square {
+  width: min(34.1875rem, 100%);
+  margin: 0 0 0 auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.75rem;
 }
 
 /* ── Section rhythm (tncld#102) ──────────────────────────────────────────
@@ -721,6 +736,292 @@
   margin: 0;
   aspect-ratio: auto;
   border-radius: 0;
+}
+/* `1-column-cta-center-lg` — the band all five interior pages close on
+   (tncld#92). A 1000px section with the copy centred in an 800px column and the
+   heading at 72.8px/72.8px, measured on the export. It is a distinct component
+   from the 463px `1-column-cta` above, not the same band scaled, so it gets its
+   own variant rather than a modifier on `--center`. */
+.section-cta--center-lg {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 62.5rem;
+  padding: 1rem 1.5rem;
+  text-align: center;
+}
+.section-cta--center-lg .section-cta__copy {
+  max-width: 50rem; /* 800px — the original's container-sm */
+  margin: 0 auto;
+}
+.section-cta--center-lg .section-cta__title {
+  font-size: clamp(2.5rem, 5.06vw, 4.55rem);
+  line-height: 1;
+  font-weight: 700;
+}
+.section-cta--center-lg .section-cta__body {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Cards (3-column-card + its image variants, tncld#92) ─────────────
+ * Measured on the export at 1440: 128px section padding, an 1184px grid of
+ * 381x400 cards at a 20px gutter, `--surface-secondary` fill, 40px radius,
+ * 24px padding. The heading block is centred above it; on the card-img
+ * variants the media replaces the glyph and the card grows to fit. */
+.section-cards {
+  padding: var(--space-2400) 1.5rem;
+}
+.section-cards__intro {
+  max-width: 50.375rem; /* 806px — the original's centred intro measure */
+  margin: 0 auto var(--space-1200);
+  text-align: center;
+}
+.section-cards__title {
+  margin: 0 0 var(--space-400);
+  color: var(--text-primary);
+  /* 36px — a step below the section ramp, as the original sets this one. */
+  font-size: clamp(1.625rem, 2.5vw, 2.25rem);
+  line-height: 1.25;
+  font-weight: 700;
+}
+.section-cards__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+.section-cards__grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 74rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
+}
+.section-cards__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+.section-cards--icon .section-cards__card,
+.section-cards--numeral .section-cards__card {
+  min-height: 25rem; /* 400px */
+}
+.section-cards__icon {
+  width: 8.3125rem; /* 133px */
+  height: 8.3125rem;
+  border-radius: 0.75rem;
+}
+/* `text_display-md brand` above the title on the numbered variant. */
+.section-cards__numeral {
+  margin: 0;
+  color: var(--text-brand-primary);
+  font-size: 2.84375rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-cards__media {
+  display: block;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+/* 333x500 portrait for the doctor cards, 333x222 landscape for Related Pages. */
+.section-cards__media--portrait {
+  aspect-ratio: 333 / 500;
+}
+.section-cards__media--landscape {
+  aspect-ratio: 3 / 2;
+}
+.section-cards__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.section-cards__card-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.40625rem; /* 22.5px */
+  line-height: 1.25;
+}
+.section-cards__card-body {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ── Values (4-column-card-center, tncld#92) ──────────────────────────
+ * 308x160 cards at a 16px gutter under a centred heading. The original puts a
+ * Font Awesome glyph above each title with no accessible name; the rebuild
+ * draws a decorative brand rule instead rather than carrying that across. */
+.section-values {
+  padding: var(--space-2400) 1.5rem;
+}
+.section-values__title {
+  max-width: 50rem;
+  margin: 0 auto var(--space-1200);
+  color: var(--text-primary);
+  text-align: center;
+  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-values__grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 80rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+.section-values__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-height: 10rem; /* 160px */
+  padding: 1.5rem;
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+.section-values__mark {
+  width: 1.875rem;
+  height: 0.25rem;
+  border-radius: var(--border-radius-sm);
+  background: var(--background-brand-primary);
+}
+.section-values__card-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
+}
+
+/* ── Reviews embed (3-column-testimonial, tncld#92) ───────────────────── */
+.section-reviews-embed {
+  padding: var(--space-2400) 1.5rem;
+}
+.section-reviews-embed__intro {
+  max-width: 51.1875rem; /* 819px — the original's tight centred measure */
+  margin: 0 auto var(--space-1200);
+  text-align: center;
+}
+.section-reviews-embed__title {
+  margin: 0 0 var(--space-400);
+  color: var(--text-primary);
+  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-reviews-embed__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+/* The vendor's inline `min-width: 100%` collapses the frame to its 300px
+   intrinsic width inside a flex parent (tncld#28). header.css fixes that on the
+   Webflow site with a :has() rule; here the wrapper owns the width outright. */
+.section-reviews-embed__frame {
+  width: 100%;
+  max-width: 80rem; /* 1280px */
+  margin: 0 auto;
+}
+/* 381px is what the widget settles at on the live site, measured at 1440 (it
+   holds that height from 2s to 8s after load). The vendor script then sets its
+   own `height` inline, which wins over this rule — so this is a pre-load
+   reservation that keeps the band from collapsing, not a clamp on the widget.
+   A `min-height` here WOULD clamp it, and at 400px it did. */
+.section-reviews-embed__frame iframe {
+  display: block;
+  width: 100%;
+  height: 23.8125rem;
+  border: 0;
+}
+
+/* ── Principles (2-column-card-list-right, tncld#92) ───────────────────
+ * Copy left, a stack of 600x112 cards right at a 16px gutter and 6px radius —
+ * a different card shape from the 40px-radius grids above, measured on the
+ * export, not assumed to match them. */
+.section-principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  align-items: center;
+  gap: 1rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: var(--space-2400) 1.5rem;
+}
+.section-principles__copy {
+  max-width: 37.5rem; /* 600px */
+}
+.section-principles__title {
+  margin: 0 0 1.5rem;
+  color: var(--text-primary);
+  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-principles__body {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+.section-principles__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.section-principles__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 7rem; /* 112px */
+  padding: 1rem 1.25rem;
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-sm);
+}
+.section-principles__mark {
+  flex: 0 0 auto;
+  width: 0.25rem;
+  height: 1.875rem;
+  border-radius: var(--border-radius-sm);
+  background: var(--background-brand-primary);
+}
+.section-principles__item-text {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ── Biography dialog (tncld#92) ─────────────────────────────────────────
+ * Shares story-dialog's shell — same backdrop, same 44x44 dismiss target — and
+ * only sets what a long text body needs on top of it. */
+.bio-dialog {
+  width: min(48rem, 92vw);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.bio-dialog__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+.bio-dialog__body {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 /* ── Scroll reveal (tncld#96) ────────────────────────────────────────── */

@@ -3,15 +3,26 @@ import { notFound } from 'next/navigation';
 import { ResourcePage } from '@/components/content/ResourcePage';
 import { getResourcePage, getResourceSlugs } from '@/lib/content';
 
-/** The hub itself is served by ../page.tsx, not this dynamic child route. */
-const HUB_SLUG = 'patient-resources';
+/**
+ * `pages` keys that are NOT patient-resource children (tncld#92). The hub is
+ * served by ../page.tsx; the other three have their own routes under /about and
+ * render through PageSections now, so their flat `pages` entries would
+ * otherwise generate a second, stale copy of each at
+ * /patient-resources/<slug>. The original nests only the four below here.
+ */
+const NOT_CHILDREN = new Set([
+  'patient-resources',
+  'meet-the-doctors',
+  'technology',
+  'why-laser-dentistry',
+]);
 
 // Only the migrated resource slugs exist; anything else 404s.
 export const dynamicParams = false;
 
 export function generateStaticParams() {
   return getResourceSlugs()
-    .filter((slug) => slug !== HUB_SLUG)
+    .filter((slug) => !NOT_CHILDREN.has(slug))
     .map((slug) => ({ slug }));
 }
 
@@ -37,7 +48,7 @@ export default async function PatientResourceChildPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (slug === HUB_SLUG) notFound();
+  if (NOT_CHILDREN.has(slug)) notFound();
   const page = getResourcePage(slug);
   if (!page) notFound();
   return <ResourcePage page={page} />;

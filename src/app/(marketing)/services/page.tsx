@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { ContentPage } from '@/components/content/ContentPage';
-import { getServicesContent, getServiceList } from '@/lib/content';
+import { getSectionPage } from '@/lib/content';
+import { PageSections } from '@/components/sections/PageSections';
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -9,25 +9,14 @@ export const metadata: Metadata = {
 };
 
 /**
- * Services page — maps the migrated `services` content onto the shared
- * ContentPage template (tncld#59). Each service links to its detail route
- * (tncld#61). Copy is the real TNCLD content migrated from the Notion
- * "TNCLD Website" DB (tncld#56); rich per-service detail bodies are tncld#68.
+ * Services (tncld#92). Composed from `dental.sectionPages.services` through the
+ * shared PageSections templates, the same pattern /about follows: an interior
+ * hero, one split per service, and the large closing CTA. It rendered as a flat
+ * `title + lede + text sections` ContentPage before, which dropped the hero,
+ * every service photo, both per-service buttons and the closing CTA. Copy is
+ * the live original's, read from the Webflow Data API.
  */
 export default function ServicesPage() {
-  const services = getServicesContent();
-  const sections = getServiceList().map((service) => ({
-    title: service.title,
-    description: service.description,
-    href: `/services/${service.slug}`,
-  }));
-  return (
-    <ContentPage
-      title={services.hero.title}
-      lede={services.hero.description}
-      image={services.images.image1}
-      imageAlt="Dental care at Tennessee Center for Laser Dentistry"
-      sections={sections}
-    />
-  );
+  const page = getSectionPage('services');
+  return <PageSections sections={page.sections} images={page.images} />;
 }

@@ -238,6 +238,36 @@ of a curve: its trigger fires immediately and there is nowhere to park above it.
 *which* containers those are, so a rebuild whose bands drifted upward cannot
 quietly stop being measured.
 
+### Sampling a one-shot trigger, and what stalls it
+
+Two things the sampler has to do that are not obvious, both added by tncld#92
+when it put five more pages through this harness:
+
+- **Reload between containers.** IX2's `fadeIn` is one-shot, so a container
+  that has already been revealed cannot be measured. Sampling container *N−1*
+  scrolls far enough to trip container *N* whenever the containers are taller
+  than the viewport — `/about/technology`'s splits are 1200px against a 900px
+  viewport, and `original[1]` came back at `t₀.₉₉₉ 91ms` (already revealed) on
+  2 of 5 identical runs. A fresh document is the only state in which the
+  trigger is guaranteed unfired.
+- **Exclude checkpoints read across a stalled frame.** Each checkpoint is
+  interpolated linearly between the two frames bracketing it. Across a normal
+  16ms frame that is nothing; across a 100ms stall it lands in `maxDeviation`
+  as if the page had animated wrongly. Gaps over 32ms are excluded and
+  **counted in the output**, and fewer than 6 of 9 usable checkpoints fails as
+  an unusable sample — so discarding stalled points can never become a quiet
+  pass.
+
+**Residual flake, on the ORIGINAL only.** `/about/technology`'s `original[1]`
+still fails roughly 1 run in 7 under load, reporting a real ~1000ms duration
+with a curve deviation of 0.08–0.14. Every rebuild container passes every run,
+as do the other three original containers on the same page. Two hypotheses were
+tested and one was wrong: a longer post-reload settle (2000ms → 4000ms) made it
+*worse* (3/9 failing vs 1/7), so it is ambient contention on the machine, not
+the export still booting. Re-run before believing a red on that container, and
+check which side the `✗` is on — a failure on `original[*]` is not a statement
+about the rebuild.
+
 ## Known limits
 
 - **`fidelity-shot.mjs` is static only and must not be used to verify motion.**
