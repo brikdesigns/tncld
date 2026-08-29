@@ -1640,6 +1640,118 @@
           }
         ]
       }
+    },
+    "footer": {
+      "blurb": "We are a family, cosmetic and general dental practice that uses lasers and other advanced technologies to provide a modern, pleasant dental experience.",
+      "groups": [
+        {
+          "title": "About",
+          "href": "/about",
+          "links": [
+            {
+              "label": "Meet Our Doctors",
+              "href": "/about/meet-the-doctors"
+            },
+            {
+              "label": "Tour Our Office",
+              "href": "/about/tour-our-office"
+            },
+            {
+              "label": "Our Technology",
+              "href": "/about/technology"
+            },
+            {
+              "label": "Training Center",
+              "href": "/about/training-center"
+            }
+          ]
+        },
+        {
+          "title": "Services",
+          "href": "/services",
+          "links": [
+            {
+              "label": "Preventative Dentistry",
+              "href": "/services/preventative-dentistry"
+            },
+            {
+              "label": "Cosmetic Dentistry",
+              "href": "/services/cosmetic-dentistry"
+            },
+            {
+              "label": "Restorative Dentistry",
+              "href": "/services/restorative-dentistry"
+            },
+            {
+              "label": "Sedation Dentistry",
+              "href": "/services/sedation-dentistry"
+            },
+            {
+              "label": "Invisalign",
+              "href": "/services/invisalign"
+            },
+            {
+              "label": "Hybrid Dentures",
+              "href": "/services/hybrid-dentures"
+            },
+            {
+              "label": "Dental Implants",
+              "href": "/services/dental-implants"
+            }
+          ]
+        },
+        {
+          "title": "Patient Resources",
+          "href": "/patient-resources",
+          "links": [
+            {
+              "label": "New Patients",
+              "href": "/patient-resources/new-patients"
+            },
+            {
+              "label": "Membership Plan",
+              "href": "/patient-resources/membership-plan"
+            },
+            {
+              "label": "Payment and Insurance",
+              "href": "/patient-resources/payments-and-insurance"
+            }
+          ]
+        }
+      ],
+      "hours": {
+        "title": "Hours",
+        "days": [
+          {
+            "day": "Monday",
+            "value": "8:00 AM - 5:00 PM"
+          },
+          {
+            "day": "Tuesday",
+            "value": "8:00 AM - 5:00 PM"
+          },
+          {
+            "day": "Wednesday",
+            "value": "8:00 AM - 5:00 PM"
+          },
+          {
+            "day": "Thursday",
+            "value": "8:00 AM - 5:00 PM"
+          },
+          {
+            "day": "Friday",
+            "value": "8:00 AM - 2:00 PM"
+          },
+          {
+            "day": "Saturday",
+            "value": "Closed"
+          },
+          {
+            "day": "Sunday",
+            "value": "Closed"
+          }
+        ]
+      }
     }
   },
   "finance": {
