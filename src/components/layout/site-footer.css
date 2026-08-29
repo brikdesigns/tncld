@@ -22,17 +22,84 @@
 
 .site-footer__brand {
   flex: 1 1 16rem;
+  max-width: 29rem; /* 462px — the original's brand column at 1440 */
 }
 .site-footer__brand-mark {
   width: auto;
   height: 2.75rem;
   margin-bottom: 1rem;
 }
+.site-footer__blurb {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+}
 .site-footer__cta-link {
   color: var(--text-link);
 }
 
-.site-footer__col ul {
+/* The original's four groups, measured on the rendered export (tncld#129):
+ *
+ *   width   brand                 groups
+ *   1440    171x462, beside       221x770, four columns in a row
+ *    991    170x595, above        456x991, still four columns, full width
+ *    767    191x436, above        1048x727, one column, 40px between
+ *
+ * So the column collapse happens at 767, not at 991 — at 991 only the brand
+ * moves above the groups, which the flex-wrap on __inner already does once the
+ * two flex-bases no longer fit.
+ */
+/* Content-sized columns, not four equal ones: the original's measure 97 / 120
+   / 129 / 184px, and forcing them equal made the hours rows wrap two-to-a-line
+   at 1440 where the original fits each on one. */
+.site-footer__cols {
+  flex: 1 1 48rem;
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: space-between;
+  align-items: start;
+  gap: 3rem 1.5rem;
+}
+@media (max-width: 47.9375rem) {
+  .site-footer__cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+.site-footer__hours dl {
+  margin: 0;
+}
+/* Wraps rather than squeezing: in the original's narrow four-column state the
+   value drops under the day, which is why its hours block measures 456px at
+   991 against 221px at 1440. */
+.site-footer__hours-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+.site-footer__hours-row dd {
+  margin: 0;
+}
+
+/* DELIBERATE DEVIATION (tncld#129), same shape as the brand-blue text
+ * deviation recorded in theme-tncld.css.
+ *
+ * The original's footer links are 11.54px on a 17.31px line, measured with
+ * getComputedStyle. The rebuild keeps the 16px/24px body default instead.
+ * Reproducing 11.54px would make navigation and the practice's opening hours
+ * the least legible text on a healthcare site whose Compliance Profile is
+ * WCAG 2.1 AA — legible-by-default is the deviation worth taking, and it is
+ * the direction that adds accessibility rather than removing it.
+ *
+ * The cost is measured and bounded: the footer runs 108% of the original at
+ * 1440 (583 vs 540) and is within 5% at 991 / 767 / 479, where stacking
+ * dominates. The 1440 excess is +43px on a 12,056px page.
+ */
+.site-footer__col ul,
+.site-footer__legal ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -46,25 +113,51 @@
   font-weight: 600;
   color: var(--text-primary);
 }
-.site-footer__col a {
+.site-footer__col a,
+.site-footer__legal a {
   color: var(--text-secondary);
   text-decoration: none;
 }
-.site-footer__col a:hover {
+.site-footer__col a:hover,
+.site-footer__legal a:hover {
   color: var(--text-link);
   text-decoration: underline;
 }
+.site-footer__heading a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
 
-.site-footer__copyright {
+/* The original's bottom bar is one row at 1440 — copyright and legal links on
+   the left, the build credit right — and wraps below it. */
+.site-footer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
   max-width: 80rem;
   margin: 0 auto;
   padding: 1.5rem;
   border-top: 1px solid var(--border-primary);
+  /* The original sets this row in its `text_body-tiny` style; at body size the
+     bar ran ~57px of content against the original's 15px. */
+  font-size: var(--body-xs);
+}
+.site-footer__copyright {
+  margin: 0;
   color: var(--text-muted);
+}
+.site-footer__legal ul {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
 }
 
 .site-footer__cta-link:focus-visible,
-.site-footer__col a:focus-visible {
+.site-footer__col a:focus-visible,
+.site-footer__legal a:focus-visible,
+.site-footer__heading a:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
   border-radius: 2px;
