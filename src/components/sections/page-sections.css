@@ -1037,6 +1037,88 @@
    override is that same curve sampled at 16 stops, which brings the error to
    0.0055. It is written second so a browser without linear() easing keeps the
    bezier rather than dropping the transition. */
+/* ── CTA button height (tncld#104) ────────────────────────
+ * The original's primary CTA is 64px — `a.button-primary`, padding 16px top
+ * and bottom, measured with getComputedStyle on the rendered export at 1440.
+ * It recurs on every band that carries an action.
+ *
+ * BDS has no 64px button: the ramp is tiny/sm/md/lg/xl = 24/32/40/48/56px
+ * (`.bds-button--*` in @brikdesigns/bds/dist/styles.css:55-85), so `xl` is the
+ * closest and is 8px short. ActionButton passes `size="xl"` for the type and
+ * padding ramp; the height comes up to the original's on --size-1600, which is
+ * a canonical token (tokens.css:286) rather than a bespoke pixel value.
+ *
+ * 64px clears the 44x44 floor WCAG 2.5.5 and the repo's Compliance Profile
+ * require, which the 40px default only cleared on width.
+ */
+.section-split__actions .bds-button,
+.section-steps__cta .bds-button,
+.section-cta__copy .bds-button,
+.section-hero__actions .bds-button {
+  height: var(--size-1600);
+}
+
+/* ── Responsive section rhythm (tncld#106) ────────────────
+ * The 1440 values above are tncld#102's and are not touched here. Below the
+ * original's 991 breakpoint it steps its own section padding down, and the
+ * rebuild did not — which made every full-width band 109-124% of the original
+ * at 991/767/479 while the page as a whole still read short.
+ *
+ * Measured on the rendered export with getComputedStyle at each of Webflow's
+ * four breakpoints (markdown/fidelity-method.md § Step 3), not derived from
+ * the 1440 values:
+ *
+ *   original section        1440        <= 991
+ *   section_about           128 / 128   57.5 / 57.5
+ *   section_videos          128 / 128   57.5 / 57.5
+ *   section_tabbed-accordion 128 / 128  57.5 / 57.5   (row-gap 128 -> 57.5)
+ *   section-tabbed           40 /  48    40 / 40      (row-gap  40 -> 0)
+ *   section_1-column        128 / 128   128 / 128     <- does NOT step
+ *
+ * So .section-payments and .section-cta--center are deliberately absent from
+ * this block: their counterpart holds 128px at every width, and stepping them
+ * "for consistency" would walk the page away from the original.
+ *
+ * 57.5px is not on the BDS scale. --space-1400 (56px) is the nearest canonical
+ * token; the 1.5px per edge it gives up is 3px on a ~900px band, two orders
+ * below the 5% AC. A --space-1437 does not exist and is not worth minting.
+ *
+ * The split's head inset is its own measurement, taken as the slack between
+ * the last line of copy and the image across all four of the original's splits
+ * (they agree to within 2px at every width):
+ *
+ *   width   slack below copy   head -> image gap
+ *   1440    144                40      <- the 1440 value already in .section-split__head
+ *    991     78                 0
+ *    767     94                 0
+ *    479     94                 0
+ *
+ * It is NOT monotonic: 991 is tighter than 767, so a single "below 991" step
+ * cannot express it and there are two breakpoints here rather than one.
+ */
+@media (max-width: 61.9375rem) {
+  .section-reviews,
+  .section-steps,
+  .section-tabs,
+  .section-testimonials {
+    padding-block: var(--space-1400);
+  }
+  /* The original closes the head-to-image gap entirely here and trims 8px off
+     the section's bottom. */
+  .section-split {
+    padding-bottom: var(--space-1000);
+    gap: 0;
+  }
+  .section-split__head {
+    padding-bottom: var(--space-1800); /* 80px against the measured 78px */
+  }
+}
+@media (max-width: 47.9375rem) {
+  .section-split__head {
+    padding-bottom: var(--space-2100); /* 96px against the measured 94px */
+  }
+}
+
 .section-reveal {
   --reveal-duration: 1000ms;
   --reveal-ease: cubic-bezier(0.165, 0.84, 0.44, 1);

@@ -152,6 +152,11 @@ function ActionButton({
     <Button
       href={action.href}
       variant={action.variant ?? variant ?? 'primary'}
+      // The original's CTA is 64px (`a.button-primary`, padding 16px block),
+      // measured against the rendered export at 1440. BDS's ramp stops at
+      // `xl` = --size-1400 = 56px, so `xl` gets the type and padding ramp and
+      // page-sections.css lifts the height the remaining 8px (tncld#104).
+      size="xl"
       aria-label={label}
     >
       {action.label}
