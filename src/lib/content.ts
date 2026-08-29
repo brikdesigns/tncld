@@ -380,6 +380,35 @@ export interface PageContent {
   sections: PageSection[];
 }
 
+export interface FooterLink {
+  label: string;
+  href: string;
+}
+
+export interface FooterGroup {
+  title: string;
+  /** The group heading's own destination — the original links every one. */
+  href: string;
+  links: FooterLink[];
+}
+
+export interface FooterHours {
+  title: string;
+  days: { day: string; value: string }[];
+}
+
+/**
+ * The original's footer (tncld#129): a brand blurb, three link groups and the
+ * practice's opening hours. Sourced from the checked-in Webflow export's own
+ * `.nav_footer`, which is why the hours are a cited client fact rather than
+ * plausible copy.
+ */
+export interface FooterContent {
+  blurb: string;
+  groups: FooterGroup[];
+  hours: FooterHours;
+}
+
 /** A section whose markdown body has been rendered to sanitized HTML. */
 export interface RenderedSection {
   title: string;
@@ -403,6 +432,7 @@ interface IndustryContent {
   about: AboutContent;
   services: ServicesContent;
   contact?: ContactContent;
+  footer?: FooterContent;
   sectionPages?: Record<string, SectionPageContent>;
   pages?: Record<string, PageContent>;
   serviceDetails?: Record<string, PageContent>;
@@ -450,6 +480,20 @@ export function getSectionPage(key: string): SectionPageContent {
 
 export function getContactContent(): ContactContent {
   return industry().contact ?? {};
+}
+
+/**
+ * Footer link groups + hours (tncld#129). Throws like getSectionPage() rather
+ * than degrading to an empty footer: this renders on every route, so a missing
+ * source is a content-file defect that should fail the build rather than
+ * quietly drop the practice's hours off the whole site.
+ */
+export function getFooterContent(): FooterContent {
+  const footer = industry().footer;
+  if (!footer) {
+    throw new Error('content: no footer entry in json/cms-data.json (dental.footer)');
+  }
+  return footer;
 }
 
 /** URL-safe slug for a service title, e.g. "Cleaning Exam" → "cleaning-exam". */
