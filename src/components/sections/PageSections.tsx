@@ -2,18 +2,24 @@ import type { ComponentProps } from 'react';
 import Image from 'next/image';
 import { Button } from '@brikdesigns/bds';
 import type {
+  CardsSection,
   CtaSection,
   HeroSection,
   HomeSection,
   PaymentsSection,
+  PrinciplesSection,
+  ReviewsEmbedSection,
   ReviewsSection,
   SectionAction,
   SplitSection,
   StepsSection,
   TestimonialsSection,
+  ValuesSection,
 } from '@/lib/content';
+import { BioCard } from './BioCard';
 import { HeroVideo } from './HeroVideo';
 import { Reveal } from './Reveal';
+import { ReviewsWidget } from './ReviewsWidget';
 import { StoryVideo } from './StoryVideo';
 import { TreatmentTabs } from './TreatmentTabs';
 import './page-sections.css';
@@ -115,6 +121,14 @@ function renderSection({ section, index }: SectionEntry, images: Record<string, 
       return <Testimonials key={key} section={section} />;
     case 'payments':
       return <Payments key={key} section={section} />;
+    case 'cards':
+      return <Cards key={key} section={section} images={images} />;
+    case 'values':
+      return <Values key={key} section={section} />;
+    case 'reviewsEmbed':
+      return <ReviewsEmbed key={key} section={section} />;
+    case 'principles':
+      return <Principles key={key} section={section} />;
     case 'cta':
       return <Cta key={key} section={section} images={images} />;
   }
@@ -123,16 +137,34 @@ function renderSection({ section, index }: SectionEntry, images: Record<string, 
 function ActionButton({
   action,
   variant,
+  label,
 }: {
   action: SectionAction;
   /** BDS ButtonVariant — `on-color` is the one for brand-filled surfaces. */
   variant?: ComponentProps<typeof Button>['variant'];
+  /**
+   * Accessible name, when the visible label repeats across a grid — "Learn
+   * More" on three Related Pages cards names three different destinations.
+   */
+  label?: string;
 }) {
   return (
-    <Button href={action.href} variant={action.variant ?? variant ?? 'primary'}>
+    <Button
+      href={action.href}
+      variant={action.variant ?? variant ?? 'primary'}
+      aria-label={label}
+    >
       {action.label}
     </Button>
   );
+}
+
+/** Stable id fragment for a section's `aria-labelledby` target. */
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 /**
@@ -265,18 +297,16 @@ function Split({
   images: Record<string, string>;
 }) {
   const image = section.image ? images[section.image] : undefined;
-  const headingId = `split-${section.title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')}`;
+  const headingId = `split-${slugify(section.title)}`;
+  const actions = section.actions ?? (section.action ? [section.action] : []);
   return (
     // `mediaSide` is deliberately not read. Webflow's `2-column-content-split`
     // names two columns of TEXT — copy left, action right — above one
     // full-width image; it never places the image beside the copy. All four
     // homepage splits measure identically (image 1368x770 at x=36, 1440 wide),
     // so there is no left/right variant in the original to reproduce. The field
-    // stays on the type because the interior pages #92 covers are not audited
-    // yet and may still need it.
+    // stays on the type: the five interior pages are now audited too (tncld#92)
+    // and none of them places the image beside the copy either.
     <section className="section-split" aria-labelledby={headingId}>
       <div className="section-split__head">
         <div className="section-split__copy">
@@ -288,15 +318,188 @@ function Split({
           </h2>
           <p className="section-split__body">{section.body}</p>
         </div>
-        {section.action ? (
+        {actions.length ? (
           <div className="section-split__actions">
-            <ActionButton action={section.action} />
+            {actions.map((action, i) => (
+              <ActionButton
+                key={action.href}
+                action={action}
+                // The original pairs a filled primary with an outlined
+                // secondary on the two-button splits; a lone button is primary.
+                variant={i === 0 ? undefined : 'secondary'}
+              />
+            ))}
           </div>
         ) : null}
       </div>
       {image ? (
-        <SectionImage src={image} className="section-split__image" />
+        <SectionImage
+          src={image}
+          className={`section-split__image section-split__image--${section.imageFrame ?? 'wide'}`}
+        />
       ) : null}
+    </section>
+  );
+}
+
+/**
+ * Three-across card grid (tncld#92) — `3-column-card` and its two image
+ * variants. One template for all four card shapes because they differ only in
+ * what sits above the title: a glyph, a brand numeral, or a photo in a portrait
+ * or landscape frame.
+ */
+function Cards({
+  section,
+  images,
+}: {
+  section: CardsSection;
+  images: Record<string, string>;
+}) {
+  const headingId = `cards-${slugify(section.title)}`;
+  const variant = section.variant ?? 'icon';
+  return (
+    <section className={`section-cards section-cards--${variant}`} aria-labelledby={headingId}>
+      <div className="section-cards__intro">
+        <h2 id={headingId} className="section-cards__title">
+          {section.title}
+        </h2>
+        {section.body ? <p className="section-cards__body">{section.body}</p> : null}
+      </div>
+      <ul className="section-cards__grid">
+        {section.items.map((card) => {
+          const image = card.image ? images[card.image] : undefined;
+          return (
+            <li key={card.title} className="section-cards__card">
+              {/* A card whose action opens a biography is the doctor card, and
+                  it owns its own dialog — see BioCard. */}
+              {card.bio ? (
+                <BioCard card={{ ...card, bio: card.bio }} image={image} />
+              ) : (
+                <>
+                  {card.numeral ? (
+                    <p className="section-cards__numeral">{card.numeral}</p>
+                  ) : null}
+                  {card.icon ? (
+                    <Image
+                      className="section-cards__icon"
+                      src={card.icon}
+                      alt=""
+                      width={133}
+                      height={133}
+                    />
+                  ) : null}
+                  {image ? (
+                    <span className={`section-cards__media section-cards__media--${variant}`}>
+                      <Image
+                        src={image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 61.9375rem) 100vw, 21rem"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </span>
+                  ) : null}
+                  <div className="section-cards__copy">
+                    <h3 className="section-cards__card-title">{card.title}</h3>
+                    {card.body ? (
+                      <p className="section-cards__card-body">{card.body}</p>
+                    ) : null}
+                  </div>
+                  {card.action ? (
+                    <ActionButton
+                      action={card.action}
+                      // "Learn More" repeats across every card in the original,
+                      // so the name has to say where each one goes.
+                      label={`${card.action.label}: ${card.title}`}
+                    />
+                  ) : null}
+                </>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/**
+ * Four-across value grid (tncld#92) — `4-column-card-center`. Title-only cards
+ * under a brand mark. The original draws that mark from a Font Awesome
+ * ligature with no accessible name; reproducing an unlabelled icon font would
+ * carry the defect across, so the rebuild renders it as a decorative rule.
+ */
+function Values({ section }: { section: ValuesSection }) {
+  const headingId = `values-${slugify(section.title)}`;
+  return (
+    <section className="section-values" aria-labelledby={headingId}>
+      <h2 id={headingId} className="section-values__title">
+        {section.title}
+      </h2>
+      <ul className="section-values__grid">
+        {section.items.map((item) => (
+          <li key={item.title} className="section-values__card">
+            <span className="section-values__mark" aria-hidden="true" />
+            <h3 className="section-values__card-title">{item.title}</h3>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Reviews band (tncld#92) — a heading above the practice's review widget. */
+function ReviewsEmbed({ section }: { section: ReviewsEmbedSection }) {
+  const headingId = `reviews-embed-${slugify(section.title)}`;
+  return (
+    <section className="section-reviews-embed" aria-labelledby={headingId}>
+      <div className="section-reviews-embed__intro">
+        <h2 id={headingId} className="section-reviews-embed__title">
+          {section.title}
+        </h2>
+        {section.body ? (
+          <p className="section-reviews-embed__body">{section.body}</p>
+        ) : null}
+      </div>
+      <ReviewsWidget
+        widgetSrc={section.widgetSrc}
+        scriptSrc={section.scriptSrc}
+        // Matches the string scripts/test-frame-title.js asserts on the legacy
+        // surface, so both sites name the frame the same way.
+        title="Google reviews for Tennessee Center for Laser Dentistry"
+      />
+    </section>
+  );
+}
+
+/**
+ * Copy beside a numbered list (tncld#92) — `2-column-card-list-right`. Each
+ * card leads with a bolded clause in the original ("**Comfort matters**. Modern
+ * dentistry should feel gentle…"), so `lead` and `body` are separate fields
+ * rather than one string with markup baked into it.
+ */
+function Principles({ section }: { section: PrinciplesSection }) {
+  const headingId = `principles-${slugify(section.title)}`;
+  return (
+    <section className="section-principles" aria-labelledby={headingId}>
+      <div className="section-principles__copy">
+        <h2 id={headingId} className="section-principles__title">
+          {section.title}
+        </h2>
+        {section.body ? (
+          <p className="section-principles__body">{section.body}</p>
+        ) : null}
+      </div>
+      <ol className="section-principles__list">
+        {section.items.map((item) => (
+          <li key={item.lead} className="section-principles__item">
+            <span className="section-principles__mark" aria-hidden="true" />
+            <p className="section-principles__item-text">
+              <strong>{item.lead}</strong>. {item.body}
+            </p>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
@@ -425,6 +628,10 @@ function Cta({
     section.variant === 'split' && section.image
       ? images[section.image]
       : undefined;
+  // Keyed on the title, not a fixed string: /about/why-laser-dentistry closes
+  // on two CTA bands ("Beyond Traditional Procedures" then "Experience
+  // Dentistry at a Higher Standard"), and a constant id would duplicate.
+  const headingId = `cta-${slugify(section.title)}`;
   return (
     // The split variant is not a two-column layout: the original runs the photo
     // full-bleed (1440x1000) and floats a solid blue card over it on the right
@@ -432,13 +639,13 @@ function Cta({
     // so it renders after the image in source order and above it in z-order.
     <section
       className={`section-cta section-cta--${section.variant ?? 'center'}`}
-      aria-labelledby="section-cta-heading"
+      aria-labelledby={headingId}
     >
       {image ? (
         <SectionImage src={image} className="section-cta__image" />
       ) : null}
       <div className="section-cta__copy">
-        <h2 id="section-cta-heading" className="section-cta__title">
+        <h2 id={headingId} className="section-cta__title">
           {section.title}
         </h2>
         <p className="section-cta__body">{section.body}</p>

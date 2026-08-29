@@ -80,6 +80,104 @@ export interface SplitSection {
   image?: string;
   mediaSide?: 'left' | 'right';
   action?: SectionAction;
+  /**
+   * The interior pages set two buttons in one wrapper — /services runs
+   * "Get Started" beside "Learn More" on all six splits, /patient-resources
+   * "Tour Our Office" beside "Meet the Doctors" (tncld#92). `action` stays for
+   * the single-button case the home and /about use; the renderer reads
+   * whichever is present.
+   */
+  actions?: SectionAction[];
+  /**
+   * Media frame. `wide` is the original's 1368x770 16:9 band (home, /about,
+   * /about/technology). `square` is /services' `img-frame-1-1` — a 547x547
+   * image right-aligned in a full-bleed row, measured on the export.
+   */
+  imageFrame?: 'wide' | 'square';
+}
+
+/** One card in a `cards` grid. */
+export interface CardItem {
+  title: string;
+  body?: string;
+  /** Path under /public — the square glyph of `3-column-card`. */
+  icon?: string;
+  /** Key into the page's `images` map — the photo of the img-card variants. */
+  image?: string;
+  /**
+   * The brand numeral the `3-column-card` variant sets above the title
+   * (`text_display-md brand`), e.g. "01". The original writes it as content,
+   * not as a generated counter, so it is carried rather than derived.
+   */
+  numeral?: string;
+  action?: SectionAction;
+  /**
+   * Full biography, shown in a dialog the card's action opens — the original's
+   * `modal-1..3` on /about/meet-the-doctors. An array because each bio is
+   * several paragraphs.
+   */
+  bio?: { title: string; paragraphs: string[] };
+}
+
+/**
+ * Three-across card grid — Webflow `3-column-card`, `3-column-card-img-portrait`
+ * and `3-column-card-img-landscape`, which differ only in what sits above the
+ * card title (tncld#92). Measured on the export: 381x400 cards, 20px gutter,
+ * `--surface-secondary` fill, 40px radius.
+ */
+export interface CardsSection {
+  type: 'cards';
+  title: string;
+  body?: string;
+  /**
+   * Card media shape. `icon` is the 133x133 glyph (/patient-resources),
+   * `numeral` the brand numeral (/about/why-laser-dentistry), `portrait` the
+   * 333x500 doctor headshot, `landscape` the 333x222 thumbnail (Related Pages).
+   */
+  variant?: 'icon' | 'numeral' | 'portrait' | 'landscape';
+  items: CardItem[];
+}
+
+/**
+ * Four-across value grid — Webflow `4-column-card-center`. Title only, above a
+ * brand glyph; 308x160 cards at a 16px gutter. The original renders the glyph
+ * from a Font Awesome ligature with no accessible name, so the rebuild draws it
+ * as a decorative mark rather than reproducing an unlabelled icon font.
+ */
+export interface ValuesSection {
+  type: 'values';
+  title: string;
+  items: { title: string }[];
+}
+
+/**
+ * The practice's reviews band — Webflow `3-column-testimonial`, which is a
+ * heading above a third-party review widget rather than testimonial cards
+ * (tncld#92). The export carries an Elfsight embed; the live site serves the
+ * LeadConnector/GHL widget this points at, which is also what
+ * scripts/test-review-widget-width.js asserts against tncld.com.
+ */
+export interface ReviewsEmbedSection {
+  type: 'reviewsEmbed';
+  title: string;
+  body?: string;
+  /** The widget iframe's src — the live embed, read from the component DOM. */
+  widgetSrc: string;
+  /** The vendor loader the widget needs to size its iframe. */
+  scriptSrc: string;
+}
+
+/**
+ * Two-column copy-plus-list band — Webflow `2-column-card-list-right`. Copy on
+ * the left, a stack of numbered cards on the right (600x112, 6px radius, 16px
+ * gutter). Each card leads with a bolded clause, exactly as the original sets
+ * it ("**Comfort matters**. Modern dentistry should feel gentle…").
+ */
+export interface PrinciplesSection {
+  type: 'principles';
+  title: string;
+  body?: string;
+  items: { lead: string; body: string }[];
 }
 
 export interface StepItem {
@@ -169,10 +267,16 @@ export interface PaymentsSection {
   methods: PaymentMethod[];
 }
 
-/** Closing call to action, either split-with-image or centered. */
+/**
+ * Closing call to action. Three shapes in the original, and they are different
+ * components, not one component scaled: `1-column-cta-right-img` is the
+ * home's photo-with-a-floating-card (`split`), `1-column-cta` the compact 463px
+ * centred band (`center`), and `1-column-cta-center-lg` the 1000px closing band
+ * every interior page ends on, whose heading measures 72.8px (`center-lg`).
+ */
 export interface CtaSection {
   type: 'cta';
-  variant?: 'split' | 'center';
+  variant?: 'split' | 'center' | 'center-lg';
   title: string;
   body: string;
   image?: string;
@@ -203,6 +307,10 @@ export type HomeSection = (
   | TabsSection
   | TestimonialsSection
   | PaymentsSection
+  | CardsSection
+  | ValuesSection
+  | ReviewsEmbedSection
+  | PrinciplesSection
   | CtaSection
 ) &
   SectionMotion;
@@ -230,6 +338,15 @@ export interface AboutContent {
   images: Record<string, string>;
   sections: HomeSection[];
 }
+
+/**
+ * The five remaining interior pages (tncld#92), keyed by route: `services`,
+ * `technology`, `meet-the-doctors`, `patient-resources`,
+ * `why-laser-dentistry`. Same `{ images, sections[] }` shape /about uses, so
+ * they render through the identical PageSections templates and the model, not
+ * the page component, owns each page's IA.
+ */
+export type SectionPageContent = AboutContent;
 
 /**
  * Practice contact details for the contact / appointment pages (tncld#62).
@@ -286,6 +403,7 @@ interface IndustryContent {
   about: AboutContent;
   services: ServicesContent;
   contact?: ContactContent;
+  sectionPages?: Record<string, SectionPageContent>;
   pages?: Record<string, PageContent>;
   serviceDetails?: Record<string, PageContent>;
   technologyDetails?: Record<string, PageContent>;
@@ -311,6 +429,23 @@ export function getServicesContent(): ServicesContent {
 
 export function getAboutContent(): AboutContent {
   return industry().about;
+}
+
+/**
+ * One of the five section-structured interior pages by key (tncld#92). Throws
+ * rather than returning null: unlike a CMS slug these five are a fixed set the
+ * routes name literally, so a miss is a content-file defect that should fail
+ * the build, not 404 in front of a visitor. scripts/check-content.mjs asserts
+ * the same set.
+ */
+export function getSectionPage(key: string): SectionPageContent {
+  const page = industry().sectionPages?.[key];
+  if (!page) {
+    throw new Error(
+      `content: no sectionPages entry for "${key}" in json/cms-data.json (dental.sectionPages)`,
+    );
+  }
+  return page;
 }
 
 export function getContactContent(): ContactContent {

@@ -30,6 +30,27 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PAGES = [
   { route: '/', pageId: '694f1892a016a6340049f7db', export: 'index.html' },
   { route: '/about', pageId: '694f1892a016a6340049f7de', export: 'about.html' },
+  { route: '/services', pageId: '694f1892a016a6340049f7dc', export: 'services.html' },
+  {
+    route: '/patient-resources',
+    pageId: '694f1892a016a6340049f7dd',
+    export: 'patient-resources.html',
+  },
+  {
+    route: '/about/technology',
+    pageId: '696e35cb7920bf42c9e40b4c',
+    export: 'about/technology.html',
+  },
+  {
+    route: '/about/meet-the-doctors',
+    pageId: '696e35b114eb106d073a2fcc',
+    export: 'about/meet-the-doctors.html',
+  },
+  {
+    route: '/about/why-laser-dentistry',
+    pageId: '69762b5e495696aa755236d1',
+    export: 'about/why-laser-dentistry.html',
+  },
 ];
 
 const token = process.env.WEBFLOW_API_TOKEN;

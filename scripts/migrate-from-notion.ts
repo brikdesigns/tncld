@@ -69,7 +69,7 @@ const ROWS: { name: string; map: MapName; slug: string }[] = [
   { name: 'Digital Imaging', map: 'technologyDetails', slug: 'digital-imaging' },
   { name: 'Laser Dentistry', map: 'technologyDetails', slug: 'laser-dentistry' },
   { name: 'Oral Cancer Detection', map: 'technologyDetails', slug: 'oral-cancer-detection' },
-  { name: 'Same Day Crowns (CEREC)', map: 'technologyDetails', slug: 'same-day-crowns-cerec' },
+  { name: 'Same Day Crowns (CEREC)', map: 'technologyDetails', slug: 'cerec' },
   // pages
   { name: 'Patient Resources', map: 'pages', slug: 'patient-resources' },
   { name: 'New Patients', map: 'pages', slug: 'new-patients' },

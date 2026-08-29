@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { ResourcePage } from '@/components/content/ResourcePage';
-import { getResourcePage } from '@/lib/content';
+import { getSectionPage } from '@/lib/content';
+import { PageSections } from '@/components/sections/PageSections';
 
 export const metadata: Metadata = {
   title: 'Patient Resources',
@@ -10,12 +9,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * Patient Resources hub (tncld#60) — the directory page linking to each child
- * resource. Content is migrated from the Notion "TNCLD Website" DB (tncld#56)
- * and rendered through the shared patient-resource template.
+ * Patient Resources hub (tncld#92). Composed from
+ * `dental.sectionPages.patient-resources`: an interior hero, the three-card
+ * resource grid, the Office & Experience split, and the large closing CTA. The
+ * child resource pages (new-patients, membership-plan, payments-and-insurance,
+ * faqs) still render through the ResourcePage template at ./[slug].
  */
 export default function PatientResourcesHubPage() {
-  const page = getResourcePage('patient-resources');
-  if (!page) notFound();
-  return <ResourcePage page={page} />;
+  const page = getSectionPage('patient-resources');
+  return <PageSections sections={page.sections} images={page.images} />;
 }

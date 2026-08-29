@@ -19,6 +19,11 @@ const PLACEHOLDER = [
   /lorem ipsum/i,
   /consectetur adipiscing/i,
   /^Topic \d+ Title$/,
+  // Webflow's own unfilled-slot defaults (#92). They read as real copy in an
+  // export and are the easiest placeholder to ship by accident.
+  /this is the default text value/i,
+  /this is some text inside of a div block/i,
+  /^Button Label$/,
 ];
 
 const strings = [];
@@ -35,6 +40,12 @@ if (!industry) {
 }
 for (const page of PAGES) walk(industry[page]);
 walk(industry.pages ?? {});
+// The five section-structured interior pages (#92). Webflow leaves an unfilled
+// component slot as a literal default string, so those are placeholders here in
+// exactly the sense this gate means — /patient-resources' card grid carries a
+// "This is the default text value" button in the export, and #92 drops it
+// rather than inventing a label.
+walk(industry.sectionPages ?? {});
 // Service + technology detail pages (#68) — same content-consuming template.
 walk(industry.serviceDetails ?? {});
 walk(industry.technologyDetails ?? {});
