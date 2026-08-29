@@ -61,6 +61,9 @@ const origin = arg('orig-origin', 'http://127.0.0.1:8899');
 // static files and has no such rule, so it keeps its address.
 const rebuildOrigin = arg('rebuild-origin', 'http://localhost:3000');
 const outDir = arg('out', join('.fidelity', route === '/' ? 'home' : route.slice(1), String(width)));
+// Generous because the export's story posters are 2.7MB animated GIFs served
+// from image.mux.com; they decode in ~8s on a warm connection (tncld#142).
+const IMAGE_DECODE_TIMEOUT_MS = Number(arg('image-timeout', 60000));
 
 const target = ROUTES[route];
 if (!target) {
@@ -88,6 +91,74 @@ const REVEAL = `
   }
 `;
 
+/**
+ * Force every image to decode, and refuse to measure a page where one did not
+ * (tncld#142).
+ *
+ * The scroll walk below used to be the whole mechanism, and it does not work
+ * for a slow lazy image: it dwells 80ms per 800px step and then returns to the
+ * top, which CANCELS a fetch that has not committed. The original's three
+ * patient-story posters are 2.7MB animated GIFs from image.mux.com and never
+ * survived it, so `/`'s story band was measured with all three collapsed to a
+ * 20px line-box — 236px per card against the 576px they actually render at
+ * 991. That is 1,286px of the original's height on `/` alone, and every band-7
+ * number on tncld#102, #106, #131 and #133 was recorded against it.
+ *
+ * More time does not fix it. Measured at 991 on the export, three sequences:
+ *
+ *   walk 800px/80ms -> scrollTo(0,0) -> 600ms   card 236.0px  poster 0x0
+ *   same walk, 10s settle at top                card 236.0px  poster 0x0
+ *   parked in view, 600ms                       card 576.0px  poster 640x360
+ *
+ * So the gate cannot be a longer wait, and it cannot be "scroll each one into
+ * view" either — 32 of the export's 43 images sit inside collapsed tab panels
+ * and modals, where `scrollIntoView` is a no-op and the loop never converges.
+ *
+ * Flipping `loading` to `eager` is the mechanism that does work: per the HTML
+ * spec's lazy-loading model the change starts the load immediately, with no
+ * dependence on where the viewport happens to be. All 43 decode.
+ *
+ * A timeout here is a HARD FAILURE, the same shape as the wrong-page and
+ * never-hydrated guards in lib/assert-rebuild.mjs, and for the same reason: a
+ * partial capture still prints a plausible band table, and a wrong number that
+ * looks right is worse than a crash.
+ *
+ * @returns {Promise<number>} always 0 — a non-zero count throws
+ */
+async function settleImages(page, label) {
+  const list = () =>
+    page.evaluate(() =>
+      [...document.images]
+        .filter((i) => !(i.complete && i.naturalWidth > 0))
+        .map((i) => i.currentSrc || i.src || '(no src)'),
+    );
+
+  await page.evaluate(() => {
+    for (const img of document.images) {
+      img.loading = 'eager';
+      img.fetchPriority = 'high';
+    }
+  });
+  await page
+    .waitForFunction(
+      () => [...document.images].every((i) => i.complete && i.naturalWidth > 0),
+      null,
+      { timeout: IMAGE_DECODE_TIMEOUT_MS },
+    )
+    .catch(async () => {
+      const stuck = await list();
+      throw new Error(
+        `${label}: ${stuck.length} image(s) never decoded within ` +
+          `${IMAGE_DECODE_TIMEOUT_MS}ms, so this page's height is not the ` +
+          `height it renders at. Measuring it would report a collapsed image ` +
+          `box as a fidelity delta (tncld#142). Undecoded:\n  ` +
+          stuck.slice(0, 10).join('\n  ') +
+          (stuck.length > 10 ? `\n  …and ${stuck.length - 10} more` : ''),
+      );
+    });
+  return 0;
+}
+
 async function capture(url, label) {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width, height: 1000 } });
@@ -103,8 +174,8 @@ async function capture(url, label) {
     .goto(url, { waitUntil: settle, timeout: 90000 })
     .catch((e) => console.error(`${label} nav: ${e.message}`));
   if (label === 'rebuild') await assertIsRebuild(page, label);
-  // Lazy images only decode once scrolled into view; walk the page so the
-  // full-page screenshot is not a column of empty image boxes.
+  // Lazy images only decode once scrolled into view; walk the page so anything
+  // viewport-driven that is not an <img> has been through the fold.
   await page.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 800) {
       window.scrollTo(0, y);
@@ -112,6 +183,7 @@ async function capture(url, label) {
     }
     window.scrollTo(0, 0);
   });
+  const undecoded = await settleImages(page, label);
   await page.evaluate(REVEAL);
   await page.waitForTimeout(600);
 
@@ -131,7 +203,7 @@ async function capture(url, label) {
   );
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   await page.screenshot({ path: join(outDir, `${label}-full.png`), fullPage: true });
-  return { page, browser, headings, height, failed: [...failed] };
+  return { page, browser, headings, height, failed: [...failed], undecoded };
 }
 
 const a = await capture(`${origin}/${target.orig}`, 'orig');
@@ -186,6 +258,10 @@ const report = {
   headingsOnlyInOriginal: onlyA,
   headingsOnlyInRebuild: onlyB,
   requestsFailed: { orig: a.failed, rebuild: b.failed },
+  // Always zero on a run that produced a report — `settleImages` throws
+  // otherwise (tncld#142). Recorded so a reader can see the gate ran, rather
+  // than having to infer it from the absence of a complaint.
+  imagesUndecoded: { orig: a.undecoded, rebuild: b.undecoded },
 };
 writeFileSync(join(outDir, 'report.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));
