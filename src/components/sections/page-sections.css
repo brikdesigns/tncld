@@ -795,7 +795,13 @@
   padding: 0;
   max-width: 74rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  /* Explicit columns, not `auto-fit`. The original's `.layout-3-col` is
+     `1fr 1fr 1fr` (css/tncld.webflow.css:1753) and goes to a single column at
+     its 991 breakpoint (:5857) — an authored breakpoint, not an intrinsic one.
+     `repeat(auto-fit, minmax(18rem, 1fr))` held three 301px tracks at 991,
+     where the original had already stacked to one 876px track, which is where
+     most of tncld#133's 5,513px deficit came from. */
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1.25rem;
 }
 .section-cards__card {
@@ -949,7 +955,10 @@
  * export, not assumed to match them. */
 .section-principles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  /* Same correction as `.section-cards__grid`: the original's
+     `.layout-2-column` is a flex row (css/tncld.webflow.css:3560) that becomes
+     a column at 991 (:6081). `auto-fit` kept two 463px tracks at 991. */
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 1rem;
   max-width: 80rem;
@@ -1111,6 +1120,29 @@
   }
   .section-split__head {
     padding-bottom: var(--space-1800); /* 80px against the measured 78px */
+  }
+  /* The original stacks both grids here, not at 767 (tncld#133). */
+  .section-cards__grid,
+  .section-principles {
+    grid-template-columns: 1fr;
+  }
+  /* The original's `.container-lg` measures 876px inside a 991 viewport and
+     652px inside 767 — 57.5px of inline padding at both, against the 24px the
+     rebuild carried up from 1440. At 24px each stacked card is 895px wide
+     against the original's 828px, and since these cards are image-led the
+     extra 8% of width came back as 8% of image height. `--space-1400` (56px)
+     is the canonical token nearest 57.5; there is no 57.5px step. */
+  .section-cards {
+    padding-inline: var(--space-1400);
+  }
+  /* 400px is the *three-across* card height measured at 1440; it is not a
+     property of the card. Once the grid stacks, the original's cards are
+     content-height — 224.7px each on /patient-resources at 991, against the
+     400px this min-height was pinning them to. Same defect shape as tncld#131
+     reports for the step and story cards, on a different component. */
+  .section-cards--icon .section-cards__card,
+  .section-cards--numeral .section-cards__card {
+    min-height: 0;
   }
 }
 @media (max-width: 47.9375rem) {
