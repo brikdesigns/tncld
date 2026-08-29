@@ -87,7 +87,7 @@
           "mediaSide": "left",
           "action": {
             "label": "Explore Our Difference",
-            "href": "/why-laser-dentistry"
+            "href": "/about/why-laser-dentistry"
           }
         },
         {
@@ -151,7 +151,7 @@
           "mediaSide": "right",
           "action": {
             "label": "How Technology Improves Your Visit",
-            "href": "/technology"
+            "href": "/about/technology"
           }
         },
         {
@@ -164,7 +164,7 @@
           "mediaSide": "left",
           "action": {
             "label": "Meet the Doctors",
-            "href": "/meet-the-doctors"
+            "href": "/about/meet-the-doctors"
           }
         },
         {
@@ -270,7 +270,7 @@
           "mediaSide": "right",
           "action": {
             "label": "Meet the Doctors",
-            "href": "/meet-the-doctors"
+            "href": "/about/meet-the-doctors"
           }
         },
         {
@@ -294,7 +294,7 @@
           "mediaSide": "right",
           "action": {
             "label": "Explore Our Technology",
-            "href": "/technology"
+            "href": "/about/technology"
           }
         },
         {
@@ -694,7 +694,7 @@
           },
           {
             "title": "Related services",
-            "body": "- [Hybrid dentures](/services/hybrid-dentures)\n- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)\n- [Restorative dentistry](/services/restorative-dentistry)"
+            "body": "- [Hybrid dentures](/services/hybrid-dentures)\n- [Same-day crowns (CEREC)](/technology/cerec)\n- [Restorative dentistry](/services/restorative-dentistry)"
           },
           {
             "title": "Restore your confidence with a strong, natural-looking smile",
@@ -744,7 +744,7 @@
           },
           {
             "title": "Related services",
-            "body": "- [Dental implants](/services/dental-implants)\n- [Restorative dentistry](/services/restorative-dentistry)\n- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)"
+            "body": "- [Dental implants](/services/dental-implants)\n- [Restorative dentistry](/services/restorative-dentistry)\n- [Same-day crowns (CEREC)](/technology/cerec)"
           },
           {
             "title": "Transform your smile with a secure, full-arch solution",
@@ -894,7 +894,7 @@
           },
           {
             "title": "Related services",
-            "body": "- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)\n- [Cosmetic dentistry](/services/cosmetic-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
+            "body": "- [Same-day crowns (CEREC)](/technology/cerec)\n- [Cosmetic dentistry](/services/cosmetic-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
           },
           {
             "title": "Restore your smile today",
@@ -996,7 +996,7 @@
           },
           {
             "title": "Related services",
-            "body": "- [Same-day crowns (CEREC)](/technology/same-day-crowns-cerec)\n- [Restorative dentistry](/services/restorative-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
+            "body": "- [Same-day crowns (CEREC)](/technology/cerec)\n- [Restorative dentistry](/services/restorative-dentistry)\n- [Preventative dentistry](/services/preventative-dentistry)"
           },
           {
             "title": "Experience a calmer, more comfortable approach to dental care",
@@ -1054,7 +1054,7 @@
           }
         ]
       },
-      "same-day-crowns-cerec": {
+      "cerec": {
         "title": "Custom, high-quality crowns completed in one visit",
         "lede": "Our advanced CEREC technology allows us to design, craft, and place beautiful ceramic crowns in a single appointment — with exceptional precision and comfort.",
         "sections": [
@@ -1101,6 +1101,542 @@
           {
             "title": "Restore your smile in a single visit",
             "body": "Experience the convenience and precision of same-day CEREC crowns. Schedule your consultation today.\n\n[Request an appointment](/request-appointment)"
+          }
+        ]
+      }
+    },
+    "sectionPages": {
+      "services": {
+        "images": {
+          "hybridDentures": "/images/square_hybrid_dentures_2x.webp",
+          "invisalign": "/images/square_invisalign_2x.webp",
+          "restorative": "/images/square_resotrative_dentistry_4x.webp",
+          "cosmetic": "/images/square_cosmetic_dentistry_4x.webp",
+          "preventative": "/images/square_preventative_dentistry_4x.webp",
+          "sedation": "/images/square_preventative_dentistry_4x.webp"
+        },
+        "sections": [
+          {
+            "type": "hero",
+            "title": "Services",
+            "eyebrow": "Services",
+            "eyebrowIcon": "/images/laser.svg",
+            "body": "Comprehensive dental care for your entire family."
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Hybrid Dentures",
+            "body": "Hybrid implant-supported dentures offer unmatched stability, comfort, and aesthetics — restoring your ability to eat, speak, and smile with confidence.",
+            "image": "hybridDentures",
+            "imageFrame": "square",
+            "actions": [
+              {
+                "label": "Get Started",
+                "href": "/request-appointment"
+              },
+              {
+                "label": "Learn More",
+                "href": "/services/hybrid-dentures"
+              }
+            ]
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Invisalign",
+            "body": "Clear aligners that fit your lifestyle — providing effective orthodontic treatment without traditional braces.",
+            "image": "invisalign",
+            "imageFrame": "square",
+            "actions": [
+              {
+                "label": "Get Started",
+                "href": "/request-appointment"
+              },
+              {
+                "label": "Learn More",
+                "href": "/services/invisalign"
+              }
+            ]
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Restorative Dentistry",
+            "body": "Comprehensive treatment plans for patients needing extensive restoration and renewed oral health.",
+            "image": "restorative",
+            "imageFrame": "square",
+            "actions": [
+              {
+                "label": "Get Started",
+                "href": "/request-appointment"
+              },
+              {
+                "label": "Learn More",
+                "href": "/services/restorative-dentistry"
+              }
+            ]
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Cosmetic Dentistry",
+            "body": "Transform your appearance with proven aesthetic treatments designed for natural, beautiful results.",
+            "image": "cosmetic",
+            "imageFrame": "square",
+            "actions": [
+              {
+                "label": "Get Started",
+                "href": "/request-appointment"
+              },
+              {
+                "label": "Learn More",
+                "href": "/services/cosmetic-dentistry"
+              }
+            ]
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Preventative Dentistry",
+            "body": "Preventative dentistry focuses on maintaining healthy teeth and gums through regular care, early detection, and patient education. From routine cleanings to advanced diagnostics, we help you avoid costly, invasive treatments down the road.",
+            "image": "preventative",
+            "imageFrame": "square",
+            "actions": [
+              {
+                "label": "Get Started",
+                "href": "/request-appointment"
+              },
+              {
+                "label": "Learn More",
+                "href": "/services/preventative-dentistry"
+              }
+            ]
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Sedation Dentistry",
+            "body": "Sedation is offered safely and conveniently right in our office through our partnership with Nashville Office-Based Anesthesia (NOBA).",
+            "image": "sedation",
+            "imageFrame": "square",
+            "actions": [
+              {
+                "label": "Get Started",
+                "href": "/request-appointment"
+              },
+              {
+                "label": "Learn More",
+                "href": "/services/sedation-dentistry"
+              }
+            ]
+          },
+          {
+            "type": "cta",
+            "variant": "center-lg",
+            "title": "Still Have Questions? We’re Here to Help.",
+            "body": "Our team is happy to guide you — before, during, or after your visit.",
+            "action": {
+              "label": "Contact Us",
+              "href": "/contact"
+            }
+          }
+        ]
+      },
+      "technology": {
+        "images": {
+          "digitalImaging": "/images/tncld-landscape-4x-9.webp",
+          "laser": "/images/tncld-landscape-4x-7.webp",
+          "oralCancer": "/images/tncld-landscape-4x-4.webp",
+          "cerec": "/images/tncld-landscape-4x-12.webp"
+        },
+        "sections": [
+          {
+            "type": "hero",
+            "title": "Technology",
+            "eyebrow": "About",
+            "eyebrowIcon": "/images/laser.svg",
+            "body": "A modern philosophy of care built on comfort and precision."
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Digital Imaging",
+            "eyebrow": "Digital Imaging",
+            "body": "Our modern imaging technology provides precise, detailed insights into your oral health — allowing for earlier detection, more accurate treatment planning, and a more comfortable patient experience.",
+            "image": "digitalImaging",
+            "action": {
+              "label": "Learn More",
+              "href": "/technology/digital-imaging"
+            }
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Laser Dentistry",
+            "eyebrow": "Laser Dentistry",
+            "body": "Experience a more comfortable, modern approach to dental care. Our advanced laser systems allow us to perform many treatments with less discomfort, greater precision, and faster healing.",
+            "image": "laser",
+            "action": {
+              "label": "Learn More",
+              "href": "/technology/laser-dentistry"
+            }
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Oral Cancer Detection",
+            "eyebrow": "Oral Cancer Detection",
+            "body": "Our oral cancer screening technology allows us to identify concerns earlier, with greater precision — giving you proactive protection and peace of mind.",
+            "image": "oralCancer",
+            "action": {
+              "label": "Get Started",
+              "href": "/technology/oral-cancer-detection"
+            }
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Same Day Crowns (CEREC)",
+            "eyebrow": "CEREC",
+            "body": "Our advanced CEREC technology allows us to design, craft, and place beautiful ceramic crowns in a single appointment — with exceptional precision and comfort.",
+            "image": "cerec",
+            "action": {
+              "label": "Get Started",
+              "href": "/technology/cerec"
+            }
+          },
+          {
+            "type": "reviewsEmbed",
+            "title": "What Our Customers Are Saying",
+            "scriptSrc": "https://reputationhub.site/reputation/assets/review-widget.js",
+            "widgetSrc": "https://reputationhub.site/reputation/widgets/review_widget/wh6TI0jMbX1CCWLJQnPd"
+          },
+          {
+            "type": "cta",
+            "variant": "center-lg",
+            "title": "Restore your smile today",
+            "body": "We make treatment accessible with transparent pricing, insurance support, and flexible payment solutions.",
+            "action": {
+              "label": "Request an Appointment",
+              "href": "/request-appointment"
+            }
+          }
+        ]
+      },
+      "meet-the-doctors": {
+        "images": {
+          "team": "/images/tncld-landscape-4x-22.webp",
+          "torti": "/images/tncld-landscape-4x-21.webp",
+          "edwards": "/images/tncld-landscape-4x-20.webp",
+          "burton": "/images/tncld-portrait-4x-2.webp",
+          "tourOffice": "/images/tncld-landscape-2x-13.webp",
+          "technology": "/images/tncld-landscape-4x-16.webp",
+          "newPatients": "/images/tncld-landscape-4x-2.webp"
+        },
+        "sections": [
+          {
+            "type": "hero",
+            "title": "Meet The Doctors",
+            "eyebrow": "About",
+            "eyebrowIcon": "/images/laser.svg",
+            "body": "Our doctors combine advanced training, modern technology, and a patient-first approach to deliver dentistry that is both comfortable and precise. With extensive experience across restorative, cosmetic, laser, and implant dentistry, they are committed to elevating every part of your care."
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Exceptional Dentists. Elevated Care. A Team Committed to Your Best Smile.",
+            "body": "Our doctors combine advanced training, modern technology, and a patient-first approach to deliver dentistry that is both comfortable and precise. With extensive experience across restorative, cosmetic, laser, and implant dentistry, they are committed to elevating every part of your care.",
+            "image": "team",
+            "action": {
+              "label": "Request an Appointment",
+              "href": "/request-appointment"
+            }
+          },
+          {
+            "type": "cards",
+            "variant": "portrait",
+            "title": "Guides You Can Trust With Your Smile",
+            "body": "At Tennessee Center for Laser Dentistry, you’re cared for by a team of experienced clinicians dedicated to providing exceptional results and a supportive experience. Each doctor brings unique strengths — and a shared commitment to comfort, innovation, and personalized care.",
+            "items": [
+              {
+                "title": "Dr. Ryan Torti",
+                "body": "Dr. Torti brings a thoughtful, patient-centered approach to dentistry, blending advanced clinical training with a deep commitment to comfort and communication.",
+                "image": "torti",
+                "action": {
+                  "label": "Read Bio",
+                  "href": "#"
+                },
+                "bio": {
+                  "title": "Dr. Ryan R. Torti, DDS",
+                  "paragraphs": [
+                    "Dr. Ryan Torti brings a thoughtful, patient-centered approach to dentistry, blending advanced clinical training with a deep commitment to comfort and communication. Known for his calm, reassuring presence and meticulous attention to detail, Dr. Torti helps patients feel confident and cared for at every step of their treatment.",
+                    "His areas of expertise include cosmetic dentistry, restorative treatments, Invisalign, and advanced laser dentistry. Dr. Torti’s gentle approach — paired with his proficiency in modern technology — allows many patients to receive treatment with minimal or no anesthesia, reduced discomfort, and faster healing.",
+                    "Dr. Torti is passionate about delivering results that look beautiful, function naturally, and support long-term oral health. He believes every patient deserves clarity in their dental care and enjoys educating patients so they feel empowered in their health decisions.",
+                    "Outside the office: Dr. Torti enjoys spending time with family, teaching, traveling, and staying connected within the Franklin community."
+                  ]
+                }
+              },
+              {
+                "title": "Dr. Chad Edwards",
+                "body": "Dr. Edwards is known for his advanced clinical skill, commitment to innovation, and passion for delivering dentistry at the highest standard.",
+                "image": "edwards",
+                "action": {
+                  "label": "Read Bio",
+                  "href": "#"
+                },
+                "bio": {
+                  "title": "Meet Dr. Chad O Edwards, DDS",
+                  "paragraphs": [
+                    "Dr. Edwards has extensive training in laser dentistry and restorative techniques, allowing him to perform many procedures with greater comfort and improved healing. His expertise also includes implant dentistry, full-mouth rehabilitation, cosmetic services, and advanced restorative care.",
+                    "He is deeply committed to continued education, both as a lifelong learner and as an educator. Dr. Edwards regularly participates in professional training programs and teaches other dentists across the country in the use of laser technology — helping elevate the standard of care far beyond his own practice."
+                  ]
+                }
+              },
+              {
+                "title": "Dr. Andy Burton",
+                "body": "Dr. Burton brings more than 30 years of experience in implant dentistry, offering patients exceptional expertise in surgical placement, restorative design, and long-term implant success.",
+                "image": "burton",
+                "action": {
+                  "label": "Read Bio",
+                  "href": "#"
+                },
+                "bio": {
+                  "title": "Dr. Andy Burton, DDS",
+                  "paragraphs": [
+                    "Dr. Andy Burton brings more than 30 years of experience in implant dentistry to Tennessee Center for Laser Dentistry, offering patients exceptional expertise in surgical placement, restorative design, and long-term implant success. His depth of clinical knowledge and commitment to precision allow him to deliver results that are both functional and beautifully natural.",
+                    "A respected clinician in the Nashville region, Dr. Burton is known for his calm demeanor, meticulous approach, and dedication to providing each patient with clear communication and a comfortable experience. His broad skillset spans general, cosmetic, restorative, and implant dentistry, strengthened by ongoing training in emerging technologies and advanced techniques.",
+                    "Dr. Burton is an active member of multiple professional organizations, including the Nashville Dental Society, the Tennessee Dental Association, the American Dental Association, the Tennessee Academy of Cosmetic Dentistry, the Academy of General Dentistry, and the Academy of Clear Aligners. He is also a Fellow in the World Clinical Laser Institute, reflecting his advanced proficiency in modern laser technology — an essential part of TNCLD’s commitment to better science and better service.",
+                    "Outside the office: Dr. Burton enjoys spending time with family, staying active in the dental community, and pursuing continued education that supports his passion for excellence in patient care."
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "principles",
+            "title": "A shared philosophy: better science, better service, better dentistry",
+            "body": "Our doctors share core beliefs that guide every appointment:",
+            "items": [
+              {
+                "lead": "Comfort matters",
+                "body": "Modern dentistry should feel gentle, calm, and supportive."
+              },
+              {
+                "lead": "Technology elevates care",
+                "body": "Advanced tools allow for precise, efficient, comfortable treatment."
+              },
+              {
+                "lead": "Education empowers patients",
+                "body": "Clear communication builds trust and confidence."
+              },
+              {
+                "lead": "Relationships strengthen results",
+                "body": "We value long-term patient partnerships built on honesty and compassion."
+              }
+            ]
+          },
+          {
+            "type": "reviewsEmbed",
+            "title": "Patient Testimonials",
+            "body": "Both doctors made me feel so comfortable. They explained everything clearly and their gentle approach made all the difference.",
+            "scriptSrc": "https://reputationhub.site/reputation/assets/review-widget.js",
+            "widgetSrc": "https://reputationhub.site/reputation/widgets/review_widget/wh6TI0jMbX1CCWLJQnPd"
+          },
+          {
+            "type": "cards",
+            "variant": "landscape",
+            "title": "Related Pages",
+            "items": [
+              {
+                "title": "Tour Our Office",
+                "body": "Step inside a space crafted for precision, comfort, and confidence.",
+                "image": "tourOffice",
+                "action": {
+                  "label": "Learn More",
+                  "href": "/patient-resources"
+                }
+              },
+              {
+                "title": "Our Technology",
+                "body": "A modern philosophy of care built on comfort and precision.",
+                "image": "technology",
+                "action": {
+                  "label": "Learn More",
+                  "href": "/about/technology"
+                }
+              },
+              {
+                "title": "New Patients",
+                "body": "Get started with resources on what to expect for your first visit.",
+                "image": "newPatients",
+                "action": {
+                  "label": "Learn More",
+                  "href": "/patient-resources/new-patients"
+                }
+              }
+            ]
+          },
+          {
+            "type": "cta",
+            "variant": "center-lg",
+            "title": "Experience the Difference of Exceptional, Patient-Centered Dentistry",
+            "body": "Let our doctors guide you to a healthier, more confident smile.",
+            "action": {
+              "label": "Request an Appointment",
+              "href": "/request-appointment"
+            }
+          }
+        ]
+      },
+      "patient-resources": {
+        "images": {
+          "officeExperience": "/images/tncld-landscape-4x-10.webp"
+        },
+        "sections": [
+          {
+            "type": "hero",
+            "title": "Helpful Information for a Smooth, Stress-Free Visit",
+            "eyebrow": "Patient Resources",
+            "eyebrowIcon": "/images/laser.svg",
+            "body": "We want every part of your experience to feel simple and clear. Whether you’re preparing for your first appointment, looking for financial information, or wanting to explore the services we offer, this page gives you quick access to the resources that matter most."
+          },
+          {
+            "type": "cards",
+            "variant": "icon",
+            "title": "New Patient Information",
+            "body": "Get started with what to expect, forms, FAQs, and tips for your first visit.",
+            "items": [
+              {
+                "title": "New Patient Information",
+                "body": "Get started with what to expect, forms, FAQs, and tips for your first visit.",
+                "icon": "/images/patient-resources.svg"
+              },
+              {
+                "title": "Payment & Insurance",
+                "body": "Learn how insurance works in our office, explore payment options, and review our membership plan.",
+                "icon": "/images/payments-insurance.svg"
+              },
+              {
+                "title": "Your Care & Treatment",
+                "body": "Explore the services we offer and the technology behind our elevated approach.",
+                "icon": "/images/tooth.svg"
+              }
+            ]
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "Office & Experience",
+            "eyebrow": "Tour Our Office",
+            "body": "Take a virtual look at our practice and get to know the doctors who will be caring for you.",
+            "image": "officeExperience",
+            "actions": [
+              {
+                "label": "Tour Our Office",
+                "href": "/patient-resources"
+              },
+              {
+                "label": "Meet the Doctors",
+                "href": "/about/meet-the-doctors"
+              }
+            ]
+          },
+          {
+            "type": "cta",
+            "variant": "center-lg",
+            "title": "Still Have Questions? We’re Here to Help.",
+            "body": "Our team is happy to guide you — before, during, or after your visit.",
+            "action": {
+              "label": "Contact Us",
+              "href": "/contact"
+            }
+          }
+        ]
+      },
+      "why-laser-dentistry": {
+        "images": {
+          "higherStandard": "/images/tncld-landscape-4x-12.webp"
+        },
+        "sections": [
+          {
+            "type": "hero",
+            "title": "Why “Laser Dentistry” Is Our Standard",
+            "eyebrow": "About",
+            "eyebrowIcon": "/images/laser.svg",
+            "body": "A modern philosophy of care built on comfort and precision."
+          },
+          {
+            "type": "cards",
+            "variant": "numeral",
+            "title": "Why “Laser Dentistry” Is Part of Our Name",
+            "body": "Laser dentistry isn’t our specialty — it’s our standard. Our name reflects our commitment to a higher level of care, where advanced technology, greater comfort, and precise treatment come together to create a better dental experience.",
+            "items": [
+              {
+                "numeral": "01",
+                "title": "People may assume we’re a laser-only specialty.",
+                "body": "We provide comprehensive dentistry — laser technology simply enhances how we deliver exceptional care."
+              },
+              {
+                "numeral": "02",
+                "title": "Patients aren’t sure why “laser dentistry” matters.",
+                "body": "It means better comfort, better precision, and better outcomes across many treatments."
+              },
+              {
+                "numeral": "03",
+                "title": "Technology can feel intimidating or confusing.",
+                "body": "We use it to make your experience easier, not more complicated — and we explain everything clearly."
+              }
+            ]
+          },
+          {
+            "type": "values",
+            "title": "What this means for you",
+            "items": [
+              {
+                "title": "Greater accuracy and precision"
+              },
+              {
+                "title": "More comfortable treatment experiences"
+              },
+              {
+                "title": "Less sensitivity or downtime"
+              },
+              {
+                "title": "A smoother, more modern dental visit"
+              }
+            ]
+          },
+          {
+            "type": "split",
+            "reveal": "start",
+            "title": "A Higher Standard of Modern Care",
+            "body": "Laser dentistry enhances many of the treatments we already provide. It allows us to treat soft and hard tissue more comfortably and efficiently, giving you a smoother experience from start to finish.",
+            "image": "higherStandard",
+            "action": {
+              "label": "Learn More",
+              "href": "/technology/laser-dentistry"
+            }
+          },
+          {
+            "type": "cta",
+            "variant": "center",
+            "title": "Beyond Traditional Procedures",
+            "body": "Laser technology is also used to treat painful mouth ulcers, canker sores, and herpetic (cold sore) lesions. In many cases, laser therapy may reduce discomfort and support faster healing — often in a quick, in-office visit. If you’re experiencing oral discomfort, our team can evaluate your symptoms and determine whether laser treatment is appropriate.",
+            "action": {
+              "label": "Request an Appointment",
+              "href": "/request-appointment"
+            }
+          },
+          {
+            "type": "cta",
+            "variant": "center-lg",
+            "title": "Experience Dentistry at a Higher Standard",
+            "body": "Discover how our technology-driven, comfort-focused approach can elevate your dental care.",
+            "action": {
+              "label": "Request an Appointment",
+              "href": "/request-appointment"
+            }
           }
         ]
       }

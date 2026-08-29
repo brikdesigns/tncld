@@ -31,9 +31,24 @@ const arg = (name, fallback) => {
   return i === -1 ? fallback : process.argv[i + 1];
 };
 
+// The rebuild route → the export file that renders the same page. The three
+// `/about/*` entries are nested because that is where the ORIGINAL serves them
+// (Webflow `about` folder, parentId 697648d22cb71ab803455a08) — tncld#92 moved
+// the rebuild's routes to match, so the two sides line up on both ends.
 const ROUTES = {
   '/': { orig: 'index.html', rebuild: '/' },
   '/about': { orig: 'about.html', rebuild: '/about' },
+  '/services': { orig: 'services.html', rebuild: '/services' },
+  '/patient-resources': { orig: 'patient-resources.html', rebuild: '/patient-resources' },
+  '/about/technology': { orig: 'about/technology.html', rebuild: '/about/technology' },
+  '/about/meet-the-doctors': {
+    orig: 'about/meet-the-doctors.html',
+    rebuild: '/about/meet-the-doctors',
+  },
+  '/about/why-laser-dentistry': {
+    orig: 'about/why-laser-dentistry.html',
+    rebuild: '/about/why-laser-dentistry',
+  },
 };
 
 const route = arg('route', '/');

@@ -43,9 +43,23 @@ const arg = (name, fallback) => {
   return i === -1 ? fallback : process.argv[i + 1];
 };
 
+// Kept in step with fidelity-shot.mjs's map — same routes, same export files.
+// The `/about/*` nesting is the ORIGINAL's URL structure, which tncld#92 moved
+// the rebuild onto.
 const ROUTES = {
   '/': { orig: 'index.html', rebuild: '/' },
   '/about': { orig: 'about.html', rebuild: '/about' },
+  '/services': { orig: 'services.html', rebuild: '/services' },
+  '/patient-resources': { orig: 'patient-resources.html', rebuild: '/patient-resources' },
+  '/about/technology': { orig: 'about/technology.html', rebuild: '/about/technology' },
+  '/about/meet-the-doctors': {
+    orig: 'about/meet-the-doctors.html',
+    rebuild: '/about/meet-the-doctors',
+  },
+  '/about/why-laser-dentistry': {
+    orig: 'about/why-laser-dentistry.html',
+    rebuild: '/about/why-laser-dentistry',
+  },
 };
 
 /** The revealing element in each render. */
@@ -116,6 +130,33 @@ async function sampleReveal(page, selector, index) {
 
       window.scrollTo(0, Math.max(0, top - window.innerHeight - 200));
       await new Promise((r) => setTimeout(r, 400));
+
+      // Decode this container's images BEFORE the fade is triggered. A
+      // 1368x770 photo decoding on the same main thread that runs the
+      // transition drops frames right through it, and the sampler reads that
+      // as the ORIGINAL deviating from its own config: /about/technology's
+      // "Laser Dentistry" split measured 0.030, then 0.070, then 0.079, then
+      // "never reached opacity 1" across four identical runs, and never once
+      // on the rebuild side. Parking below the fold is what defers the decode
+      // in the first place, so the wait belongs here, after the park and
+      // before the trigger. Never a threshold relaxation — the deviation was
+      // real, it just was not the page's.
+      // A decode that REJECTS is a broken image in the render being measured,
+      // which is worth knowing about — it is reported rather than swallowed,
+      // because it skews the very samples taken next.
+      const undecodable = [];
+      await Promise.all(
+        [...el.querySelectorAll('img')].map((img) =>
+          img.complete
+            ? Promise.resolve()
+            : img.decode().catch((err) => {
+                console.warn('motion-shot: image failed to decode', img.currentSrc || img.src, err);
+                undecodable.push(`${img.currentSrc || img.src}: ${err}`);
+              }),
+        ),
+      );
+      await new Promise((r) => requestAnimationFrame(r));
+
       const before = Number(getComputedStyle(el).opacity);
       const transformBefore = getComputedStyle(el).transform;
 
@@ -130,7 +171,14 @@ async function sampleReveal(page, selector, index) {
         transforms.add(cs.transform);
         await new Promise((r) => requestAnimationFrame(r));
       }
-      return { geometry, before, transformBefore, samples, transforms: [...transforms] };
+      return {
+        geometry,
+        before,
+        transformBefore,
+        samples,
+        transforms: [...transforms],
+        undecodable,
+      };
     },
     { selector, index },
   );
@@ -152,26 +200,40 @@ function analyse(samples) {
   // landmark a frame sampler can actually see. See SPEC.p999.
   const duration = t999 / SPEC.p999;
 
+  // Each checkpoint is read by interpolating LINEARLY between the two frames
+  // that bracket it, so it also reports how wide that gap was. Across a normal
+  // ~16ms frame the straight-line error on outQuart is negligible; across a
+  // stalled 100ms one it is not, and it lands in `maxDeviation` as if the page
+  // had animated wrongly. /about/technology's 1200px original split produced
+  // 0.030 / 0.070 / 0.079 / 0.141 across identical runs on an otherwise
+  // conformant 1003ms fade — the spread is the sampler's, not the render's.
   const at = (p) => {
     const t = t0 + p * duration;
     let prev = samples[startIdx === 0 ? 0 : startIdx - 1];
     for (const s of samples) {
       if (s[0] >= t) {
         const span = s[0] - prev[0] || 1;
-        return prev[1] + (s[1] - prev[1]) * ((t - prev[0]) / span);
+        return { value: prev[1] + (s[1] - prev[1]) * ((t - prev[0]) / span), gap: span };
       }
       prev = s;
     }
-    return prev[1];
+    return { value: prev[1], gap: 0 };
   };
 
-  const checkpoints = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map((p) => ({
-    p,
-    measured: at(p),
-    spec: SPEC.ease(p),
-  }));
-  const maxDeviation = Math.max(...checkpoints.map((c) => Math.abs(c.measured - c.spec)));
-  return { duration, t999, checkpoints, maxDeviation };
+  const checkpoints = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map((p) => {
+    const { value, gap } = at(p);
+    return { p, measured: value, spec: SPEC.ease(p), gap };
+  });
+  // Two frames at 60Hz. Beyond that the checkpoint was interpolated across a
+  // stall and says nothing about the curve, so it is EXCLUDED from the
+  // deviation and COUNTED, never quietly averaged in or silently dropped.
+  const MAX_FRAME_GAP_MS = 32;
+  const usable = checkpoints.filter((c) => c.gap <= MAX_FRAME_GAP_MS);
+  const stalled = checkpoints.length - usable.length;
+  const maxDeviation = usable.length
+    ? Math.max(...usable.map((c) => Math.abs(c.measured - c.spec)))
+    : null;
+  return { duration, t999, checkpoints, maxDeviation, stalled, usable: usable.length };
 }
 
 async function measure(label, url, selector, port) {
@@ -190,10 +252,27 @@ async function measure(label, url, selector, port) {
 
   const results = [];
   for (let i = 0; i < count; i++) {
+    // Reload before every container. IX2's fadeIn is ONE-SHOT, so a container
+    // that has already been revealed cannot be measured again — and sampling
+    // container N-1 scrolls the page far enough to trip container N whenever
+    // the containers are taller than the viewport. /about/technology's splits
+    // are 1200px against a 900px viewport, and container[1] came back at
+    // "t₀.₉₉₉ 91ms" — already revealed before the sampler parked it — on 2 of
+    // 5 identical runs, while the rebuild passed all five. A fresh document is
+    // the only state in which a one-shot trigger is guaranteed unfired.
+    if (i > 0) {
+      await page.reload({ waitUntil: 'load', timeout: 90000 });
+      await page.waitForTimeout(2000);
+    }
     const raw = await sampleReveal(page, selector, i);
     if (raw.error) {
       fail(`${label}[${i}]: ${raw.error}`);
       continue;
+    }
+    // A container's image that never decodes is a broken render, and the fade
+    // sampled over it is not measuring what the report will claim it is.
+    for (const img of raw.undecodable ?? []) {
+      fail(`${label}[${i}]: image never decoded — ${img}`);
     }
     const stats = analyse(raw.samples);
     // A container already inside the viewport at load has no scroll-triggered
@@ -216,15 +295,26 @@ async function measure(label, url, selector, port) {
     } else {
       const [lo, hi] = SPEC.durationWindow;
       const dur = Math.round(stats.duration);
-      const dev = stats.maxDeviation.toFixed(3);
+      const dev = stats.maxDeviation === null ? 'n/a' : stats.maxDeviation.toFixed(3);
       const okDur = dur >= lo && dur <= hi;
-      const okCurve = stats.maxDeviation <= SPEC.curveTolerance;
+      // Fewer than 6 of 9 checkpoints landing on a real frame is a sample too
+      // stalled to rule on either way — reported as a MEASUREMENT failure, so
+      // discarding stalled checkpoints can never turn into a quiet pass.
+      const enoughFrames = stats.usable >= 6;
+      const okCurve = stats.maxDeviation !== null && stats.maxDeviation <= SPEC.curveTolerance;
+      const stallNote = stats.stalled
+        ? `, ${stats.stalled}/9 checkpoints across a >32ms frame gap (excluded)`
+        : '';
       const line =
         `${label}[${i}] (${geo}): 0 → 1 over ${dur}ms nominal ` +
-        `(t₀.₉₉₉ ${Math.round(stats.t999)}ms), max |Δ| vs outQuart ${dev}`;
-      if (okDur && okCurve) pass(line);
+        `(t₀.₉₉₉ ${Math.round(stats.t999)}ms), max |Δ| vs outQuart ${dev}${stallNote}`;
+      if (okDur && okCurve && enoughFrames) pass(line);
       if (!okDur) fail(`${line} — duration outside ${lo}–${hi}ms`);
-      if (!okCurve) fail(`${line} — curve deviates more than ${SPEC.curveTolerance}`);
+      if (!enoughFrames) {
+        fail(`${line} — only ${stats.usable}/9 checkpoints landed on a real frame; sample unusable`);
+      } else if (!okCurve) {
+        fail(`${line} — curve deviates more than ${SPEC.curveTolerance}`);
+      }
       // The original measures `transform: none` at every sample; a rebuild that
       // added a move would be embellishing, not reproducing.
       const moved = raw.transforms.filter((t) => t !== 'none');
@@ -340,7 +430,8 @@ const cell = (r, key) => {
   if (!r) return '—';
   if (r.aboveFold) return 'on load';
   if (!r.stats) return '—';
-  return key === 'ms' ? Math.round(r.stats.duration) : r.stats.maxDeviation.toFixed(3);
+  if (key === 'ms') return Math.round(r.stats.duration);
+  return r.stats.maxDeviation === null ? 'stalled' : r.stats.maxDeviation.toFixed(3);
 };
 console.table(
   original.map((o, i) => ({
