@@ -85,12 +85,39 @@ table. `--rebuild-origin` therefore defaults to `http://localhost:3000`.
 localhost:3100  →  no console errors,                     hydration markers: 2
 ```
 
-Two hard failures now stop a wrong measurement rather than reporting it:
+Three hard failures now stop a wrong measurement rather than reporting it:
 
 | Guard | Catches |
 |---|---|
 | `body.theme-tncld` absent | another process holds the port. On brik-mini a Forgejo instance held `127.0.0.1:3000` while `next dev` bound IPv6 `*:3000`, so the "rebuild" was a different application entirely. |
 | no `__reactContainer$` on `document` after 30s | the page never hydrated — the 403 case above, or a genuine hydration break. |
+| an `<img>` still undecoded after `--image-timeout` (60s) | a collapsed image box being measured as a fidelity delta (tncld#142). |
+
+### Why images are forced eager, not scrolled into view (tncld#142)
+
+The scroll walk used to be the whole mechanism, and it silently loses a slow
+lazy image: it dwells 80ms per 800px step and then returns to the top, which
+**cancels** a fetch that has not committed. The original's three patient-story
+posters are 2.7MB animated GIFs from `image.mux.com` and never survived it, so
+`/`'s story band was measured with all three collapsed to a 20px line-box.
+
+Adding time does not fix it — measured at 991 on the export:
+
+```
+walk 800px/80ms -> scrollTo(0,0) -> 600ms   card 236.0px  poster 0x0
+same walk, 10s settle at top                card 236.0px  poster 0x0
+parked in view, 600ms                       card 576.0px  poster 640x360
+```
+
+Nor does "scroll each undecoded one into view": 32 of the export's 43 images sit
+inside collapsed tab panels and modals, where `scrollIntoView` is a no-op and
+the loop never converges. Setting `loading = 'eager'` starts the load
+immediately with no dependence on viewport position, and all 43 decode.
+
+The cost of not having this guard: `/`'s original measured 12,681px at 991 where
+it renders 13,967px, so every band-7 figure recorded on tncld#102, #106, #131 and
+#133 was taken against a page 1,286px shorter than the one it was comparing to —
+and band 7 read 126% when the rebuild is really at 66%.
 
 The hydration probe keys on `document`, not on a widget, because it has to hold
 on every route: keyed on `[role="tab"]` it failed `--route /about` for having no
@@ -109,7 +136,11 @@ elements.** The original groups its 12 homepage content sections into 8
 mismatched regions. Anchoring on shared headings makes band *N* the same content
 on both sides by construction.
 
-`report.json` also gives you the two cheapest signals before you open any image:
+`report.json` also gives you the cheapest signals before you open any image:
+
+- `imagesUndecoded` — always `0` on a run that produced a report, since a
+  non-zero count throws. It is recorded so a reader can see the gate ran rather
+  than infer it from the absence of a complaint.
 
 - `fullHeight.deltaPx` — a rebuild much shorter than the original means dropped
   or collapsed content, not a spacing nit. `/` opened at 5,090px against 12,056.
