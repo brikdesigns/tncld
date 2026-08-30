@@ -563,13 +563,22 @@
   color: var(--text-secondary);
 }
 /* The animated Mux poster the original puts at the top of each story card
-   (tncld#97). `.section-testimonials__card` already measures 381x320 with 24px
-   padding and a 16px gap, matching the original; the poster is the piece that
-   was missing entirely, not a re-layout. It bleeds to the card's inner edges
-   the way the original's `.code-gif` does. */
+   (tncld#97).
+   FLUID 16:9, not a fixed crop (tncld#143). The original's `.code-gif` is a
+   shrink-to-fit flex item holding a `width: 100%; height: auto` 640x360 GIF, so
+   the poster measures `min(card content width, 640) x 9/16` and is left-aligned
+   at the content edge — 333.3x187.5 / 640x360 / 604x339.8 / 431x242.4 at
+   1440 / 991 / 767 / 479, exactly 1.778 at every width.
+   `height: 9rem` held it to 144px instead, which both cropped the frame
+   (measured aspect 2.43 / 5.77 / 4.22 / 2.22) and shortened the card. The
+   comment here used to say the card "already measures 381x320 … matching the
+   original"; that was established against a render where the poster had
+   collapsed to 0x0 (tncld#142). The original's card is 487.5px at 1440. */
 .section-testimonials__card-poster {
   width: 100%;
-  height: 9rem;
+  max-width: 40rem; /* 640px — the poster's own natural width, as the original's shrink-to-fit wrapper gives it */
+  height: auto;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: var(--border-radius-md);
 }
@@ -1080,7 +1089,10 @@
 .section-split__actions .bds-button,
 .section-steps__cta .bds-button,
 .section-cta__copy .bds-button,
-.section-hero__actions .bds-button {
+.section-hero__actions .bds-button,
+/* The story card's "Watch Their Story" was omitted from this list — measured
+   64px on the original at all four widths, 40px in the rebuild (tncld#143). */
+.section-testimonials__card .bds-button {
   height: var(--size-1600);
 }
 
@@ -1204,6 +1216,16 @@
 @media (max-width: 29.9375rem) {
   .section-steps__icon {
     width: 20%;
+  }
+  /* The original's container is 1184 / 876 / 652 / 479 wide at
+     1440 / 991 / 767 / 479 — i.e. it drops its inline padding to ZERO here,
+     rather than keeping the 57.5px it holds at 991 and 767. #144 applied
+     `--space-1400` from 991 down and so over-padded this breakpoint: the card
+     came out 367px wide against the original's 479. For the story card that is
+     load-bearing, because the poster is a fraction of it. */
+  .section-steps,
+  .section-testimonials {
+    padding-inline: 0;
   }
 }
 
