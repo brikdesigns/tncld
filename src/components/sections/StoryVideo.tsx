@@ -66,6 +66,12 @@ export function StoryVideo({ story }: { story: StoryItem & { playbackId: string 
       {story.videoLabel ? (
         <Button
           onClick={() => setOpen(true)}
+          // Same 64px CTA as every other band (tncld#104). This one is a raw
+          // Button rather than ActionButton — that takes an `href` and this
+          // opens a dialog — so it did not pick up `size="xl"` and rendered at
+          // BDS's 40px default against the original's 64px, measured at all
+          // four widths. page-sections.css lifts the remaining 8px.
+          size="xl"
           aria-haspopup="dialog"
           // The label repeats across all three cards in the original, so the
           // accessible name has to say *which* story this opens.
