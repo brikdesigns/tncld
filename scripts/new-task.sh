@@ -43,6 +43,11 @@ NC='\033[0m'
 # the wrong base unless the author noticed (#100).
 BASE_BRANCH="staging"
 ISSUE_REF=""
+# Opt-out for the sibling-worktree gate (brik-llm#1932). Its own flag rather than
+# a shared auto-yes branch on purpose: every agent session sets those, so folding
+# this into them would auto-proceed the one signal that means another session is
+# editing the file right now.
+ALLOW_WT_OVERLAP=0
 
 # ── Resolve repo root ──
 # Derive the worktree dir from the repo name so a copy of this script into
@@ -103,6 +108,10 @@ while [[ $# -gt 0 ]]; do
     --issue)
       ISSUE_REF="$2"
       shift 2
+      ;;
+    --allow-worktree-overlap)
+      ALLOW_WT_OVERLAP=1
+      shift
       ;;
     -*)
       echo -e "${RED}Unknown flag: $1${NC}"
@@ -279,6 +288,32 @@ if [ -n "$ISSUE_REF" ]; then
   # Advisory — it never refuses, and never aborts on an unreadable title either
   # (the `|| return 0` in check_title_overlap), so it needs no guard.
   check_title_overlap "$ISSUE_REF"
+  # Sibling-worktree gate (brik-llm#1932). Both gates above read state that
+  # reached GitHub; this one reads `git worktree list` + `git status` and sees the
+  # window neither can — a session that has a worktree and edits but has not
+  # committed, pushed or opened a PR.
+  #
+  # DEGRADED here, deliberately and visibly: the argument is empty because this
+  # repo does not carry scripts/lib/pr-path-overlap.sh, so there is no
+  # PTO_TICKET_PATHS to pass (its consumer set is smaller — see the TWINS registry
+  # in brik-llm's scripts/audit/overlap-twin-drift.py). With no caller path set the
+  # gate falls back to the caller's OWN dirty files, and new-task.sh will not run
+  # from a dirty primary, so that set is empty by construction. The effect: this
+  # repo gets the AMBIENT report — which sibling worktrees are live — and not the
+  # collision refusal. Adopting pr-path-overlap.sh upgrades it with no change here.
+  worktree_rc=0
+  check_worktree_overlap "" || worktree_rc=$?
+  if [ "$worktree_rc" -eq 7 ] && [ "$ALLOW_WT_OVERLAP" != "1" ]; then
+    echo ""
+    echo -e "${RED}✗ Refusing to create a worktree — a sibling worktree is editing these files now.${NC}"
+    echo ""
+    echo -e "${YELLOW}  Those changes are uncommitted, so no branch, PR or claim reports them.${NC}"
+    echo -e "${YELLOW}  Read that worktree first. Never commit or push a branch you did not${NC}"
+    echo -e "${YELLOW}  create (brik-llm#2635) — the owning session is mid-edit.${NC}"
+    echo ""
+    echo -e "${YELLOW}  If the overlap is genuinely benign, re-run with --allow-worktree-overlap.${NC}"
+    exit 1
+  fi
 else
   echo -e "${YELLOW}⚠  No --issue given — skipping the ticket-overlap gate.${NC}"
   echo -e "${YELLOW}   Pass --issue N so a parallel track on the same ticket is caught.${NC}"
