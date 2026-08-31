@@ -1233,6 +1233,37 @@
   }
   .section-split__head {
     padding-bottom: var(--space-1800); /* 80px against the measured 78px */
+    /* tncld#154. The 96px above is an 80px `.container-lg` gutter plus 16px of
+       `.inner-padding`; below 991 the container goes full-bleed and only the
+       16px becomes 20px. Measured with `getComputedStyle` on the rendered
+       export's `.inner-padding.stacked`, which is this head's counterpart:
+
+         width   .inner-padding.stacked   its box        row inside it
+         1440    16px / 16px              1280 @ x80     1248 @ x96
+          991    20px / 20px               991 @ x0       951 @ x20
+          767    20px / 20px               767 @ x0       727 @ x20
+          479    20px / 20px               479 @ x0       439 @ x20
+
+       Holding 96px here left an 799px content box inside a 991 viewport, so
+       the copy (559) + actions (330) + 24px gap = 913 wrapped a breakpoint
+       early — the original still runs them as one row at 991 and only stacks
+       at 767. ~66px per band, six bands on /services, and it is the residual
+       tncld#141 could not close. */
+    padding-inline: var(--space-500);
+    /* The padding alone does NOT un-wrap the row, which is the half of tncld#154
+       its ~66px/band estimate did not account for: with 20px the copy grows to
+       70% of 951 = 666, and 666 + 330 (the actions' fixed basis) + 24 gap =
+       1020 still exceeds 951, so it wraps anyway. `flex-wrap` is what decides
+       it — a flex line wraps before it shrinks.
+
+       The original authors its wrap at 767, not 991: its row children measure
+       49.4% each at both 1440 and 991 and go to 100% only at 767 and below
+       (measured on the export, three bands, identical). `wrap` is restored in
+       the 767 block below so that step still happens.
+
+       Measured per split head at 991: 291px wrapped -> 203px on one row, and
+       /services full-page 5565 -> 5061 against the original's 5175. */
+    flex-wrap: nowrap;
   }
   /* The original stacks both grids here, not at 767 (tncld#133). */
   .section-cards__grid,
@@ -1303,6 +1334,12 @@
 @media (max-width: 47.9375rem) {
   .section-split__head {
     padding-bottom: var(--space-2100); /* 96px against the measured 94px */
+    /* The original's own wrap point (tncld#154): its row children hold 49.4%
+       each down to 991 and go to 100% here. Restores the `wrap` the 991 block
+       above turns off — the copy (509) plus the actions (330) plus the 24px gap
+       exceed the 727px content box, so they stack, which is what the export
+       does. */
+    flex-wrap: wrap;
   }
 }
 /* The original's only other step for this icon — 20% inside its own 479

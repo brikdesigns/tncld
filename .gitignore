@@ -52,6 +52,12 @@ scripts/.notion-migration-output/
 
 # fidelity-shot.mjs output (tncld#95) — screenshots are build artifacts
 .fidelity/
+# Any before/after sibling of it. Proving a fidelity change needs a MATCHED
+# pair, so a session stashes the diff, re-measures, and parks the result beside
+# `.fidelity/` — `.fidelity-before/` is the name this one used. Only the exact
+# `.fidelity/` was ignored, so a `git add -A` swept ~2,000 screenshots into the
+# commit (caught and undone on #159, tncld#154).
+.fidelity-*/
 
 # prune-settings-local.py's own recovery snapshots. The global ignore covers
 # `.claude/settings.local.json` but not these, so the pruner's deliberate
