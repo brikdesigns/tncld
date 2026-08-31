@@ -95,6 +95,11 @@
 }
 .section-hero--interior .section-hero__title {
   font-size: clamp(2.5rem, 5vw, 4.5rem);
+  /* `.content-wrapper.narrow` — tncld#147. See the note above the split head.
+     The original wraps ONLY the h1 here, not the rule or the lede: the wrapper
+     holds a single child (`about.html`, measured 896px inside a 1280px
+     container at 1440). */
+  width: 70%;
 }
 .section-hero__rule {
   margin: 1.5rem 0 2.5rem;
@@ -255,9 +260,19 @@
      40px and is why every split band read 16px short at the top. */
   padding: var(--space-400) 6rem calc(var(--space-2400) + var(--space-400));
 }
+/* `.content-wrapper.narrow` — `width: 70%` (css/tncld.webflow.css:2464), the
+   wrapper the original seats a band's heading and lede in (tncld#147). It is
+   flat 70% at all four widths and on all 29 of its uses across the seven
+   routes, audited on the export — left-flush where the wrapper's text-align is
+   `start`, centred where it is `center`.
+
+   The rebuild had these blocks full-width, so a heading that wraps to two lines
+   on the original fits on one and the band comes up short. The 54.625rem
+   max-width this replaces was the 1440 value of the same measure (874px) and so
+   did not survive the flex basis growing to fill at 991 and below, where the
+   copy measured 100% of its head. */
 .section-split__copy {
-  flex: 1 1 34rem;
-  max-width: 54.625rem; /* 874px — the original's heading measure */
+  flex: 0 1 70%;
 }
 .section-split__eyebrow {
   margin: 0 0 0.5rem;
@@ -335,7 +350,10 @@
    top and bottom, then a 48px stack gap to the cards — so 16px above the
    heading and 64px below it, not the flat 40px the rebuild had. */
 .section-steps__title {
-  margin: 0 0 calc(var(--space-400) + var(--space-1200));
+  /* `auto` inline, not `0` — this is a centred `.content-wrapper.narrow`
+     (tncld#147). */
+  margin: 0 auto calc(var(--space-400) + var(--space-1200));
+  width: 70%;
   color: var(--text-primary);
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   line-height: 1.25;
@@ -533,8 +551,10 @@
 .section-testimonials {
   padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
 }
+/* A centred `.content-wrapper.narrow` (tncld#147). */
 .section-testimonials__intro {
-  margin: 0 0 var(--space-1200);
+  width: 70%;
+  margin: 0 auto var(--space-1200);
   text-align: center;
 }
 /* 16px to the body, as the original's intro stack sets it — was 8px. */
@@ -669,8 +689,10 @@
   padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
   text-align: center;
 }
+/* A centred `.content-wrapper.narrow` (tncld#147) — the 60rem cap it replaces
+   was not a measure the original holds at any width. */
 .section-payments__copy {
-  max-width: 60rem;
+  width: 70%;
   margin: 0 auto var(--space-1200);
 }
 .section-payments__title {
@@ -715,8 +737,12 @@
   padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
   text-align: center;
 }
+/* A centred `.content-wrapper.narrow` (tncld#147). Only the `--center` variant:
+   the original does NOT narrow-wrap the `--split` CTA (that one is a 400px blue
+   card) or the `--center-lg` CTAs on the three interior routes — audited on the
+   export, where neither appears among the 29 `.content-wrapper.narrow` uses. */
 .section-cta--center .section-cta__copy {
-  max-width: 60rem;
+  width: 70%;
   margin: 0 auto;
 }
 /* Full-bleed photo with a solid blue card floated over it on the right — the
@@ -812,8 +838,12 @@
 .section-cards {
   padding: var(--space-2400) 1.5rem;
 }
+/* A centred `.content-wrapper.narrow` (tncld#147). The 50.375rem cap it
+   replaces was 806px — the original's measure at 1440 only, which is 70% of the
+   1152px container it sits in there. Fixed, it read 57.9% at 1440 once the
+   container widened and 91.7% at 991. */
 .section-cards__intro {
-  max-width: 50.375rem; /* 806px — the original's centred intro measure */
+  width: 70%;
   margin: 0 auto var(--space-1200);
   text-align: center;
 }
