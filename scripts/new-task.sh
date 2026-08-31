@@ -186,8 +186,11 @@ if command -v gh &>/dev/null; then
     echo ""
     echo -e "${YELLOW}   Reusing names makes PR history confusing.${NC}"
     echo -e "${YELLOW}   Consider: task/${TASK_NAME}-v2 or a more specific name.${NC}"
-    echo -e "${YELLOW}   Press Enter to continue anyway, Ctrl+C to abort.${NC}"
-    read -r
+    # _io_confirm (issue-overlap.sh, sourced above), NOT a bare `read -r`: it
+    # honours NEW_TASK_YES / a non-TTY stdin, so a headless pickup is not killed
+    # waiting on Enter, and `read`'s EOF under `set -e` cannot abort before the
+    # worktree exists. brik-llm#2812 / brik-llm#2981.
+    _io_confirm
   fi
 fi
 
@@ -199,8 +202,8 @@ if [ -n "$SIMILAR_BRANCHES" ]; then
   echo "$SIMILAR_BRANCHES" | sed 's/^/    /'
   echo ""
   echo -e "${YELLOW}   Verify these don't overlap before proceeding.${NC}"
-  echo -e "${YELLOW}   Press Enter to continue, Ctrl+C to abort.${NC}"
-  read -r
+  # _io_confirm, not a bare `read -r` (see the first call site). brik-llm#2812.
+  _io_confirm
 fi
 
 # ── Check open PRs for file-level overlap ──
@@ -226,8 +229,8 @@ if command -v gh &>/dev/null; then
       echo -e "${YELLOW}     2) Chain this branch off the open PR instead of ${BASE_BRANCH}${NC}"
       echo -e "${YELLOW}     3) Proceed (accept the rebase cost)${NC}"
       echo ""
-      echo -e "${YELLOW}   Press Enter to proceed, Ctrl+C to abort.${NC}"
-      read -r
+      # _io_confirm, not a bare `read -r` (see the first call site). brik-llm#2812.
+      _io_confirm
     fi
   fi
 fi
