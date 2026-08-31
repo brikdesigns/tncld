@@ -313,10 +313,34 @@
   aspect-ratio: 16 / 9;
   border-radius: 0;
 }
-/* /services runs a 547x547 `img-frame-1-1` right-aligned in a full-bleed row
-   instead of the 16:9 band, radius 12 — measured on the export (tncld#92). */
+/* /services runs a 547x547 `img-frame-1-1` in a full-bleed row instead of the
+   16:9 band, radius 12 — measured on the export (tncld#92). */
+/* `margin-left: auto` is a KNOWN DEVIATION, not the original: the export
+   centres the frame above 991 (x = 446.4 with 446.4 to spare at 1440, and
+   686.4/686.4 at 1920, on all six blocks) via `.img-wrapper`'s
+   `justify-content: center` (css/tncld.webflow.css:2879). Tracked as tncld#155
+   and left in place here because #141 is a height ticket and this is 447px of
+   purely horizontal displacement. */
+/* The width is also the HEIGHT — `aspect-ratio: 1` — so the original's
+   percentage steps at its breakpoints are what makes this page shrink as the
+   viewport narrows, and holding 547px is the whole of tncld#141. Same defect
+   shape as `.section-steps__icon` below, on the same `.img-frame-1-1.sm`
+   construct: 40% at 1440 (css/tncld.webflow.css:3466), 12% inside
+   `@media (max-width: 991px)` (:6070), 20% inside `@media (max-width: 479px)`
+   (:6729).
+   The percentages are re-based, not copied. The original nests the frame in
+   `.img-wrapper.sm` at `width: 95%` (:2888); the rebuild has no such wrapper,
+   so this box's containing block is the full-width `.section-split`. The
+   composed value is what gets written here — 0.95 x 40 / 12 / 20 = 38 / 11.4 /
+   19% — which reproduces the export's measured 547.2 / 113.0 / 87.4 / 91.0px
+   at 1440 / 991 / 767 / 479. */
+/* Fluid, not the fixed 547px the rebuild carried: `.container-full` caps at
+   1440, so the original holds 547.2px from 1440 up (measured 547.2 at 1920) and
+   scales below it — 456px at 1200, 377px at 992. A fixed 547 is the same
+   hold-the-1440-value defect as the missing breakpoint steps, six blocks deep:
+   +91px each at 1200. `min()` reproduces both halves in one declaration. */
 .section-split__image--square {
-  width: min(34.1875rem, 100%);
+  width: min(38%, 34.1875rem);
   margin: 0 0 0 auto;
   aspect-ratio: 1 / 1;
   border-radius: 0.75rem;
@@ -1256,6 +1280,17 @@
   .section-steps__icon {
     width: 12%;
   }
+  /* tncld#141. `margin-left` goes back to 0 with the width: above 991 the
+     original centres the frame inside a flex `.img-wrapper` (`justify-content:
+     center`, css/tncld.webflow.css:2879), but at this breakpoint the wrapper
+     turns `display: block` (:6034) and the frame falls to the left edge —
+     measured x = 0 on all six blocks of the export at 991, 767 and 479, against
+     446.4 at 1440. Keeping `auto` here would park the small square against the
+     right edge, which is not where the page it reproduces puts it. */
+  .section-split__image--square {
+    width: 11.4%;
+    margin-left: 0;
+  }
   /* Same `.container-lg` correction #138 made for `.section-cards`: the
      original's container measures 876px inside a 991 viewport and 652px inside
      767 — 57.5px of inline padding at both, against the 24px the rebuild
@@ -1276,6 +1311,12 @@
 @media (max-width: 29.9375rem) {
   .section-steps__icon {
     width: 20%;
+  }
+  /* `.img-frame-1-1.sm` takes the same step back up here (:6729) — the export
+     measures 87.4px at 767 and 91.0px at 479. `margin-left: 0` is inherited
+     from the 991 block; it is not restated. */
+  .section-split__image--square {
+    width: 19%;
   }
   /* The original's container is 1184 / 876 / 652 / 479 wide at
      1440 / 991 / 767 / 479 — i.e. it drops its inline padding to ZERO here,
