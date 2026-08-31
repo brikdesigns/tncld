@@ -1017,8 +1017,18 @@
  * 308x160 cards at a 16px gutter under a centred heading. The original puts a
  * Font Awesome glyph above each title with no accessible name; the rebuild
  * draws a decorative brand rule instead rather than carrying that across. */
+/* The original's `.section_4-col` pads TWICE — 128px on the section and another
+   128px on the `.w-layout-grid.layout-flex` inside it — so the band carries
+   256px above the heading and 256px below the cards, not 128. Measured on the
+   rendered export at 1440, where the section is 775px:
+
+     256 (pad) + 55 (title) + 48 (gap) + 160 (cards) + 256 (pad) = 775
+
+   The single 128 this used to set produced 519px, a flat 256px deficit at every
+   width — the dominant half of the band-3 shortfall #151 reports. There is no
+   256px step on the BDS ladder; `--space-2400` is the 128 it doubles. */
 .section-values {
-  padding: var(--space-2400) 1.5rem;
+  padding: calc(var(--space-2400) * 2) 1.5rem;
 }
 .section-values__title {
   max-width: 50rem;
@@ -1405,6 +1415,47 @@
   .section-testimonials {
     padding-inline: var(--space-1400);
   }
+  /* tncld#151. The values band takes the same `.container-lg` correction, and
+     its doubled pad steps with it: the original holds 57.5px on BOTH the
+     section and the inner grid here, against 128px on each above 992. Measured
+     on the export at 991, 900, 767 and 600 alike — 862px section, of which:
+
+       115 (pad) + 43 (title) + 40 (gap) + 549 (cards) + 115 (pad) = 862
+
+     `--space-1400` doubled is 112, 3px under the original's 115 per side; the
+     ladder has no 57.5 step, and #138/#144 already round the same value here. */
+  .section-values {
+    padding-block: calc(var(--space-1400) * 2);
+    padding-inline: var(--space-1400);
+  }
+  /* The original's grid gap steps 48 -> 40 with the rest of the band. */
+  .section-values__title {
+    margin-bottom: var(--space-1000);
+  }
+  /* ONE column, not two or three. `.layout-4-col` declares
+     `grid-template-columns: 1fr 1fr` in this breakpoint
+     (css/tncld.webflow.css:5936), but the rule is inert — the element computes
+     `display: flex` with a column direction, so only the measured render
+     settles it: all four cards sit at x=58 with the container's full 876px
+     width and four distinct tops at 991, 767, 600 and 479. The rebuild's
+     `repeat(auto-fit, minmax(14rem, 1fr))` fitted three across a 943px track
+     and wrapped 3+1. Gutter drops 16 -> 12 with the column. */
+  .section-values__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-300);
+  }
+  /* 160px is the *four-across* card height and is not a property of the card —
+     the same shape #131/#138 found on the step, story and icon cards. The
+     original's card is content-height, and its content shrinks here: the icon
+     wrapper holds 40px at both widths, but the gap under it goes 16 -> 12 and
+     the title drops from two lines to one, so 112px of inner box becomes 80 and
+     the card measures a flat 128px at 991, 767 and 600. Kept as a min-height
+     rather than released to content because the rebuild draws a 4px rule where
+     the original sets a 30px glyph (see the note at the head of this section),
+     so its natural height is 36px short of the page it reproduces. */
+  .section-values__card {
+    min-height: 8rem; /* 128px */
+  }
 }
 @media (max-width: 47.9375rem) {
   /* The original's own wrap point (tncld#154): this row's children hold 49.4%
@@ -1451,6 +1502,16 @@
   .section-steps,
   .section-testimonials {
     padding-inline: 0;
+  }
+  /* tncld#151. The values band does NOT go full-bleed with those two — it keeps
+     a gutter and drops its TOP pad instead. Measured on the export at 479: the
+     section reads `padding: 0px 20px 57.5px`, so the outer 57.5 survives only
+     at the bottom while the inner grid keeps 57.5 on both edges — 57.5 above
+     the title, 115 below the cards, 20px each side (container 439 in a 479
+     viewport). Total 860px. */
+  .section-values {
+    padding-block: var(--space-1400) calc(var(--space-1400) * 2);
+    padding-inline: var(--space-500);
   }
 }
 
