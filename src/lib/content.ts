@@ -94,6 +94,22 @@ export interface SplitSection {
    * image right-aligned in a full-bleed row, measured on the export.
    */
   imageFrame?: 'wide' | 'square';
+  /**
+   * The head's second construct (tncld#158). 27 of the original's 29 split
+   * heads are `.inner-padding.stacked` — 20px of inline padding below 991, so
+   * the 70% copy wrapper measures 665.7 inside a 991 viewport. Two are
+   * `.header-wrapper`, which is flush: the wrapper measures 693.7 and the
+   * body/actions row runs the full 991.
+   *
+   * Measured on the export at 991, and they are the only two site-wide:
+   *
+   *   /about/meet-the-doctors  "Exceptional Dentists. Elevated Care. …"
+   *   /patient-resources       "Office & Experience"
+   *
+   * 28px of measure decides whether the heading wraps to two lines or three,
+   * so this is not cosmetic — it is 43.2px of band height on the first of them.
+   */
+  headFlush?: boolean;
 }
 
 /** One card in a `cards` grid. */
