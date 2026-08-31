@@ -9,12 +9,19 @@
      theme → base (preflight) → components → utilities
      → bds-tokens → bds-components → client-theme → client-overrides
 */
-/* Client font (TNCLD = Inter). Must sit at the top of the entry stylesheet,
-   NOT inside a layered import — a nested @import gets dropped by the optimizer.
-   Inter, not Poppins: the live Webflow original resolves Inter on every h1/h2/p
-   (measured from the rendered export via scripts/fidelity-shot.mjs, tncld#95).
-   Its own webfont loader requests "Inter:300,400,500,600,700". */
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
+/* Client font (TNCLD = Inter, not Poppins: the live Webflow original resolves
+   Inter on every h1/h2/p — measured from the rendered export via
+   scripts/fidelity-shot.mjs, tncld#95). It is loaded by `next/font/google` in
+   `src/app/layout.tsx`, NOT from here.
+
+   A top-of-file `@import url("https://fonts.googleapis.com/…")` used to sit on
+   this line and did nothing: the emitted stylesheet carried zero `googleapis`
+   references and the page issued zero font requests, so the site rendered in
+   the system sans on every route (tncld#158). Verified by reading the served
+   bytes, not the source:
+
+     curl -s localhost:3000/_next/static/chunks/…globals….css | grep -c googleapis   # 0
+*/
 
 @layer theme, base, components, utilities;
 @layer bds-tokens, bds-components, client-theme, client-overrides;

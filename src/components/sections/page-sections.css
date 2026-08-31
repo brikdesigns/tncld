@@ -249,12 +249,21 @@
   padding: 2.5rem 0 3rem;
   gap: var(--space-1000);
 }
+/* The head is `.inner-padding.stacked` — a COLUMN of two tiers, not a row of
+   copy beside actions (tncld#158). Its gap is the original's own: 16px at 1440,
+   12px at every width below. Measured on the export, band 2 of `/`:
+
+     width   pad   gap   tier 1 (narrow)   tier 2 (body | buttons)
+     1440    16    16    145.2             72     row, 49.4% each
+      991    20    12    118.4             96     row, 49.4% each
+      767    20    12    161.6            148     column, 100%
+      479    20    12    204.8            172     column, 100%
+*/
 .section-split__head {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1rem;
   /* 96px inset at the original's 1440 reference width. The 16px top is the
      original's own heading-wrapper padding, which sits inside the section's
      40px and is why every split band read 16px short at the top. */
@@ -272,10 +281,32 @@
    did not survive the flex basis growing to fill at 991 and below, where the
    copy measured 100% of its head. */
 .section-split__copy {
-  flex: 0 1 70%;
+  flex: 0 1 auto;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
+/* `.header-wrapper`, the head's flush variant — see `headFlush` on
+   SplitSection. Zero inline padding, so the 70% wrapper is 70% of the viewport
+   rather than of the padded box. Two instances site-wide.
+
+   `.header-wrapper` is `padding: 0` on every side at all four widths; only the
+   outer `.layout_1-col.stacked` pad-bottom applies (128px at 1440, 57.5px
+   below). So the flush variant drops the `.inner-padding` component and keeps
+   the `.container-lg` gutter — 80px at 1440 against the standard head's 96px,
+   and 0 against its 20px below 991.
+
+   Written as a doubled class deliberately: the 991 and 767 blocks below set
+   padding on `.section-split__head`, and a media query adds no specificity — a
+   single class here would lose to them on source order. */
+.section-split__head.section-split__head--flush {
+  padding: 0 5rem var(--space-2400);
+}
+/* No bottom margins on either — `.content-wrapper.narrow` spaces its children
+   with a `gap`, and a margin here would add to it. */
 .section-split__eyebrow {
-  margin: 0 0 0.5rem;
+  margin: 0;
   color: var(--text-brand-primary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -283,33 +314,59 @@
   font-weight: 600;
 }
 .section-split__title {
-  margin: 0 0 1rem;
+  margin: 0;
   color: var(--text-primary);
+}
+/* `.inner-padding.none` — the head's second tier, full content width. Its two
+   children hold 49.4% each down to 991 and go to 100% at 767 (tncld#154
+   observed this wrap point but applied it to the head itself, which is why the
+   body ended up inside the 70% column). */
+.section-split__detail {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  align-self: stretch;
+  gap: 1rem;
 }
 .section-split__body {
   margin: 0;
+  flex: 0 1 49.4%;
   color: var(--text-secondary);
   font-size: 1rem;
   line-height: 1.5;
-  max-width: 38.5rem; /* 616px */
 }
 /* The original stacks the two buttons of a `/services` split in one wrapper,
-   primary then secondary, and wraps them rather than shrinking. */
+   primary then secondary, and wraps them rather than shrinking. `button_wrapper
+   .right` right-aligns them within its own 49.4% column. */
 .section-split__actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 1rem;
-  flex: 0 0 auto;
+  flex: 0 1 49.4%;
 }
 .section-split__image {
   display: block;
   position: relative;
   overflow: hidden;
 }
-/* 1368x770 at 1440 wide — a 36px gutter each side, square corners. */
+/* `.img-wrapper.sm` is `width: 95%` (css/tncld.webflow.css:2888-2892), flat at
+   all four widths. The 36px margin this replaces was that 95% expressed as the
+   1440 gutter it happens to produce — 1440 x 5% / 2 = 36 — so the frame matched
+   at 1440 and was undersized at every width below (tncld#158):
+
+     width   orig            was
+     1440    1368 x 769.5    1368 x 769.5
+      991     941 x 529.5     919 x 516.9   -12.6
+      767     729 x 409.9     695 x 390.9   -19.0
+      479     455 x 256.0     407 x 228.9   -27.1
+
+   Above 991 the parent `.img-wrapper` is `display: flex; justify-content:
+   center`, so the frame is centred; below 991 (:6034) it becomes `display:
+   block` and left-flushes at x=0. Both are reproduced here. */
 .section-split__image--wide {
-  width: auto;
-  margin: 0 2.25rem;
+  width: 95%;
+  margin: 0 auto;
   aspect-ratio: 16 / 9;
   border-radius: 0;
 }
@@ -1231,39 +1288,57 @@
     padding-bottom: var(--space-1000);
     gap: 0;
   }
+  /* tncld#154. The 96px above is an 80px `.container-lg` gutter plus 16px of
+     `.inner-padding`; below 991 the container goes full-bleed and only the 16px
+     becomes 20px. Measured with `getComputedStyle` on the rendered export's
+     `.inner-padding.stacked`, which is this head's counterpart:
+
+       width   .inner-padding.stacked   its box        row inside it
+       1440    16px / 16px              1280 @ x80     1248 @ x96
+        991    20px / 20px               991 @ x0       951 @ x20
+        767    20px / 20px               767 @ x0       727 @ x20
+        479    20px / 20px               479 @ x0       439 @ x20
+
+     The top edge steps with it — 16px here was the 1440 value left behind
+     (tncld#158), and the four figures above are symmetric on all four sides.
+
+     Bottom is the inner 20px plus the outer `.layout_1-col.stacked`'s 57.5px
+     pad — 77.5px, flat at 991, 767 and 479. `--space-1800` (80px) is the
+     nearest canonical token; there is no 77.5px step and the 2.5px is two
+     orders below the 5% AC. */
   .section-split__head {
-    padding-bottom: var(--space-1800); /* 80px against the measured 78px */
-    /* tncld#154. The 96px above is an 80px `.container-lg` gutter plus 16px of
-       `.inner-padding`; below 991 the container goes full-bleed and only the
-       16px becomes 20px. Measured with `getComputedStyle` on the rendered
-       export's `.inner-padding.stacked`, which is this head's counterpart:
-
-         width   .inner-padding.stacked   its box        row inside it
-         1440    16px / 16px              1280 @ x80     1248 @ x96
-          991    20px / 20px               991 @ x0       951 @ x20
-          767    20px / 20px               767 @ x0       727 @ x20
-          479    20px / 20px               479 @ x0       439 @ x20
-
-       Holding 96px here left an 799px content box inside a 991 viewport, so
-       the copy (559) + actions (330) + 24px gap = 913 wrapped a breakpoint
-       early — the original still runs them as one row at 991 and only stacks
-       at 767. ~66px per band, six bands on /services, and it is the residual
-       tncld#141 could not close. */
+    padding-top: var(--space-500);
+    padding-bottom: var(--space-1800); /* 80px against the measured 77.5 */
     padding-inline: var(--space-500);
-    /* The padding alone does NOT un-wrap the row, which is the half of tncld#154
-       its ~66px/band estimate did not account for: with 20px the copy grows to
-       70% of 951 = 666, and 666 + 330 (the actions' fixed basis) + 24 gap =
-       1020 still exceeds 951, so it wraps anyway. `flex-wrap` is what decides
-       it — a flex line wraps before it shrinks.
-
-       The original authors its wrap at 767, not 991: its row children measure
-       49.4% each at both 1440 and 991 and go to 100% only at 767 and below
-       (measured on the export, three bands, identical). `wrap` is restored in
-       the 767 block below so that step still happens.
-
-       Measured per split head at 991: 291px wrapped -> 203px on one row, and
-       /services full-page 5565 -> 5061 against the original's 5175. */
+    gap: var(--space-300); /* 12px — the original's gap below 1440 */
+  }
+  /* The 12px step is on all three of the original's nested wrappers, not just
+     the outer one: `.inner-padding.stacked`, `.content-wrapper.narrow` and
+     `.inner-padding.none` each read 16px at 1440 and 12px at 991, 767 and 479. */
+  .section-split__copy,
+  .section-split__detail {
+    gap: var(--space-300);
+  }
+  /* Flush below 991: no container gutter either, so copy is 70% of the whole
+     viewport (693.7 at 991) and the detail row runs the full width.
+     `--space-1400` (56px) against the outer pad's measured 57.5. */
+  .section-split__head.section-split__head--flush {
+    padding: 0 0 var(--space-1400);
+  }
+  /* The original authors its wrap at 767, not 991: this row's two children
+     measure 49.4% each at both 1440 and 991 and go to 100% only at 767 and
+     below (measured on the export — three bands on `/`, three on /services,
+     identical). A flex line wraps before it shrinks, so `nowrap` is what holds
+     the step; `wrap` is restored in the 767 block. This is tncld#154's finding
+     applied to the row the original actually wraps (tncld#158). */
+  .section-split__detail {
     flex-wrap: nowrap;
+  }
+  /* `.img-wrapper.sm` left-flushes below 991 — its parent drops to
+     `display: block` at css/tncld.webflow.css:6034, so the 5% of slack all
+     lands on the right rather than being split. */
+  .section-split__image--wide {
+    margin-inline: 0;
   }
   /* The original stacks both grids here, not at 767 (tncld#133). */
   .section-cards__grid,
@@ -1332,14 +1407,26 @@
   }
 }
 @media (max-width: 47.9375rem) {
-  .section-split__head {
-    padding-bottom: var(--space-2100); /* 96px against the measured 94px */
-    /* The original's own wrap point (tncld#154): its row children hold 49.4%
-       each down to 991 and go to 100% here. Restores the `wrap` the 991 block
-       above turns off — the copy (509) plus the actions (330) plus the 24px gap
-       exceed the 727px content box, so they stack, which is what the export
-       does. */
-    flex-wrap: wrap;
+  /* The original's own wrap point (tncld#154): this row's children hold 49.4%
+     each down to 991 and go to 100% here, so the row becomes a column. The
+     head's own padding does NOT step here — the export holds 20px inside a
+     57.5px outer pad at 991, 767 and 479 alike, which is why the 96px this
+     block used to set is gone (tncld#158). */
+  .section-split__detail {
+    flex-flow: column nowrap;
+  }
+  .section-split__body,
+  .section-split__actions {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  /* `button_wrapper.right` measures 727x64 on `/` and 727x144 on /services at
+     767 — one full-width button, or two stacked full-width ones. */
+  .section-split__actions {
+    justify-content: flex-start;
+  }
+  .section-split__actions .bds-button {
+    flex: 1 0 100%;
   }
 }
 /* The original's only other step for this icon — 20% inside its own 479

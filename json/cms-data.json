@@ -1351,7 +1351,8 @@
             "action": {
               "label": "Request an Appointment",
               "href": "/request-appointment"
-            }
+            },
+            "headFlush": true
           },
           {
             "type": "cards",
@@ -1540,7 +1541,8 @@
                 "label": "Meet the Doctors",
                 "href": "/about/meet-the-doctors"
               }
-            ]
+            ],
+            "headFlush": true
           },
           {
             "type": "cta",
