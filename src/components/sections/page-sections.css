@@ -13,18 +13,32 @@
   margin: 0 auto;
 }
 
-/* Section headings all render at one size in the original — 45.5px / 54.6px
+/* Section headings are the original's `.text_heading-lg` — 45.5px / 54.6px
    line-height / weight 700, measured on every h2 on the homepage. The rebuild
    inherited the BDS default ramp instead, which is why the page read as flat.
-   The vw term reproduces the original's scaling between breakpoints. */
+
+   The size is a TWO-STEP ramp on an authored breakpoint, not a viewport-
+   proportional function (tncld#146). The original resolves it through
+   `--_typography---heading--lg`, which is `--font-size--1000` (45.5px) at
+   1440 and is re-pointed at `--font-size--800` (36px) inside
+   `@media screen and (max-width: 991px)` — flat from there down
+   (`css/tncld.webflow.css:5677,5903`; the ladder itself is `css/head.css:64,67`).
+   A `clamp()` with a `vw` term cannot express that: it kept shrinking, landing
+   on 31.3 / 30 / 30px at 991 / 767 / 479 against the original's flat 36px, and
+   a smaller face also wraps to fewer lines, so the deficit compounded.
+   `--font-size-1000` / `--font-size-800` are the BDS ladder's own steps and
+   carry the same 45.5px / 36px values (`dist/tokens.css:179,181`).
+   The step below 991 lives in the `61.9375rem` block at the foot of this file —
+   it has to come after the per-section rules that also set this size, since a
+   media query adds no specificity. */
 /* .section-steps__title is deliberately absent — the original sets that one a
-   step down the ramp; see its own rule below. */
+   step down the ramp (`.text_heading-md`); see its own rule below. */
 .section-split__title,
 .section-tabs__title,
 .section-testimonials__title,
 .section-payments__title,
 .section-cta__title {
-  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  font-size: var(--font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -900,7 +914,7 @@
   margin: 0 auto var(--space-1200);
   color: var(--text-primary);
   text-align: center;
-  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  font-size: var(--font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -947,7 +961,7 @@
 .section-reviews-embed__title {
   margin: 0 0 var(--space-400);
   color: var(--text-primary);
-  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  font-size: var(--font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -997,7 +1011,7 @@
 .section-principles__title {
   margin: 0 0 1.5rem;
   color: var(--text-primary);
-  font-size: clamp(1.875rem, 3.16vw, 2.84375rem);
+  font-size: var(--font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -1135,6 +1149,22 @@
  * cannot express it and there are two breakpoints here rather than one.
  */
 @media (max-width: 61.9375rem) {
+  /* The second half of the section-title ramp (tncld#146) — see the note at the
+     head of this file. The original re-points `.text_heading-lg` at
+     `--font-size--800` (36px) here and holds it flat through 767 and 479, so
+     there is no further step below this block. Every selector that sets the
+     45.5px value has to be repeated: a media query adds no specificity, and
+     three of these rules are declared later in the file than the shared one. */
+  .section-split__title,
+  .section-tabs__title,
+  .section-testimonials__title,
+  .section-payments__title,
+  .section-cta__title,
+  .section-values__title,
+  .section-reviews-embed__title,
+  .section-principles__title {
+    font-size: var(--font-size-800);
+  }
   .section-reviews,
   .section-steps,
   .section-tabs,
