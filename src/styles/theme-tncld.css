@@ -52,12 +52,16 @@
   --tncld-gray-lighter:   #e0e0e0;
   --tncld-gray-lightest:  #f2f2f2;
 
-  /* ── Fonts (TNCLD = Poppins, per design-tokens) ────────────────────── */
-  --font-family-display:  Inter, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-heading:  Inter, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-subtitle: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-body:     Inter, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-label:    Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  /* ── Fonts (TNCLD = Inter, measured on the original) ────────────────
+   * `var(--font-inter)` is the `next/font/google` handle declared in
+   * `src/app/layout.tsx`. The bare `Inter` these read before never resolved to
+   * a webfont — nothing loaded one — so every route rendered in the system
+   * sans (tncld#158). The fallbacks stay for the swap window. */
+  --font-family-display:  var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-heading:  var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-subtitle: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-body:     var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-label:    var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* ── Site-default semantics: black surfaces, white type ──────────────
    * Matches the measured original. Contrast ratios below are against

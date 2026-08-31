@@ -313,7 +313,24 @@ function Split({
     // stays on the type: the five interior pages are now audited too (tncld#92)
     // and none of them places the image beside the copy either.
     <section className="section-split" aria-labelledby={headingId}>
-      <div className="section-split__head">
+      {/* Two tiers, not one (tncld#158). The original's head is
+          `.inner-padding.stacked` holding TWO stacked children: a 70%
+          `.content-wrapper.narrow` carrying only the eyebrow and title, and
+          below it a full-width `.inner-padding.none` carrying the body beside
+          the button. Measured on the export at 991, band 2 of `/`:
+
+            .inner-padding.stacked   991 x 266.4   pad 20, gap 12
+              .content-wrapper.narrow  665.7 x 118.4   h6 20 + gap 12 + h2 86.4
+              .inner-padding.none      951.0 x  96.0   body 470 | buttons 470
+
+          `/services` uses the same construct with no eyebrow. Putting the body
+          inside the 70% column instead — one tier, actions beside the whole
+          stack — is what left these bands short. */}
+      <div
+        className={`section-split__head${
+          section.headFlush ? ' section-split__head--flush' : ''
+        }`}
+      >
         <div className="section-split__copy">
           {section.eyebrow ? (
             <p className="section-split__eyebrow">{section.eyebrow}</p>
@@ -321,21 +338,23 @@ function Split({
           <h2 id={headingId} className="section-split__title">
             {section.title}
           </h2>
-          <p className="section-split__body">{section.body}</p>
         </div>
-        {actions.length ? (
-          <div className="section-split__actions">
-            {actions.map((action, i) => (
-              <ActionButton
-                key={action.href}
-                action={action}
-                // The original pairs a filled primary with an outlined
-                // secondary on the two-button splits; a lone button is primary.
-                variant={i === 0 ? undefined : 'secondary'}
-              />
-            ))}
-          </div>
-        ) : null}
+        <div className="section-split__detail">
+          <p className="section-split__body">{section.body}</p>
+          {actions.length ? (
+            <div className="section-split__actions">
+              {actions.map((action, i) => (
+                <ActionButton
+                  key={action.href}
+                  action={action}
+                  // The original pairs a filled primary with an outlined
+                  // secondary on the two-button splits; a lone button is primary.
+                  variant={i === 0 ? undefined : 'secondary'}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
       {image ? (
         <SectionImage
