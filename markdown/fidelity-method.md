@@ -151,6 +151,62 @@ on both sides by construction.
 
 To add a page, add a `ROUTES` entry mapping its route to its export filename.
 
+### A one-sided heading is not automatically a defect (tncld#164)
+
+Generate the drift manifest **before** a sweep, or every figure below is raw:
+
+```bash
+export WEBFLOW_API_TOKEN="$(op read 'op://Development/v7yjeqrzuqolnt7boicclvheb4/credential')"
+node scripts/check-export-drift.mjs --out .fidelity/export-drift.json || true
+```
+
+The `|| true` is load-bearing in a sweep script: the gate exits **1** whenever
+anything drifted, which is the normal state on three of the seven routes. The
+manifest is written before that exit, so under `set -e` the sweep would abort
+holding the file it needed.
+
+Until #164 the harness reported a one-sided heading and then swallowed it into
+the band above, whose height carried a section the other side never had. That
+cost tncld#151 its premise: filed on a "+526px overshoot on one split" where
+the split measures 858px against 861px, the overshoot being `Beyond Traditional
+Procedures` — a section the live site has and the 2026-02-11 export does not.
+
+The four cases are **not** symmetric, and the manifest is what tells them apart:
+
+| Case | What the harness does |
+|---|---|
+| rebuild-only, **confirmed** by the manifest | excises that section's own box from the band and from `fullHeight.rebuildAdjusted` — the export is stale, so it cannot count against the rebuild |
+| rebuild-only, unconfirmed | reports it, trims nothing |
+| original-only | reports it as `missingInRebuild`, trims nothing — a section the rebuild lacks is a real defect and the deficit must keep showing |
+| one-sided on **both** sides of one band | a rename; trims nothing on either side |
+
+Two of those rules were paid for, not reasoned into existence:
+
+- **Trimming the unconfirmed case invents deficits.** The rebuild's footer group
+  titles (`About`, `Services`, `Patient Resources`, `Hours`) are `h2` where the
+  original's are `h4` — matching chrome at a different heading level. Excising
+  them took `/about/why-laser-dentistry` band 5 from 98.4% to 65.6%.
+- **Trimming a rename hides them.** `Where Comfort Meets Precision` is both a
+  rebuild-only heading *and* a genuinely drifted string, so the manifest alone
+  confirms it. Excising it would have inflated `/` band 5 off its real 82.5%,
+  which is the deficit tncld#132 is filed on.
+
+The section's **own box** comes out, not a heading-to-heading slice: the slice
+runs to the next shared heading, so it swallows the following section's lead-in
+padding while leaving the drifted section's. On `/about/why-laser-dentistry` at
+991 that is band 4 reading 84.3% against the correct 104.8%.
+
+`fullHeight.rebuild` is never overwritten — `rebuildAdjusted` sits beside it, so
+an adjustment is always auditable against the raw document height. `report.json`
+carries `driftManifest`, which distinguishes *no manifest* (untested) from *no
+drifted strings on this route* (tested, clean).
+
+> The original's own measured height is not perfectly stable between sweeps —
+> `/about/why-laser-dentistry` at 767 read 6,058px in one sweep and 6,214px in
+> the next, 2.5pp of page fidelity, with the rebuild side identical at 6,840px
+> in both. Three consecutive runs inside one sweep agreed to the pixel. Compare
+> columns from a single sweep, per the reviews-widget note in Step 2.
+
 ## Step 3 — measure, don't eyeball
 
 Every geometry claim in #95 came from `getComputedStyle` / `getBoundingClientRect`
