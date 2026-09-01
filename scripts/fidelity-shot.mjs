@@ -18,10 +18,40 @@
 // band is instead anchored on the y-offset of a heading that appears in both
 // renders, so band N is the same content in both images by construction.
 //
+// WHY A REBUILD-ONLY HEADING IS NOT AUTOMATICALLY A DEFECT (tncld#164)
+// A heading present in one render only used to be reported and then silently
+// swallowed into the band above it, whose height then carried a whole section
+// the other side never had. That cost tncld#151 its premise: the ticket was
+// filed on a "+526px overshoot on one split" where the split measures 858px
+// against 861px, and the overshoot is `Beyond Traditional Procedures` — a
+// section the LIVE Webflow site has and the 2026-02-11 export does not.
+//
+// The two directions are not symmetric, so they are not handled symmetrically:
+//
+//   rebuild-only, and check-export-drift confirms the string is live-but-absent
+//     -> the EXPORT is stale here. Excise the section's own box from the band
+//        and from the page total; it cannot count against the rebuild.
+//   rebuild-only, unconfirmed
+//     -> reported, never trimmed. The rebuild's footer group titles are h2 where
+//        the original's are h4, which is a heading-level difference in matching
+//        chrome, not extra content — trimming those invented a 65% band.
+//   original-only
+//     -> a section the rebuild is MISSING. Never trimmed; that is a real defect
+//        and the deficit has to keep showing.
+//   one-sided on BOTH sides inside the same band
+//     -> a renamed heading (the export's `Technology That Elevates Your Care`
+//        against the live `Where Comfort Meets Precision`). The content
+//        corresponds, so neither side is trimmed.
+//
+// Confirmation comes from a manifest, not from this script guessing:
+//   node scripts/check-export-drift.mjs --out .fidelity/export-drift.json
+// With no manifest nothing is trimmed and every one-sided heading is reported
+// `unconfirmed` — the safe default, and visibly not the useful one.
+//
 // Usage:
 //   node scripts/fidelity-shot.mjs --route /
 //   node scripts/fidelity-shot.mjs --route /about --width 767
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { assertIsRebuild } from './lib/assert-rebuild.mjs';
@@ -64,6 +94,38 @@ const outDir = arg('out', join('.fidelity', route === '/' ? 'home' : route.slice
 // Generous because the export's story posters are 2.7MB animated GIFs served
 // from image.mux.com; they decode in ~8s on a warm connection (tncld#142).
 const IMAGE_DECODE_TIMEOUT_MS = Number(arg('image-timeout', 60000));
+const driftPath = arg('drift', join('.fidelity', 'export-drift.json'));
+
+// Same normalisation on both sides of every comparison in this file: heading to
+// heading across the two renders, and heading to drifted string in the manifest.
+const key = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+// Strings check-export-drift found on the live page and not in the export, for
+// THIS route. `null` means no manifest — a different state from "none drifted",
+// and the report says which.
+let driftKeys = null;
+if (existsSync(driftPath)) {
+  try {
+    const manifest = JSON.parse(readFileSync(driftPath, 'utf8'));
+    driftKeys = (manifest.routes?.[route] ?? []).map(key);
+  } catch (e) {
+    console.error(`fidelity-shot: ${driftPath} is unreadable (${e.message}); continuing without it.`);
+  }
+}
+// The gate on the failure this whole mechanism exists to stop. Absent a
+// manifest the numbers below are RAW, and a raw number on a drifted route reads
+// as a layout defect — which is exactly how tncld#151 was filed. It has to be
+// loud at the point of use, because `driftManifest.present: false` sitting in
+// report.json is only found by someone who already suspects the problem.
+if (driftKeys === null) {
+  console.error(
+    `\n!! fidelity-shot: no drift manifest at ${driftPath} — figures below are RAW.\n` +
+      `   A section the live site has and the export lacks will read as a layout\n` +
+      `   defect on this route (tncld#151/#164). Generate it first:\n` +
+      `     export WEBFLOW_API_TOKEN="$(op read 'op://Development/v7yjeqrzuqolnt7boicclvheb4/credential')"\n` +
+      `     node scripts/check-export-drift.mjs --out ${driftPath}\n`,
+  );
+}
 
 const target = ROUTES[route];
 if (!target) {
@@ -159,7 +221,7 @@ async function settleImages(page, label) {
   return 0;
 }
 
-async function capture(url, label) {
+async function capture(url, label, keys) {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width, height: 1000 } });
   const failed = new Set();
@@ -201,16 +263,45 @@ async function capture(url, label) {
       })
       .filter((x) => x.text && x.h > 0),
   );
+  // A confirmed-drifted heading's SECTION box, not a heading-to-heading slice.
+  // The slice is wrong here: it would run from the drifted heading to the next
+  // shared one, so it swallows the following section's lead-in padding and
+  // leaves the drifted section's own. On /about/why-laser-dentistry at 991 that
+  // is the difference between band 4 reading 84.3% and 104.8%.
+  const driftRegions = keys.length
+    ? await page.evaluate((wanted) => {
+        const norm = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        const out = [];
+        for (const el of document.querySelectorAll('h1, h2')) {
+          const text = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
+          if (!wanted.includes(norm(text))) continue;
+          const box = el.closest('section') ?? el;
+          const r = box.getBoundingClientRect();
+          out.push({
+            text,
+            y: Math.round(r.top + window.scrollY),
+            h: Math.round(r.height),
+            // Recorded so a reader can see WHAT was excised. `heading` means no
+            // <section> wrapped it and only the heading's own box came out,
+            // which understates the excision rather than overstating it.
+            from: box === el ? 'heading' : `section.${box.className || '(unclassed)'}`,
+          });
+        }
+        return out;
+      }, keys)
+    : [];
+
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   await page.screenshot({ path: join(outDir, `${label}-full.png`), fullPage: true });
-  return { page, browser, headings, height, failed: [...failed], undecoded };
+  return { page, browser, headings, height, failed: [...failed], undecoded, driftRegions };
 }
 
-const a = await capture(`${origin}/${target.orig}`, 'orig');
-const b = await capture(`${rebuildOrigin}${target.rebuild}`, 'rebuild');
+const a = await capture(`${origin}/${target.orig}`, 'orig', []);
+// Only the rebuild side is excised. A drifted string is one the LIVE site has
+// and the export lacks, so by construction it can only be found in the rebuild.
+const b = await capture(`${rebuildOrigin}${target.rebuild}`, 'rebuild', driftKeys ?? []);
 
 // A band boundary must exist in BOTH renders, else the slices drift apart.
-const key = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const bMap = new Map(b.headings.map((h) => [key(h.text), h]));
 const shared = a.headings
   .filter((h) => bMap.has(key(h.text)))
@@ -220,16 +311,57 @@ const onlyA = a.headings.filter((h) => !bMap.has(key(h.text))).map((h) => h.text
 const aKeys = new Set(a.headings.map((h) => key(h.text)));
 const onlyB = b.headings.filter((h) => !aKeys.has(key(h.text))).map((h) => h.text);
 
+// Full heading records for the one-sided ones, so a band can ask which of them
+// fall inside it. `onlyA`/`onlyB` above are the text-only lists the report has
+// always carried.
+const onlyAHeads = a.headings.filter((h) => !bMap.has(key(h.text)));
+const onlyBHeads = b.headings.filter((h) => !aKeys.has(key(h.text)));
+const driftKeySet = new Set(driftKeys ?? []);
+const overlap = (y, h, from, to) => Math.max(0, Math.min(y + h, to) - Math.max(y, from));
+
 const slug = (t) => key(t).replace(/ /g, '-').slice(0, 40) || 'band';
 const bands = [];
 for (let i = 0; i < shared.length; i++) {
   const start = shared[i];
   const next = shared[i + 1];
+  const aFrom = start.aY;
+  const aTo = next ? next.aY : a.height;
+  const bFrom = start.bY;
+  const bTo = next ? next.bY : b.height;
+
+  const strandedA = onlyAHeads.filter((h) => h.y > aFrom && h.y < aTo);
+  const strandedB = onlyBHeads.filter((h) => h.y > bFrom && h.y < bTo);
+
+  // A rename shows up as a one-sided heading on BOTH sides of the same band.
+  // The content corresponds, so nothing is excised — trimming the rebuild while
+  // the original keeps its full height would invent a deficit the size of the
+  // renamed section.
+  const renamed = strandedA.length > 0 && strandedB.length > 0;
+
+  // Only the portion of a drifted section that actually lies in this band, so a
+  // section straddling a boundary is not double-counted.
+  const excised = renamed
+    ? []
+    : b.driftRegions
+        .map((r) => ({ ...r, clipped: overlap(r.y, r.h, bFrom, bTo) }))
+        .filter((r) => r.clipped > 0);
+  const excisedPx = excised.reduce((n, r) => n + r.clipped, 0);
+
   bands.push({
     n: i + 1,
     heading: start.text,
-    a: { y: start.aY, h: (next ? next.aY : a.height) - start.aY },
-    b: { y: start.bY, h: (next ? next.bY : b.height) - start.bY },
+    a: { y: aFrom, h: aTo - aFrom },
+    b: { y: bFrom, h: bTo - bFrom, excisedPx, excised },
+    renamed: renamed ? { inOriginal: strandedA.map((h) => h.text), inRebuild: strandedB.map((h) => h.text) } : null,
+    // Reported, never acted on. A one-sided heading with no drift confirmation
+    // is as likely to be a heading-LEVEL difference in matching content (the
+    // rebuild's footer group titles are h2, the original's h4) as extra copy.
+    unconfirmed: strandedB
+      .filter((h) => !driftKeySet.has(key(h.text)))
+      .map((h) => h.text),
+    // A section the rebuild does not render. Never excised — the deficit it
+    // creates is the whole point of measuring.
+    missingInRebuild: renamed ? [] : strandedA.map((h) => h.text),
   });
 }
 
@@ -249,12 +381,43 @@ for (const band of bands) {
   await bandShot(b.page, join(outDir, `${name}--rebuild.png`), band.b.y, band.b.h, b.height);
 }
 
+// Page total on the same basis as the bands. `rebuild` stays the raw document
+// height — it is never overwritten, so the adjustment is always auditable
+// against it.
+const excisedTotal = bands.reduce((n, x) => n + x.b.excisedPx, 0);
+
 const report = {
   route,
   width,
   outDir,
-  fullHeight: { orig: a.height, rebuild: b.height, deltaPx: b.height - a.height },
-  bands: bands.map((x) => ({ n: x.n, heading: x.heading, origH: x.a.h, rebuildH: x.b.h })),
+  fullHeight: {
+    orig: a.height,
+    rebuild: b.height,
+    deltaPx: b.height - a.height,
+    // The comparable figure: the rebuild with sections the export is stale for
+    // taken out. Equal to `rebuild` when nothing was confirmed.
+    rebuildAdjusted: b.height - excisedTotal,
+    deltaAdjustedPx: b.height - excisedTotal - a.height,
+  },
+  // `driftManifest` says which of the three states this run is in, because a
+  // clean report means something different in each: "no manifest" is untested,
+  // "no drifted strings for this route" is tested and clean.
+  driftManifest: driftKeys === null
+    ? { path: driftPath, present: false, note: 'no manifest — nothing excised, one-sided headings reported unconfirmed' }
+    : { path: driftPath, present: true, driftedStrings: driftKeys.length, excisedPx: excisedTotal },
+  bands: bands.map((x) => ({
+    n: x.n,
+    heading: x.heading,
+    origH: x.a.h,
+    // Adjusted, so a band table reads directly. The raw slice is beside it.
+    rebuildH: x.b.h - x.b.excisedPx,
+    rebuildHRaw: x.b.h,
+    excisedPx: x.b.excisedPx,
+    excised: x.b.excised.map((r) => ({ heading: r.text, boxPx: r.h, inBandPx: r.clipped, from: r.from })),
+    renamed: x.renamed,
+    unconfirmedRebuildOnly: x.unconfirmed,
+    missingInRebuild: x.missingInRebuild,
+  })),
   headingsOnlyInOriginal: onlyA,
   headingsOnlyInRebuild: onlyB,
   requestsFailed: { orig: a.failed, rebuild: b.failed },

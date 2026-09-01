@@ -19,8 +19,15 @@
 // Usage:
 //   WEBFLOW_API_TOKEN=$(op read 'op://Development/v7yjeqrzuqolnt7boicclvheb4/credential') \
 //     node scripts/check-export-drift.mjs
-//   node scripts/check-export-drift.mjs --json     # machine-readable report
-import { readFileSync } from 'node:fs';
+//   node scripts/check-export-drift.mjs --json          # machine-readable report
+//   node scripts/check-export-drift.mjs --out <file>    # manifest for fidelity-shot
+//
+// `--out` writes the drifted strings as a route-keyed manifest. `fidelity-shot.mjs`
+// reads it to tell a section the live site has and the export lacks — which must
+// not count against the rebuild — from a section the rebuild is genuinely missing,
+// which must (tncld#164). Without the manifest the harness reports one-sided
+// headings and trims nothing, which is the safe default rather than the useful one.
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -128,6 +135,22 @@ for (const page of PAGES) {
     if (!haystack.includes(s.text)) missing.push(s);
   }
   report.push({ route: page.route, export: page.export, checked: seen.size, missing });
+}
+
+const outIdx = process.argv.indexOf('--out');
+if (outIdx !== -1) {
+  const outFile = process.argv[outIdx + 1];
+  if (!outFile || outFile.startsWith('--')) {
+    console.error('check-export-drift: --out needs a file path.');
+    process.exit(2);
+  }
+  const routes = Object.fromEntries(report.map((r) => [r.route, r.missing.map((m) => m.text)]));
+  mkdirSync(dirname(join(root, outFile)), { recursive: true });
+  writeFileSync(
+    join(root, outFile),
+    JSON.stringify({ generatedAt: new Date().toISOString(), routes }, null, 2),
+  );
+  console.log(`check-export-drift: manifest -> ${outFile}`);
 }
 
 if (process.argv.includes('--json')) {
