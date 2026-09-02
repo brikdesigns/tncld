@@ -296,7 +296,18 @@ async function capture(url, label, keys) {
   return { page, browser, headings, height, failed: [...failed], undecoded, driftRegions };
 }
 
-const a = await capture(`${origin}/${target.orig}`, 'orig', []);
+// The export is a FILE tree (`about/why-laser-dentistry.html`); the live Webflow
+// site serves ROUTES (`/about/why-laser-dentistry`). Appending the export
+// filename to a live origin 404s, so the path is chosen from the origin rather
+// than assumed. Loopback means the export server, anything else means the live
+// site — the only non-loopback origin that is allow-listed is tncld.webflow.io
+// (brik-llm#3080), and tncld.com is deliberately not (tncld#44 makes it the
+// rebuild). Reach for the live origin to settle ONE band, not for a sweep: the
+// export's footer is ~950px shorter than the live one, which contaminates the
+// last band and the page total on every route (tncld#166).
+const origIsLoopback = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(origin);
+const origPath = origIsLoopback ? `/${target.orig}` : (target.live ?? target.rebuild);
+const a = await capture(`${origin}${origPath}`, 'orig', []);
 // Only the rebuild side is excised. A drifted string is one the LIVE site has
 // and the export lacks, so by construction it can only be found in the rebuild.
 const b = await capture(`${rebuildOrigin}${target.rebuild}`, 'rebuild', driftKeys ?? []);

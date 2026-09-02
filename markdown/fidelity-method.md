@@ -14,16 +14,100 @@ Companion: [`section-maps/home.md`](section-maps/home.md),
 "Visually matches the original" is unverifiable if you cannot see the original.
 From an agent sandbox you cannot:
 
-| Candidate source | Result (verified 2026-08-25) |
+| Candidate source | Result (re-verified 2026-09-01) |
 |---|---|
-| `https://tncld.com/` | egress-blocked — ADR-036 guard fires |
-| `https://tncld.webflow.io/` | egress-blocked — same guard |
-| Data API `GET /v2/pages/{id}/dom` | flat text + html-embed nodes; **no CSS, no hierarchy, no layout** |
+| `https://tncld.webflow.io/` | **allow-listed since brik-llm#3080** — renders faithfully, see below |
+| `https://tncld.com/` | egress-blocked, and deliberately so — tncld#44 cuts it over to the Netlify rebuild, so pointing the harness at it would eventually compare the rebuild against itself |
+| Data API `GET /v2/pages/{id}/dom` | 9 `component-instance` nodes on `/about/why-laser-dentistry`; keys are `componentId, id, propertyOverrides, type` — **no `tag`, no `parentId`, no `children`** |
+| Data API `GET /v2/sites/{id}/components/{cid}/dom` | 69 flat leaf nodes; carries `attributes` but still no hierarchy |
+| Data API `GET /v2/sites/{id}/export` | **404** — there is no export endpoint |
 | `previewUrl` on `GET /v2/sites/{id}` | a 540×360 above-the-fold thumbnail |
 
-So the rendered original has to come from somewhere else.
+The rebuilt-from-the-API row matters because it is the reason the export cannot
+simply be regenerated when it goes stale: nothing in the API maps a live string
+back to the export element holding its predecessor, so even copy-level patching
+has no anchor (tncld#166).
 
-## The source: the checked-in Webflow export
+## The source: the checked-in Webflow export, with the live site as a spot-check
+
+**The export is the default and stays the default.** It is deterministic, needs
+no network, and — measured — is faithful for page content. On `/about` at 991,
+which `check-export-drift.mjs` reports as `match`, banding the live site against
+the export gives:
+
+| band | live | export | delta |
+|---|---|---|---|
+| 1 `About` | 534 | 554 | −20 |
+| 2 `Meet Our Team` | 806 | 834 | −28 |
+| 3 `Tour Our Office` | 807 | 827 | −20 |
+| 4 `Technologies` | 922 | 922 | **0** |
+| 5 `Schedule an Appointment Today!` | 2203 | 1190 | **+1013** |
+
+Lead-in above the first shared heading is 376px on both sides. Typography is
+identical (`Inter` at 45.5 / 36 / 11.54px on h1 / h2 / p, both). Images are 20px
+apart in total rendered height across the whole page.
+
+**The whole page-level gap is band 5, and band 5 is the footer:**
+
+| | above the footer | footer | footer links |
+|---|---|---|---|
+| live | 4109 | **1382** | 26 |
+| export | 4135 | **456** | 17 |
+| rebuild | 3808 | **813** | 23 |
+
+The export's footer predates the compliance work and is missing 9 links — the
+whole Legal column plus `Request Appointment` and `Contact Us`. Above the
+footer, live and export agree to **26px**.
+
+> Do not read a raw live-vs-export page total as a fidelity signal. The footer
+> delta is a near-constant ~950px, which across routes of similar length looks
+> like a systematic 15–20% ratio and was briefly reported as one. Compare bands,
+> and treat the last band on any route as footer-contaminated.
+
+So: use the export, and reach for the live site when a specific band's fidelity
+is genuinely in doubt — which is how the footer was isolated. Two things the live
+render gives that the export cannot:
+
+- **Font Awesome and every webfont actually load.** `#151`'s residual 479
+  deficit was attributed to the rebuild drawing a 4px rule where the original
+  sets a 30px glyph; against the live original that glyph is measurable.
+- **The SHA-pinned jsDelivr `header.css` / `footer.js` load,** which the export
+  never carried. Worth 36px on `/about/why-laser-dentistry` at 991 — measured by
+  aborting `cdn.jsdelivr.net` at the browser and re-measuring, which is also how
+  it was ruled out as the cause of the export gap.
+
+```bash
+node scripts/fidelity-shot.mjs --route /about --width 991 \
+  --orig-origin https://tncld.webflow.io
+```
+
+The path is chosen from the origin, not appended blindly: loopback gets the
+export's `about.html`, anything else gets the route `/about`. All seven routes
+resolve identically on `tncld.webflow.io` (verified 2026-09-01), so no separate
+route table is needed.
+
+> **Band 1 and the last band are wrong on `/about` and `/services` until
+> tncld#169 lands** — on both origins, so this is not a live-origin problem.
+> Headings pair through a text-keyed `Map`, which keeps the last occurrence, and
+> the rebuild's footer group titles are `h2`. `/about`'s band 1 anchors on the
+> footer's `About` (y=4141) rather than the page's (y=320) and reports
+> **−3258px**. Bands 2–4 are correct and the page total is measured
+> independently, which is how it went unnoticed. The other five routes are
+> clean — checked, not assumed.
+
+`cdnjs.cloudflare.com` (ScrollSmoother) and `www.google-analytics.com` are the
+only failed requests on a live render — the first is the same 404 the export
+takes and is already handled.
+
+> Three asset hosts the live render pulls are **not** on the egress allow-list:
+> `cdn.prod.website-files.com` (Webflow's asset CDN — images *and* the site
+> CSS), `d3e54v103j8qbb.cloudfront.net` (the jQuery `webflow.js` needs), and
+> `fonts.gstatic.com` (the `woff2` files; `*.googleapis.com` covers only the
+> CSS). It renders anyway because Playwright's browser requests do not pass
+> through `egress-guard.sh`, which inspects Bash command strings. That is a
+> control gap, not permission — add them before making the live origin routine.
+
+## The export itself
 
 This repo already contains the export — `index.html`, `about.html`,
 `css/tncld.webflow.css`, `fonts/`, and 450 files under `images/`. Served over
