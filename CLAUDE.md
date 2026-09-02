@@ -297,6 +297,33 @@ extract is the source of truth for its ~58 flat fields.
 
 ---
 
+## Legacy URL redirects (cutover-critical)
+
+**The redirect mechanism is `next.config.mjs` `redirects()`, not
+`netlify.toml` `[[redirects]]`** ([#168](https://github.com/brikdesigns/tncld/issues/168)).
+A `netlify.toml` rule is a CDN-edge rule: it does not exist in `next dev`, so
+nothing can assert it before deploy. Redirects in `next.config.mjs` run in dev,
+in `next start`, and on Netlify through `@netlify/plugin-nextjs`, so one rule is
+testable everywhere it ships. `permanent: true` emits **308**, not 301
+(`node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/redirects.md`).
+
+Six URLs the live Webflow footer links had no route on the rebuild, and
+[#44](https://github.com/brikdesigns/tncld/issues/44) makes every one of them an
+inbound URL the moment DNS moves. Three are permanent legal-slug changes; three
+are **temporary** stand-ins for pages that are owed —
+[#137](https://github.com/brikdesigns/tncld/issues/137) and
+[#127](https://github.com/brikdesigns/tncld/issues/127) own the real pages, and
+**each interim redirect must be deleted as its page lands** or it will shadow the
+new route (redirects are checked before the filesystem).
+
+`npm run test:live-urls -- --origin http://localhost:<port>` asserts all 26
+resolve. It grades the outcome, not the mechanism, so it stays true as a URL
+moves from redirect to real route. The URL list is a dated snapshot of the live
+footer in [scripts/fixtures/live-footer-urls.json](scripts/fixtures/live-footer-urls.json),
+with the regeneration command in the file.
+
+---
+
 ## Notion Databases
 
 | Database | ID | Purpose |
