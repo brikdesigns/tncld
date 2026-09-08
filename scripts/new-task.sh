@@ -1,27 +1,36 @@
 #!/usr/bin/env bash
-# new-task.sh — Create an isolated git worktree for a single BDS task.
+# new-task.sh — Create an isolated git worktree for a single task.
 #
-# Branches from origin/staging. Enforces task/{scope}-{name} naming.
-# Installs dependencies in the new worktree.
+# This repo is staging-first: task branches PR into `staging`, and publishing is
+# a separate `staging` -> `main` promotion PR (CLAUDE.md § Branch & deploy
+# workflow). BASE_BRANCH is therefore `staging`, NOT `main`.
+#
+# Why every client repo needs its OWN copy: with no local script a session
+# reaches for brik-llm's, which hardcodes `BASE_BRANCH="main"` and a
+# `brik-llm-worktrees` directory — so it branches from the wrong branch into the
+# wrong place, silently. Nothing fails; the worktree looks right. The base branch
+# is a per-repo fact and this script is where it is written down.
+#
+# Every issue ref below is REPO-QUALIFIED, and that is load-bearing rather than
+# tidy: a bare `#N` in a file that lives in six repos resolves to a different
+# ticket in each one, and in at least one of them it is a real, unrelated PR
+# (brik-llm#2916 found exactly that and repo-qualified the fix).
 #
 # Usage:
 #   ./scripts/new-task.sh {scope}-{name}
-#   ./scripts/new-task.sh --issue 102 marketing-section-rhythm  # gate on the ticket
-#   ./scripts/new-task.sh --base main launch-promotion          # promotion PR
-#   ./scripts/new-task.sh content-pricing-copy
+#   ./scripts/new-task.sh --issue 38 a11y-ci-gate      # gate on ticket overlap
+#   ./scripts/new-task.sh --base main launch-promotion # promotion PR
 #
 # Creates:
-#   ../tncld-worktrees/{scope}-{name}/   on branch  task/{scope}-{name}
+#   ../{repo}-worktrees/{scope}-{name}
+#   on branch task/{scope}-{name}
 #
-# Requirements:
-#   - Must be run from the repo root.
-#   - Requires a clean working tree (no uncommitted changes).
-#
-# Why this exists: the shared main-repo `.git/HEAD` drifts silently when a
-# second session checks out a task/* branch, and every edit afterward lands
-# on the wrong branch. Worktrees are the fix — each session gets its own
-# HEAD. See the Git Release Workflow Notion doc (Per-Repo Playbook table
-# flagged BDS worktrees "Critical" after the 2026-04-19 incident).
+# The repo name is DERIVED at runtime, never written in. It is the only thing
+# that ever differed between the client-site copies, and while it was written in
+# they could not be compared — so nothing caught the fork. brik-llm holds the
+# canonical at scripts/templates/new-task-client-site.sh and
+# `overlap-twin-drift.py --path scripts/new-task.sh` compares every copy to it
+# byte for byte (brik-llm#3185).
 
 set -euo pipefail
 
@@ -35,12 +44,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# ── Config ──
-# staging, not main: this site is on Netlify's two-site model, so task branches
-# PR into `staging` and promoting `staging` → `main` publishes. The old default
-# here was `main` with a comment claiming no `staging` branch existed — it has
-# existed since #88, so a worktree cut from `main` started behind and PR'd into
-# the wrong base unless the author noticed (#100).
+# ── Base branch config ──
+# staging, not main. See the header and CLAUDE.md § Branch & deploy workflow.
 BASE_BRANCH="staging"
 ISSUE_REF=""
 # Opt-out for the sibling-worktree gate (brik-llm#1932). Its own flag rather than
@@ -50,21 +55,23 @@ ISSUE_REF=""
 ALLOW_WT_OVERLAP=0
 
 # ── Resolve repo root ──
-# Derive the worktree dir from the repo name so a copy of this script into
-# another repo lands worktrees beside *that* repo, not a hardcoded one (#53).
+# REPO_NAME is derived, not written in — see the header. No repo's own name may
+# appear anywhere in this file, issue refs included: a written-in name is the one
+# difference that made these copies incomparable, and it is also how a copy taken
+# from a sibling repo silently lands its worktrees beside THAT repo (the live
+# instance was a client copy printing a SIBLING repo's worktree path to the
+# operator, having been copied from it — see the registry entry in brik-llm's
+# scripts/audit/overlap-twin-drift.py for the measurement).
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
-WORKTREE_BASE="$(dirname "$PROJECT_ROOT")/$(basename "$PROJECT_ROOT")-worktrees"
+REPO_NAME="$(basename "$PROJECT_ROOT")"
+WORKTREE_BASE="$(dirname "$PROJECT_ROOT")/${REPO_NAME}-worktrees"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Ticket-overlap gate (brik-llm#1533). Sourced, not executed, so it can prompt.
 # shellcheck source=scripts/lib/issue-overlap.sh
 source "${SCRIPT_DIR}/lib/issue-overlap.sh"
 
-# ── Must run from the primary worktree on main ──
-# Running new-task.sh from inside another task worktree creates nested state
-# that breaks the one-worktree-per-task contract. The primary worktree is
-# also the one place main is meant to live — if it's on a task branch,
-# something else already broke.
+# ── Must run from the primary worktree ──
 PRIMARY_PATH="$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
 if [ "$PROJECT_ROOT" != "$PRIMARY_PATH" ]; then
   echo -e "${RED}Error: new-task.sh must be run from the primary worktree.${NC}"
@@ -79,12 +86,12 @@ fi
 
 PRIMARY_BRANCH="$(git -C "$PRIMARY_PATH" branch --show-current || echo '(detached)')"
 case "$PRIMARY_BRANCH" in
-  main|staging) ;;
+  main | staging) ;;
   *)
     echo -e "${RED}Error: primary worktree is on '${PRIMARY_BRANCH}', not a base branch.${NC}"
     echo ""
-    echo "  The primary worktree at $PRIMARY_PATH must stay on ${BASE_BRANCH} (or staging)."
-    echo "  Task work lives in ../brikdesigns-worktrees/{slug} — never in the primary."
+    echo "  The primary worktree at $PRIMARY_PATH must stay on ${BASE_BRANCH}."
+    echo "  Task work lives in ${WORKTREE_BASE}/{slug}."
     echo ""
     echo "  To fix:"
     echo "    cd $PRIMARY_PATH"
@@ -95,9 +102,9 @@ case "$PRIMARY_BRANCH" in
 esac
 
 # ── Parse flags ──
-# Collect positionals instead of breaking on the first one, so `--base` works
-# after the slug (`new-task.sh slug --base main`) instead of being silently
-# dropped (#53).
+# Collect positionals and keep looping instead of breaking on the first one, so a
+# flag written AFTER the slug (`new-task.sh a11y-ci-gate --issue 38`) is parsed
+# rather than silently dropped — which left the ticket-overlap gate off. brik-llm#1820.
 POSITIONAL=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -133,15 +140,15 @@ fi
 if [ $# -lt 1 ]; then
   echo -e "${RED}Usage: $0 [--base branch] [--issue N] {scope}-{name}${NC}"
   echo ""
-  echo "  scope = area of the site (marketing, content, seo, site, infra, docs, intel)"
-  echo "  name  = what the task delivers (hero-rework, pricing-copy, analytics-4-setup)"
+  echo "  scope = feature area (site, content, a11y, nav, hero, services, infra, docs)"
+  echo "  name  = what the task delivers (muted-text-contrast, ci-gate)"
   echo ""
-  echo "  Example: $0 --issue 102 marketing-section-rhythm"
-  echo "  Example: $0 content-pricing-copy"
+  echo "  Example: $0 --issue 38 a11y-ci-gate"
+  echo "  Example: $0 site-footer-spacing"
   echo ""
   echo "  Base branch: ${BASE_BRANCH} (override with --base)"
   echo ""
-  echo "  --issue takes 102 or owner/repo#102 and warns if a branch or PR already"
+  echo "  --issue takes 38 or owner/repo#38 and warns if a branch or PR already"
   echo "  references that ticket in any repo — a parallel session on the same work."
   exit 1
 fi
@@ -150,13 +157,13 @@ TASK_NAME="$1"
 BRANCH_NAME="task/${TASK_NAME}"
 
 # ── Validate naming convention ──
-if [[ ! "$TASK_NAME" =~ ^[a-z]+-[a-z0-9]+ ]]; then
+if [[ ! "$TASK_NAME" =~ ^[a-z0-9]+-[a-z0-9] ]]; then
   echo -e "${RED}Error: Task name must follow {scope}-{name} pattern.${NC}"
   echo ""
   echo "  Got:      $TASK_NAME"
-  echo "  Expected: {scope}-{name}  (e.g., marketing-hero-rework, infra-worktree-guard)"
+  echo "  Expected: {scope}-{name}  (e.g., a11y-muted-text-contrast)"
   echo ""
-  echo "  Valid scopes: marketing, content, seo, site, infra, docs, intel"
+  echo "  Suggested scopes: site, content, a11y, nav, hero, services, infra, docs"
   exit 1
 fi
 
@@ -174,6 +181,13 @@ if git show-ref --verify --quiet "refs/heads/${BRANCH_NAME}"; then
   echo ""
   echo "  To resume:  cd ${WORKTREE_BASE}/${TASK_NAME}"
   echo "  To delete:  git branch -d ${BRANCH_NAME}"
+  exit 1
+fi
+
+if [ -d "${WORKTREE_BASE}/${TASK_NAME}" ]; then
+  echo -e "${RED}Error: worktree directory ${WORKTREE_BASE}/${TASK_NAME} already exists.${NC}"
+  echo ""
+  echo "  Remove it first:  git worktree remove ${WORKTREE_BASE}/${TASK_NAME}"
   exit 1
 fi
 
@@ -208,9 +222,9 @@ fi
 
 # ── Check open PRs for file-level overlap ──
 # Parallel PRs that touch the same files cause cascading rebase conflicts
-# (see the 2026-04-19 portal #257 ↔ #258 incident captured in the Notion
-# Git Release Workflow doc). Warn when open PRs touch files whose path
-# fragment matches the task scope.
+# (see the 2026-04-19 portal brik-client-portal#257 ↔ #258 incident captured in
+# the Notion Git Release Workflow doc). Warn when open PRs touch files whose
+# path fragment matches the task scope.
 if command -v gh &>/dev/null; then
   OPEN_PR_FILES=$(gh pr list --state open --json number,title,files --jq \
     '.[] | "\(.number)\t\(.title)\t\(.files | map(.path) | join(","))"' 2>/dev/null || true)
@@ -237,7 +251,7 @@ fi
 
 # ── Assert the base branch exists on origin ──
 # Fails clearly naming what does exist, instead of git's bare
-# "couldn't find remote ref staging" (#53).
+# "couldn't find remote ref staging".
 if ! git ls-remote --exit-code --heads origin "${BASE_BRANCH}" >/dev/null 2>&1; then
   echo -e "${RED}Error: base branch '${BASE_BRANCH}' does not exist on origin.${NC}"
   echo ""
@@ -248,18 +262,17 @@ if ! git ls-remote --exit-code --heads origin "${BASE_BRANCH}" >/dev/null 2>&1; 
   exit 1
 fi
 
-# ── Fetch and branch from base ──
 # ── Ticket-overlap gate ──
 if [ -n "$ISSUE_REF" ]; then
   # Guarded, and the guard is load-bearing in BOTH directions (brik-llm#2422,
-  # ported here by #100).
+  # ported here by brik-llm#2442).
   #
   # Findings return 0 — an overlap warns and proceeds, which is brik-llm#1692 and
   # must not regress. But rc 4 (no such issue) and rc 5 (unreadable) mean the
-  # gate DID NOT RUN, and creating the worktree on that is the fail-open. A bare
-  # call reads an unanswered lookup as an all-clear, so a dead network or an
-  # expired token creates the branch with no check at all — the brik-llm#1485
-  # duplicate-work class the gate exists to stop.
+  # gate DID NOT RUN, and creating the worktree on that is the fail-open. Until
+  # this landed, the bare call read an unanswered lookup as an all-clear — so a
+  # dead network or an expired token created the branch with no check at all,
+  # which is the brik-llm#1485 duplicate-work class the gate exists to stop.
   overlap_rc=0
   check_issue_overlap "$ISSUE_REF" || overlap_rc=$?
   if [ "$overlap_rc" -ne 0 ]; then
@@ -268,10 +281,10 @@ if [ -n "$ISSUE_REF" ]; then
     echo ""
     echo -e "${RED}  Worktrees isolate files, not intent. Without this check nothing${NC}"
     echo -e "${RED}  catches a parallel session on the same ticket (brik-llm#1485,${NC}"
-    echo -e "${RED}  where #1525 was built twice).${NC}"
+    echo -e "${RED}  where brik-llm#1525 was built twice).${NC}"
     echo ""
     case "$overlap_rc" in
-      2) echo -e "${YELLOW}  The reference could not be parsed. Use 102 or owner/repo#102.${NC}" ;;
+      2) echo -e "${YELLOW}  The reference could not be parsed. Use 1525 or owner/repo#1525.${NC}" ;;
       4) echo -e "${YELLOW}  That issue does not exist in the repo the number resolved against.${NC}"
          echo -e "${YELLOW}  Check the number, or pass the cross-repo form owner/repo#N.${NC}" ;;
       5) echo -e "${YELLOW}  The read failed rather than came back empty — usually transient.${NC}"
@@ -282,10 +295,10 @@ if [ -n "$ISSUE_REF" ]; then
     echo -e "${YELLOW}  Deliberately proceeding without the gate: omit --issue to skip it.${NC}"
     exit 1
   fi
-  # Sibling-issue detection (#1663, wired here by brik-llm#2765). Catches the shape
+  # Sibling-issue detection (brik-llm#1663, wired here by brik-llm#2765). Catches the shape
   # the number-keyed check structurally cannot see: another session filed its OWN
   # issue for the same problem, so both number gates are satisfied while the work
-  # is identical. #2717 and #2747 were filed 18 hours apart under the same
+  # is identical. brik-llm#2717 and brik-llm#2747 were filed 18 hours apart under the same
   # umbrella with this detector present in the lib and called by nobody.
   #
   # Advisory — it never refuses, and never aborts on an unreadable title either
@@ -321,10 +334,10 @@ else
   echo -e "${YELLOW}⚠  No --issue given — skipping the ticket-overlap gate.${NC}"
   echo -e "${YELLOW}   Pass --issue N so a parallel track on the same ticket is caught.${NC}"
   # ...except this. With no ticket, the slug is the only statement of intent that
-  # exists, so score it against open issue TITLES: #1660 was a ticketless branch
-  # that duplicated open issue #1661 — the duplicate was a ticket nobody looked
+  # exists, so score it against open issue TITLES: brik-llm#1660 was a ticketless branch
+  # that duplicated open issue brik-llm#1661 — the duplicate was a ticket nobody looked
   # for. check_title_overlap cannot cover this; it needs an issue number to read a
-  # title off. #1663, wired here by brik-llm#2765.
+  # title off. brik-llm#1663, wired here by brik-llm#2765.
   #
   # The transform is inlined rather than imported: brik-bds keeps slug_to_phrase in
   # scripts/lib/slug-claim.sh, a lib this repo does not carry. Its reasoning holds
@@ -344,9 +357,9 @@ git worktree add "${WORKTREE_BASE}/${TASK_NAME}" -b "${BRANCH_NAME}" "origin/${B
 cd "${WORKTREE_BASE}/${TASK_NAME}"
 
 # ── Symlink shared resources from primary ──
-# brikdesigns has runtime secrets (.env / .env.local) and gitignored CSV
-# fixtures (content/csv/) that the reconciliation pipeline reads. Symlink
-# (don't copy) so the worktree always sees primary's canonical state.
+# This site has runtime secrets (.env / .env.local) and gitignored CSV fixtures
+# (content/csv/) that the reconciliation pipeline reads. Symlink (don't copy) so
+# the worktree always sees primary's canonical state.
 echo -e "${YELLOW}▸ Symlinking shared resources from primary...${NC}"
 for f in .env .env.local; do
   if [ -f "${PRIMARY_PATH}/${f}" ]; then
@@ -363,7 +376,7 @@ fi
 # never the whole .netlify/ dir, which netlify dev writes runtime artifacts
 # into (blobs-serve/, functions-internal/, v1/). Per-worktree runtime state,
 # shared siteId is the right split. Symlinking the whole dir also creates
-# ELOOP traps when netlify dev rewrites it. See #86.
+# ELOOP traps when netlify dev rewrites it.
 if [ -f "${PRIMARY_PATH}/.netlify/state.json" ]; then
   mkdir -p .netlify
   ln -sf "${PRIMARY_PATH}/.netlify/state.json" .netlify/state.json
@@ -371,9 +384,10 @@ if [ -f "${PRIMARY_PATH}/.netlify/state.json" ]; then
 fi
 
 # ── Install dependencies ──
+# The a11y suite needs node_modules; a worktree starts without them.
 echo -e "${YELLOW}▸ Installing dependencies (npm ci --prefer-offline)...${NC}"
 # .npmrc authenticates to GitHub Packages for @brikdesigns/* via
-# PACKAGES_READ_TOKEN. tncld has no .env.op / op-run SA flow — source the
+# PACKAGES_READ_TOKEN. This repo has no .env.op / op-run SA flow — source the
 # token into THIS process only from ~/.secrets/brik-packages.env, the same
 # path that works by hand. Skip if the file is absent so a machine that
 # already exports the token still installs.
@@ -422,9 +436,9 @@ fi
 
 # ── Summary ──
 echo ""
-echo -e "${GREEN}═══════════════════════════════════════${NC}"
-echo -e "${GREEN}  Task worktree ready (tncld)${NC}"
-echo -e "${GREEN}═══════════════════════════════════════${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════${NC}"
+echo -e "${GREEN}  Task worktree ready (${REPO_NAME})${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════${NC}"
 echo ""
 echo "  Branch:    ${BRANCH_NAME}"
 echo "  Worktree:  ${WORKTREE_BASE}/${TASK_NAME}"
@@ -437,4 +451,6 @@ echo ""
 echo "  When done (REQUIRED — branches without PRs rot):"
 echo "    git diff ${BASE_BRANCH}..${BRANCH_NAME}   # review changes"
 echo "    ./scripts/pr-task.sh             # push + create PR (mandatory)"
+echo ""
+echo -e "  ${YELLOW}PRs target ${BASE_BRANCH}. Publishing is a separate staging → main promotion.${NC}"
 echo ""
