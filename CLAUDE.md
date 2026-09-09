@@ -199,7 +199,14 @@ Each verified a URL the *script* chose. This one derives the URL from the live H
 
 ---
 
-## Website Build Workflow
+## Website Build Workflow (legacy Webflow surface only)
+
+> **Applies to the still-live legacy Webflow site, NOT the Next.js rebuild.**
+> The rebuild does not read Webflow CMS (§ "Content source (rebuild)" below);
+> its content pipeline is Notion → [`json/cms-data.json`](json/cms-data.json),
+> never Notion → Webflow. Only run the phases and commands here when working
+> the legacy Webflow surface — the rebuild retires it at
+> [#44](https://github.com/brikdesigns/tncld/issues/44).
 
 **Scripts Location:** `/Users/nickstanerson/Documents/GitHub/brik/brik-llm/scripts/`
 
