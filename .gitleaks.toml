@@ -38,9 +38,14 @@ paths = [
   # (e.g. Google Maps API key for the map widget) that fire on `gcp-api-key`.
   # These are baked into Webflow's product, not Brik secrets — safe to skip.
   '''(.*/)?js/webflow\.js$''',
-  # Tokens Studio config uses a `${FIGMA_ACCESS_TOKEN}` env-var placeholder,
-  # never a live value (brik-llm#1354).
-  '''(.*/)?json/tokens-studio-config\.json$''',
-  # Figma setup doc — placeholder tokens in copy-paste instructions, not live.
-  '''(.*/)?markdown/resources/FIGMA_SETUP\.md$''',
+  # REMOVED 2026-09-24 (brik-llm#3786): two path entries added by #21 for
+  # json/tokens-studio-config.json and markdown/resources/FIGMA_SETUP.md, each
+  # commented as "placeholder … never a live value". Both files at 0c99e520
+  # held a real (now-expired) Figma PAT, and this repo is PUBLIC — the entries
+  # silenced the weekly full-history scan while the blob stayed served on the
+  # web, until Figma's own scanner emailed. A path allowlist is never a
+  # remediation for a real value in public history. HEAD's tokens-studio-config
+  # holds a `${FIGMA_ACCESS_TOKEN}` placeholder, which no rule fires on, so it
+  # needs no entry. The history findings are expected to reappear until the
+  # purge decision in brik-llm#3786's follow-up is made.
 ]
