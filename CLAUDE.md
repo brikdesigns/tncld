@@ -10,6 +10,16 @@ This file provides project-specific context for Claude Code.
 > "Custom Code Deployment (jsDelivr)" and Webflow sections below therefore still
 > describe the **currently-live** surface and are retired **with** the cutover,
 > not before.
+>
+> **Two codebases share this repo — know which one a finding is in.** `src/` is
+> the Next.js rebuild (in progress, not on `tncld.com`). The root-level `*.html`,
+> `js/`, `css/` and `updates/` are a **copy of the legacy Webflow export** — Netlify
+> never serves them (`publish = ".next"`, [netlify.toml](netlify.toml)), and editing
+> them changes nothing live, because the live site is edited in Webflow itself. A
+> scanner hit or bug in those files is a fact about the Webflow site: fix it in
+> Webflow or let the cutover retire it — never "fix" it here and call it shipped.
+> Example: the Google Maps key in `js/webflow.js` belongs to Webflow's map widget;
+> the rebuild uses no Maps key (brik-llm#3795).
 
 ---
 
