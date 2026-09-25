@@ -46,6 +46,11 @@ paths = [
   # web, until Figma's own scanner emailed. A path allowlist is never a
   # remediation for a real value in public history. HEAD's tokens-studio-config
   # holds a `${FIGMA_ACCESS_TOKEN}` placeholder, which no rule fires on, so it
-  # needs no entry. The history findings are expected to reappear until the
-  # purge decision in brik-llm#3786's follow-up is made.
+  # needs no entry. PURGED 2026-09-25 (brik-llm#3789): history was rewritten
+  # and the values are gone from every branch.
+]
+# The purge replaced each value with a literal marker, which `generic-api-key`
+# fires on. The marker is not a secret, and this pattern matches only it.
+regexes = [
+  '''REDACTED-[a-z0-9-]+-brik-llm-3789''',
 ]
