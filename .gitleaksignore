@@ -1,22 +1,12 @@
 # .gitleaksignore — acknowledged gitleaks findings.
 # Format: <commit>:<file>:<rule>:<startline>  (see secret-scan-triage.sh).
 #
-# Acknowledged per brik-llm#1354: real Notion + Webflow API tokens hardcoded in
-# an early commit and later refactored to process.env.* (HEAD reads from env).
+# EMPTY on purpose since 2026-09-25 (brik-llm#3789). The six fingerprints that
+# lived here pointed at commit 0c99e520 (dead Notion + Webflow tokens, and a
+# dead Figma PAT). This repo's history was rewritten with
+# `git filter-repo --sensitive-data-removal`, so that commit no longer exists
+# on any branch and the fingerprints matched nothing.
 #
-# CORRECTED 2026-09-24 (brik-llm#3786): the header above originally said the
-# values "remain only in this PRIVATE repo's git history". This repo is PUBLIC
-# (`gh api repos/brikdesigns/tncld --jq .visibility`), so that was never a
-# structural-fix case — it was the "public repo accidentally" row of
-# when-to-rotate.md. Both tokens are verified dead (Notion and Webflow API
-# probes -> HTTP 401 on 2026-09-24) and the GHAS alert (tncld #2) is resolved
-# with that evidence. The fingerprints stay only
-# because the values are dead; the purge-or-accept decision for this commit's
-# history is tracked in brik-llm#3786's follow-up, and that decision removes
-# these lines either way.
-0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/count-contacts.js:notion-api-token:3
-0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/count-contacts.js:notion-integration-token:3
-0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/list-notion-databases.js:notion-api-token:4
-0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/list-notion-databases.js:notion-integration-token:4
-0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/publish-webflow-test.js:webflow-v1-api-token:3
-0c99e520f4b73787156b6a44948e0d2a4b8a16c0:js/publish-webflow.js:webflow-v1-api-token:4
+# Before adding an entry, read brik-llm operations/security/when-to-rotate.md:
+# this repo is PUBLIC, so a real value in history is a rotate-and-purge case,
+# never an ignore line.
