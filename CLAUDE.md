@@ -120,7 +120,7 @@ Why:
 ### Before Starting Work
 
 1. Check `.env` exists: `cat .env | grep WEBFLOW`
-2. If missing/empty, tokens are in Notion API Keys page
+2. If missing/empty, read the token from 1Password — the `op read` command in § Security above
 3. Use direct `curl` for Webflow when MCP shows "Failed to connect"
 
 ### Webflow API Quick Reference
