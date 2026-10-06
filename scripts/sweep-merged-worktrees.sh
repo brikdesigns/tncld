@@ -170,7 +170,11 @@ if $SWEEP_REMOTE_REFS; then
     '+refs/heads/task/*:refs/remotes/origin/task/*' 2>/dev/null || true
 fi
 
-# PR map: headRefName -> best state (MERGED wins).
+# PR map: headRefName -> best state (any OPEN PR wins, then the newest — #4352).
+#
+# A reused slug can carry an older MERGED PR and a newer OPEN one. Ranking MERGED
+# first made the live branch read REMOVE while its PR was open; brik-bds fixed it
+# locally (c919c9b2, #2676) and it never came upstream.
 #
 # When gh is present but the CALL fails — bad token scope, exhausted GraphQL
 # bucket — PR_JSON stays empty and every branch classifies as "no PR" → KEEP. That
@@ -204,13 +208,13 @@ m = [p for p in prs if p.get("headRefName") == b]
 if not m:
     print("none|-")
     sys.exit()
-m.sort(key=lambda p: (p.get("state") == "MERGED", p.get("number")), reverse=True)
+m.sort(key=lambda p: (p.get("state") == "OPEN", p.get("number")), reverse=True)
 p = m[0]
 print("#%s|%s" % (p["number"], p["state"]))'
 }
 
 # A CLOSED-unmerged PR, for the age-out bands (#3997). Picks the SAME PR as
-# pr_for_branch (MERGED first, then highest number) so the two never disagree, and
+# pr_for_branch (any OPEN first, then highest number) so the two never disagree, and
 # returns "closedAt|headRefOid" — empty fields when the PR is not CLOSED or the map
 # was unreadable. Separate from pr_for_branch on purpose: its "num|state" shape is
 # parsed with ${pr%%|*} / ${pr##*|} at every call site.
@@ -222,7 +226,7 @@ b = os.environ["BRANCH"]
 m = [p for p in json.load(sys.stdin) if p.get("headRefName") == b]
 if not m:
     print("|"); sys.exit()
-m.sort(key=lambda p: (p.get("state") == "MERGED", p.get("number")), reverse=True)
+m.sort(key=lambda p: (p.get("state") == "OPEN", p.get("number")), reverse=True)
 p = m[0]
 if p.get("state") != "CLOSED":
     print("|"); sys.exit()
