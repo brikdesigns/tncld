@@ -102,7 +102,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 > 4. **Rotation doctrine:** [`brik-llm/operations/security/when-to-rotate.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/when-to-rotate.md) — **HARD RULE: agents never initiate rotation.**
 > 5. **Manual procedure:** [`brik-llm/operations/macos/openclaw/runbooks/token-rotation.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/macos/openclaw/runbooks/token-rotation.md)
 >
-> **Source-of-truth for all credentials: 1Password Development vault** (NOT the legacy "Notion API Keys" Notion page that was previously linked here). Never paste secrets into chat or commits. Reference 1P items by ID, not title.
+> **Vault source-of-truth rule:** [`brik-llm/operations/security/vault-access-policy.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/vault-access-policy.md) § The rule (NOT the legacy "Notion API Keys" Notion page that was previously linked here) — which vault a credential lives in depends on its tier, not a single blanket vault. Never paste secrets into chat or commits. Reference 1P items by ID, not title.
 
 ---
 
