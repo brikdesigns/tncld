@@ -28,6 +28,12 @@ name: new-task-headless-contract
 # shellcheck), triggered only when new-task.sh, its libs, the test, or this file
 # change. Mirrors the byte-identical workflow brikdesigns already runs, so this
 # adds no new gate SHAPE to the fleet — only this repo's copy of an existing one.
+#
+# Also runs the unguarded-grep scan (below) over every shell script in the repo
+# — same read-only, no-secrets shape as the job above, so it is folded in here
+# rather than a new workflow file (brikdesigns/brik-llm#4220, part of
+# brikdesigns/brik-llm#3713). Path-scoped to any `*.sh` change plus the scan
+# itself, not just new-task.sh's own paths.
 
 on:
   pull_request:
@@ -36,6 +42,8 @@ on:
       - 'scripts/test/test-new-task-headless.sh'
       - 'scripts/lib/identity-guard.sh'
       - '.github/workflows/new-task-headless-contract.yml'
+      - '**.sh'
+      - 'scripts/audit/unguarded-grep-scan.py'
 
 concurrency:
   group: new-task-headless-contract-${{ github.ref }}
@@ -61,3 +69,13 @@ jobs:
           shellcheck --severity=warning \
                      scripts/new-task.sh \
                      scripts/test/test-new-task-headless.sh
+
+      # Vendored verbatim from brik-llm's scripts/audit/unguarded-grep-scan.py
+      # (brikdesigns/brik-llm#4220, part of brikdesigns/brik-llm#3713). `grep` in
+      # a command substitution under `set -e` exits 1 on no-match — normally the
+      # healthy case — which aborts the script on its success path.
+      - name: Grep-scan gate still fails the case it was written for
+        run: python3 scripts/audit/unguarded-grep-scan.py --negative-control
+
+      - name: No unguarded grep substitutions under set -e
+        run: python3 scripts/audit/unguarded-grep-scan.py --ci .
