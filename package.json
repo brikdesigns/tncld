@@ -21,7 +21,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@brikdesigns/bds": "0.198.0",
+    "@brikdesigns/bds": "0.199.0",
     "@mux/mux-player-react": "^3.13.2",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.3",
