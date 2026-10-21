@@ -18,8 +18,7 @@ This file provides project-specific context for Claude Code.
 > them changes nothing live, because the live site is edited in Webflow itself. A
 > scanner hit or bug in those files is a fact about the Webflow site: fix it in
 > Webflow or let the cutover retire it — never "fix" it here and call it shipped.
-> Example: the Google Maps key in `js/webflow.js` belongs to Webflow's map widget;
-> the rebuild uses no Maps key (brik-llm#3795).
+> Worked example → [`.claude/references/claude-md-history.md`](.claude/references/claude-md-history.md) § Google Maps key.
 
 ---
 
@@ -30,7 +29,7 @@ This file provides project-specific context for Claude Code.
 | `staging` | **The base branch.** Task branches cut from it, PRs target it. |
 | `main` | The **published** state. Promoting `staging` → `main` deploys. Lags `staging` by design. |
 
-**The primary worktree tracks `staging`, not `main`** — never switch it off the base branch; `scripts/new-task.sh` must run from the primary, so a tooling fix is only live once the primary can see it. Promotion PRs are the exception and target `main`: `./scripts/new-task.sh --base main {slug}`. → rag:tncld-branch-worktree-staging-primary
+**The primary worktree tracks `staging`, not `main`** — never switch it off the base branch. `scripts/new-task.sh` must run from the primary, so a fix to that script takes effect only once the primary has pulled it. Promotion PRs are the exception and target `main`: `./scripts/new-task.sh --base main {slug}`. → rag:tncld-branch-worktree-staging-primary
 
 ---
 
@@ -48,7 +47,7 @@ TNCLD is a dental practice in Franklin, TN. Regulatory regimes that apply:
 
 **Accessibility target:** WCAG 2.1 Level AA (the standard DOJ applies under Title III). No AAA bump.
 
-**Canonical accessibility + compliance standard:** [`@brikdesigns/bds/content-system/compliance/healthcare-ada.md`](https://design.brikdesigns.com/docs/content-system/compliance/Healthcare-ADA) — promoted to BDS 2026-04-21. The TNCLD remediation work seeded this canonical doc; the original draft at [markdown/legal-drafts/BRIK-HEALTHCARE-ADA-STANDARDS.md](markdown/legal-drafts/BRIK-HEALTHCARE-ADA-STANDARDS.md) is retained only as historical reference. Every content or design change to this site must honor the canonical BDS doc. Companion: [`brik-llm/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md`](https://github.com/brikdesigns/brik-llm/blob/main/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md) — universal Brik a11y baseline.
+**Canonical accessibility + compliance standard:** [`@brikdesigns/bds/content-system/compliance/healthcare-ada.md`](https://design.brikdesigns.com/docs/content-system/compliance/Healthcare-ADA) — every content or design change to this site must honor it (promotion history → [`claude-md-history.md`](.claude/references/claude-md-history.md) § Healthcare-ADA standard). Companion: [`brik-llm/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md`](https://github.com/brikdesigns/brik-llm/blob/main/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md) — universal Brik a11y baseline.
 
 **Required roles at TNCLD:**
 - **HIPAA Privacy Officer** (45 CFR § 164.530) — must be a named individual; appears in Privacy Policy + NPP
@@ -60,7 +59,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ## Project References
 
-> **Renamed 2026-05-05.** This section was previously titled "Project Credentials" — that was a misnomer. The values below are project IDs (Webflow Site ID, Notion DB ID) which are public per the canonical token registry. None of these are secrets. Actual credential discipline is in § Security below.
+> The values below are project IDs (Webflow Site ID, Notion DB ID), public per the canonical token registry, not secrets. Credential discipline is in § Security below. (Rename history → [`claude-md-history.md`](.claude/references/claude-md-history.md) § Project References.)
 
 | Item | Value |
 |------|-------|
@@ -81,7 +80,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 > 4. **Rotation doctrine:** [`brik-llm/operations/security/when-to-rotate.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/when-to-rotate.md) — **HARD RULE: agents never initiate rotation.**
 > 5. **Manual procedure:** [`brik-llm/operations/macos/openclaw/runbooks/token-rotation.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/macos/openclaw/runbooks/token-rotation.md)
 >
-> **Source-of-truth for all credentials: 1Password Development vault** (NOT the legacy "Notion API Keys" Notion page that was previously linked here). Never paste secrets into chat or commits. Reference 1P items by ID, not title.
+> **Source-of-truth for all credentials: 1Password Development vault.** Never paste secrets into chat or commits. Reference 1P items by ID, not title. (Retired page → [`claude-md-history.md`](.claude/references/claude-md-history.md) § Credentials source.)
 
 ---
 
@@ -93,7 +92,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ## Custom Code Deployment (jsDelivr, SHA-pinned)
 
-**The URLs are pinned to a commit — pushing to `main` does NOT reach the live site.** `header.css`/`footer.js` are served via jsDelivr; **NEVER paste code bodies into Webflow**, only the two `<link>`/`<script>` tags, and bump the SHA after every change or nothing ships (`scripts/verify-live-assets.sh` now fails the build if the pin is stale). This surface is retired **with** the DNS cutover (#44), not before. → rag:tncld-jsdelivr-custom-code-deployment
+**The URLs are pinned to a commit — pushing to `main` does NOT reach the live site.** `header.css`/`footer.js` are served via jsDelivr. NEVER paste code bodies into Webflow; paste only the two `<link>`/`<script>` tags. Bump the SHA after every change or nothing ships (`scripts/verify-live-assets.sh` now fails the build if the pin is stale). This surface is retired **with** the DNS cutover (#44), not before. → rag:tncld-jsdelivr-custom-code-deployment
 
 ---
 
@@ -131,7 +130,7 @@ extract is the source of truth for its ~58 flat fields.
 
 Data source (for the Notion MCP / SQL queries): `collection://1f797d34-ed28-8162-9c60-000bcae32c74`.
 
-**USE the ID above, never any other** — a prior dead ID in this table caused real content to be filed as missing. Read with the Notion MCP, never `WebFetch` (no credentials). → rag:tncld-notion-content-source
+**USE the ID above, never any other.** Read with the Notion MCP, never `WebFetch` (no credentials). → rag:tncld-notion-content-source · incident → [`claude-md-history.md`](.claude/references/claude-md-history.md) § Dead Notion ID
 
 ---
 
