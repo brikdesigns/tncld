@@ -1,0 +1,4 @@
+{
+  "_comment": "Pre-existing serious/critical findings allowed at baseline-install time. INSTALLED EMPTY. An empty baseline is the correct end state — every entry added here is a WCAG 2.1 AA failure a real user is living with. Rules: per-selector never per-rule; add only when fixing in the same PR is genuinely unsafe; burn down monthly. See brik-llm/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md.",
+  "routes": {}
+}

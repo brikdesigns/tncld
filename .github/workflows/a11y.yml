@@ -1,0 +1,75 @@
+name: Accessibility (axe + Playwright)
+
+# WCAG 2.1 AA audit against the Netlify deploy-preview on every PR.
+#
+# The gate itself — host resolution, the preview wait, the Playwright run,
+# ADR-032 grading — is the shared Brik site a11y gate in brik-bds
+# (`.github/workflows/site-a11y.yml`, brik-llm#5076). This file only says which
+# Netlify sites sit behind this repo and when to run.
+
+on:
+  pull_request:
+    # BOTH bases. This repo runs a two-site model: task branches PR into
+    # `staging`, and publishing is a separate `staging` -> `main` promotion PR.
+    # Gating only `main` would let every ordinary change through unaudited and
+    # then block the promotion.
+    branches:
+      - staging
+      - main
+
+  # Manual re-fire, because `axe` is a REQUIRED check on both protected branches
+  # and GitHub does not always create the `pull_request` run. On 2026-08-07 it
+  # created none at all for 15 of PRs #93-#110 (#111).
+  #
+  # Dispatch against the PR's HEAD BRANCH, not against staging:
+  #
+  #   gh workflow run a11y.yml --ref <pr-head-branch> -f pr=<number>
+  #
+  # Required-status-check satisfaction is per-COMMIT, so dispatching on the
+  # head branch lands the `axe` check on the PR's head commit. The shared gate
+  # refuses a dispatch whose ref is not that commit.
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number whose deploy-preview to audit (dispatch --ref must be that PR's head branch)"
+        required: true
+        type: string
+
+concurrency:
+  group: a11y-${{ github.ref }}
+  cancel-in-progress: true
+
+# The dispatch path reads the PR to learn its base branch and head SHA; the
+# repo's default "read" permission does not include pull-requests (run
+# 31197372960). A called workflow can only narrow these, never widen them.
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  audit:
+    uses: brikdesigns/brik-bds/.github/workflows/site-a11y.yml@v0.205.0
+    with:
+      # base main -> tncld, base staging -> tncld-staging
+      production-site: tncld
+      staging-site: tncld-staging
+      pr: ${{ inputs.pr }}
+    secrets: inherit
+
+  # Every page under src/app/ must be in the audited route list, or the sweep
+  # goes green while a page is never scanned. Node only — no install, no token.
+  routes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/assert-a11y-routes.mjs
+
+  # A called workflow reports its job as `audit / axe`, but branch protection
+  # requires a context named `axe`. This job keeps that name, and fails unless
+  # the audit passed — `always()` so a failed audit reports red, not skipped.
+  axe:
+    needs: [audit, routes]
+    if: always()
+    runs-on: ubuntu-slim
+    steps:
+      - run: test "${{ needs.audit.result }}" = success && test "${{ needs.routes.result }}" = success

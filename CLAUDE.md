@@ -47,6 +47,8 @@ TNCLD is a dental practice in Franklin, TN. Regulatory regimes that apply:
 
 **Accessibility target:** WCAG 2.1 Level AA (the standard DOJ applies under Title III). No AAA bump.
 
+**Accessibility gate:** the shared Brik site a11y gate (`bds-site-a11y`, brik-llm#5076) audits every route in `tests/a11y/public-routes.spec.ts` against the deploy-preview on each PR (`.github/workflows/a11y.yml`, required check `axe`). `scripts/assert-a11y-routes.mjs` fails when a page under `src/app/` (or a slug of a dynamic route) is missing from that list — add the route when you add the page. Run locally: `npm run test:a11y` (builds, serves on :3100). `tests/a11y/baseline.json` is empty and stays empty; WCAG 1.4.3 contrast cannot be baselined on this site (ADR-032).
+
 **Canonical accessibility + compliance standard:** [`@brikdesigns/bds/content-system/compliance/healthcare-ada.md`](https://design.brikdesigns.com/docs/content-system/compliance/Healthcare-ADA) — every content or design change to this site must honor it (promotion history → [`claude-md-history.md`](.claude/references/claude-md-history.md) § Healthcare-ADA standard). Companion: [`brik-llm/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md`](https://github.com/brikdesigns/brik-llm/blob/main/websites/shared/CLIENT-ACCESSIBILITY-STANDARDS.md) — universal Brik a11y baseline.
 
 **Required roles at TNCLD:**
