@@ -97,6 +97,7 @@
   --tncld-text-brand-primary: var(--tncld-green);
   --tncld-text-on-color-light: var(--tncld-gray-darkest);
   --tncld-text-link:          var(--tncld-green);
+  --tncld-text-text-link:     var(--tncld-text-link);
 
   /* --tncld-gray-darker (#4f4f4f) is only 2.56:1 on black and would fail the
      3:1 floor for UI-component boundaries (WCAG 1.4.11). --tncld-gray-dark is
@@ -133,6 +134,9 @@
   --bds-text-brand-primary:               var(--tncld-text-brand-primary);
   --bds-text-on-color-light:              var(--tncld-text-on-color-light);
   --bds-text-link:                        var(--tncld-text-link);
+  /* The token `.bds-prose a` actually reads (BDS emits the path-joined name).
+     Left unset it resolves to system blue: 3.44:1 on black, a WCAG 1.4.3 fail. */
+  --bds-text-text-link:                   var(--tncld-text-text-link);
   --bds-border-primary:                   var(--tncld-border-primary);
   --bds-border-brand-primary:             var(--tncld-border-brand-primary);
   --bds-border-input:                     var(--tncld-border-input);
@@ -167,6 +171,7 @@
   --text-brand-primary:               var(--bds-text-brand-primary);
   --text-on-color-light:              var(--bds-text-on-color-light);
   --text-link:                        var(--bds-text-link);
+  --text-text-link:                   var(--bds-text-text-link);
   --border-primary:                   var(--bds-border-primary);
   --border-brand-primary:             var(--bds-border-brand-primary);
   --border-input:                     var(--bds-border-input);

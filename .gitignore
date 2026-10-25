@@ -65,3 +65,7 @@ scripts/.notion-migration-output/
 # new-task.sh refuses to create a worktree until someone deletes a file the
 # tool is keeping on purpose. The four core Brik repos already ignore it.
 .claude/settings.local.json.bak.*
+
+# Playwright
+/playwright-report/
+/test-results/
