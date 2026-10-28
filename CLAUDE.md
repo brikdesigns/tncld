@@ -2,6 +2,8 @@
 
 This file provides project-specific context for Claude Code.
 
+@../../brik/brik-bds/BDS-CONSUMER.md
+
 > **Platform status (2026-08-25).** The Next.js rebuild is **live on Netlify**
 > in the two-site model (staging + prod, both `noindex` pre-launch) — see
 > [rag:static-site-deploy-model]. The **off-hours DNS cutover is still pending**
@@ -169,7 +171,7 @@ For standards that apply to all client projects, reference these authoritative s
 
 | Standard | Location |
 |----------|----------|
-| **Naming Conventions** | [brik-bds/CLAUDE.md](../../brik/brik-bds/CLAUDE.md) + [design.brikdesigns.com](https://design.brikdesigns.com) |
+| **Naming Conventions** | [brik-bds/BDS-CONSUMER.md](../../brik/brik-bds/BDS-CONSUMER.md) + [design.brikdesigns.com](https://design.brikdesigns.com) |
 | **Webflow Workflows** | [brik-llm/scripts/webflow/](../../brik/brik-llm/scripts/webflow/) |
 
 **Do not duplicate global standards in this repo.** Reference the authoritative sources above.
