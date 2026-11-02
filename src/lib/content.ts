@@ -23,10 +23,317 @@ export interface ServiceItem {
   description: string;
 }
 
+/**
+ * Home page sections (tncld#89). The home is an ordered list of typed sections
+ * that mirror the section set of the original Webflow homepage — a hero,
+ * social-proof reviews, feature "split" teasers, a numbered process, a
+ * treatments showcase, patient stories, payment options, and closing CTAs.
+ * The section templates in src/components/sections render whatever the source
+ * holds and never hardcode copy, so the model, not the template, owns the IA.
+ */
+export interface SectionAction {
+  label: string;
+  href: string;
+  variant?: 'primary' | 'secondary';
+}
+
+/**
+ * Page intro. Two shapes in the original, told apart by `image`:
+ * with one it is the homepage's full-bleed media hero; without one it is the
+ * interior `2-column-hero-split` — title, rule, then an eyebrow column beside
+ * the body. `image` is a key into the page's `images` map.
+ */
+export interface HeroSection {
+  type: 'hero';
+  title: string;
+  body: string;
+  image?: string;
+  /**
+   * Mux playback id for the homepage hero's background video (tncld#97). The
+   * original runs it `autoplay muted loop` behind the copy; `image` stays set
+   * and is the poster, so a reduced-motion visitor still gets the original's
+   * framing rather than an empty box.
+   */
+  videoPlaybackId?: string;
+  /** Interior hero only — the label beside the body column. */
+  eyebrow?: string;
+  /** Path under /public — the glyph the original sets before the eyebrow. */
+  eyebrowIcon?: string;
+  actions?: SectionAction[];
+}
+
+/** Social-proof band — an aggregate review count + star rating. */
+export interface ReviewsSection {
+  type: 'reviews';
+  stat: string;
+  rating: number;
+  label: string;
+  body: string;
+}
+
+/** Feature teaser: copy on one side, image on the other. */
+export interface SplitSection {
+  type: 'split';
+  eyebrow?: string;
+  title: string;
+  body: string;
+  image?: string;
+  mediaSide?: 'left' | 'right';
+  action?: SectionAction;
+  /**
+   * The interior pages set two buttons in one wrapper — /services runs
+   * "Get Started" beside "Learn More" on all six splits, /patient-resources
+   * "Tour Our Office" beside "Meet the Doctors" (tncld#92). `action` stays for
+   * the single-button case the home and /about use; the renderer reads
+   * whichever is present.
+   */
+  actions?: SectionAction[];
+  /**
+   * Media frame. `wide` is the original's 1368x770 16:9 band (home, /about,
+   * /about/technology). `square` is /services' `img-frame-1-1` — a 547x547
+   * image right-aligned in a full-bleed row, measured on the export.
+   */
+  imageFrame?: 'wide' | 'square';
+  /**
+   * The head's second construct (tncld#158). 27 of the original's 29 split
+   * heads are `.inner-padding.stacked` — 20px of inline padding below 991, so
+   * the 70% copy wrapper measures 665.7 inside a 991 viewport. Two are
+   * `.header-wrapper`, which is flush: the wrapper measures 693.7 and the
+   * body/actions row runs the full 991.
+   *
+   * Measured on the export at 991, and they are the only two site-wide:
+   *
+   *   /about/meet-the-doctors  "Exceptional Dentists. Elevated Care. …"
+   *   /patient-resources       "Office & Experience"
+   *
+   * 28px of measure decides whether the heading wraps to two lines or three,
+   * so this is not cosmetic — it is 43.2px of band height on the first of them.
+   */
+  headFlush?: boolean;
+}
+
+/** One card in a `cards` grid. */
+export interface CardItem {
+  title: string;
+  body?: string;
+  /** Path under /public — the square glyph of `3-column-card`. */
+  icon?: string;
+  /** Key into the page's `images` map — the photo of the img-card variants. */
+  image?: string;
+  /**
+   * The brand numeral the `3-column-card` variant sets above the title
+   * (`text_display-md brand`), e.g. "01". The original writes it as content,
+   * not as a generated counter, so it is carried rather than derived.
+   */
+  numeral?: string;
+  action?: SectionAction;
+  /**
+   * Full biography, shown in a dialog the card's action opens — the original's
+   * `modal-1..3` on /about/meet-the-doctors. An array because each bio is
+   * several paragraphs.
+   */
+  bio?: { title: string; paragraphs: string[] };
+}
+
+/**
+ * Three-across card grid — Webflow `3-column-card`, `3-column-card-img-portrait`
+ * and `3-column-card-img-landscape`, which differ only in what sits above the
+ * card title (tncld#92). Measured on the export: 381x400 cards, 20px gutter,
+ * `--surface-secondary` fill, 40px radius.
+ */
+export interface CardsSection {
+  type: 'cards';
+  title: string;
+  body?: string;
+  /**
+   * Card media shape. `icon` is the 133x133 glyph (/patient-resources),
+   * `numeral` the brand numeral (/about/why-laser-dentistry), `portrait` the
+   * 333x500 doctor headshot, `landscape` the 333x222 thumbnail (Related Pages).
+   */
+  variant?: 'icon' | 'numeral' | 'portrait' | 'landscape';
+  items: CardItem[];
+}
+
+/**
+ * Four-across value grid — Webflow `4-column-card-center`. Title only, above a
+ * brand glyph; 308x160 cards at a 16px gutter. The original renders the glyph
+ * from a Font Awesome ligature with no accessible name, so the rebuild draws it
+ * as a decorative mark rather than reproducing an unlabelled icon font.
+ */
+export interface ValuesSection {
+  type: 'values';
+  title: string;
+  items: { title: string }[];
+}
+
+/**
+ * The practice's reviews band — Webflow `3-column-testimonial`, which is a
+ * heading above a third-party review widget rather than testimonial cards
+ * (tncld#92). The export carries an Elfsight embed; the live site serves the
+ * LeadConnector/GHL widget this points at, which is also what
+ * scripts/test-review-widget-width.js asserts against tncld.com.
+ */
+export interface ReviewsEmbedSection {
+  type: 'reviewsEmbed';
+  title: string;
+  body?: string;
+  /** The widget iframe's src — the live embed, read from the component DOM. */
+  widgetSrc: string;
+  /** The vendor loader the widget needs to size its iframe. */
+  scriptSrc: string;
+}
+
+/**
+ * Two-column copy-plus-list band — Webflow `2-column-card-list-right`. Copy on
+ * the left, a stack of numbered cards on the right (600x112, 6px radius, 16px
+ * gutter). Each card leads with a bolded clause, exactly as the original sets
+ * it ("**Comfort matters**. Modern dentistry should feel gentle…").
+ */
+export interface PrinciplesSection {
+  type: 'principles';
+  title: string;
+  body?: string;
+  items: { lead: string; body: string }[];
+}
+
+export interface StepItem {
+  /** Carries the original's own numbering, e.g. "1. Request an Appointment". */
+  label: string;
+  body: string;
+  /** Path under /public — the original gives each step a line-art glyph. */
+  icon?: string;
+}
+
+/** Numbered "how it works" process. */
+export interface StepsSection {
+  type: 'steps';
+  title: string;
+  steps: StepItem[];
+  action?: SectionAction;
+}
+
+export interface TabItem {
+  title: string;
+  /** The one-liner under the title *in the tab control*, not in the panel. */
+  summary: string;
+  /**
+   * The open panel's copy. The original sets it as two centred lines, so this
+   * is an array rather than one string with a `<br>` baked into it.
+   */
+  body: string[];
+  /** Path under /public — the original gives each treatment a square photo. */
+  image?: string;
+  /** The panel's own link, e.g. Learn More → /services/invisalign. */
+  action?: SectionAction;
+}
+
+/**
+ * Treatments as a tab strip — the original's `2-column-tabbed-stacked`
+ * (tncld#97). This was a static card grid under #13's superseded no-pixel-parity
+ * charter, which flattened the tab control, the per-tab summary and the panel
+ * copy into one card body. Reproducing the interaction needs all three back.
+ */
+export interface TabsSection {
+  type: 'tabs';
+  title: string;
+  body?: string;
+  /** The section-level link the original sets beside the intro. */
+  action?: SectionAction;
+  items: TabItem[];
+  /**
+   * Which tab opens on load. The original ships `data-current="Tab 3"` — the
+   * third treatment, not the first — so this is faithful, not a default.
+   */
+  defaultIndex?: number;
+}
+
+export interface StoryItem {
+  title: string;
+  body: string;
+  /**
+   * Mux playback id (tncld#97). Drives both the card's animated poster and the
+   * modal player, exactly as the original's `modal-1..3` do. Absent means a
+   * text-only card, which is what every story rendered as before #97.
+   */
+  playbackId?: string;
+  /** The card's button label — the original repeats it per card. */
+  videoLabel?: string;
+}
+
+/** Patient-stories band. */
+export interface TestimonialsSection {
+  type: 'testimonials';
+  title: string;
+  body?: string;
+  stories: StoryItem[];
+}
+
+/** Payment / insurance options. */
+export interface PaymentMethod {
+  label: string;
+  /** Path under /public — card/cash/check glyph or a financing partner mark. */
+  icon?: string;
+}
+
+export interface PaymentsSection {
+  type: 'payments';
+  title: string;
+  body: string;
+  /** Was `string[]`; the original pairs every method with a glyph. */
+  methods: PaymentMethod[];
+}
+
+/**
+ * Closing call to action. Three shapes in the original, and they are different
+ * components, not one component scaled: `1-column-cta-right-img` is the
+ * home's photo-with-a-floating-card (`split`), `1-column-cta` the compact 463px
+ * centred band (`center`), and `1-column-cta-center-lg` the 1000px closing band
+ * every interior page ends on, whose heading measures 72.8px (`center-lg`).
+ */
+export interface CtaSection {
+  type: 'cta';
+  variant?: 'split' | 'center' | 'center-lg';
+  title: string;
+  body: string;
+  image?: string;
+  action?: SectionAction;
+}
+
+/**
+ * Scroll-reveal membership (tncld#96). The original wraps several of its
+ * content blocks in one revealed container each, so the reveal unit is a *run*
+ * of rebuild sections, not a single section — e.g. the New Patients split and
+ * the "Your Path to a Healthier Smile" steps share one wrapper and therefore
+ * fade in together. `start` opens a run, `join` extends the run above it, and
+ * an absent value means the section is not revealed at all (the hero, the
+ * treatments tabs, payments and both CTAs are not, in the original).
+ *
+ * The mapping from original wrapper to rebuild sections is recorded in
+ * markdown/section-maps/home.md § Scroll choreography.
+ */
+export interface SectionMotion {
+  reveal?: 'start' | 'join';
+}
+
+export type HomeSection = (
+  | HeroSection
+  | ReviewsSection
+  | SplitSection
+  | StepsSection
+  | TabsSection
+  | TestimonialsSection
+  | PaymentsSection
+  | CardsSection
+  | ValuesSection
+  | ReviewsEmbedSection
+  | PrinciplesSection
+  | CtaSection
+) &
+  SectionMotion;
+
 export interface HomeContent {
-  hero: HeroContent;
   images: Record<string, string>;
-  cta: HeroContent;
+  sections: HomeSection[];
 }
 
 export interface ServicesContent {
@@ -35,12 +342,27 @@ export interface ServicesContent {
   serviceList: ServiceItem[];
 }
 
+/**
+ * About page (tncld#89). Like the home, `about` is an ordered list of typed
+ * marketing sections mirroring the original Webflow /about IA — an interior
+ * hero, "Meet Our Team" / "Tour Our Office" / "Technologies" split teasers, and
+ * a closing CTA — rendered by the shared PageSections templates. This is the
+ * reusable pattern for the remaining interior pages (services, technology,
+ * meet-the-doctors, patient-resources, why-laser-dentistry).
+ */
 export interface AboutContent {
-  title: string;
-  description: string;
   images: Record<string, string>;
-  topics: ServiceItem[];
+  sections: HomeSection[];
 }
+
+/**
+ * The five remaining interior pages (tncld#92), keyed by route: `services`,
+ * `technology`, `meet-the-doctors`, `patient-resources`,
+ * `why-laser-dentistry`. Same `{ images, sections[] }` shape /about uses, so
+ * they render through the identical PageSections templates and the model, not
+ * the page component, owns each page's IA.
+ */
+export type SectionPageContent = AboutContent;
 
 /**
  * Practice contact details for the contact / appointment pages (tncld#62).
@@ -74,6 +396,35 @@ export interface PageContent {
   sections: PageSection[];
 }
 
+export interface FooterLink {
+  label: string;
+  href: string;
+}
+
+export interface FooterGroup {
+  title: string;
+  /** The group heading's own destination — the original links every one. */
+  href: string;
+  links: FooterLink[];
+}
+
+export interface FooterHours {
+  title: string;
+  days: { day: string; value: string }[];
+}
+
+/**
+ * The original's footer (tncld#129): a brand blurb, three link groups and the
+ * practice's opening hours. Sourced from the checked-in Webflow export's own
+ * `.nav_footer`, which is why the hours are a cited client fact rather than
+ * plausible copy.
+ */
+export interface FooterContent {
+  blurb: string;
+  groups: FooterGroup[];
+  hours: FooterHours;
+}
+
 /** A section whose markdown body has been rendered to sanitized HTML. */
 export interface RenderedSection {
   title: string;
@@ -97,13 +448,21 @@ interface IndustryContent {
   about: AboutContent;
   services: ServicesContent;
   contact?: ContactContent;
+  footer?: FooterContent;
+  sectionPages?: Record<string, SectionPageContent>;
   pages?: Record<string, PageContent>;
   serviceDetails?: Record<string, PageContent>;
   technologyDetails?: Record<string, PageContent>;
 }
 
 function industry(): IndustryContent {
-  return (cmsData as Record<string, IndustryContent>)[INDUSTRY];
+  // Boundary cast through `unknown`: the shared cms-data.json is industry-scoped
+  // and heterogeneous — only `dental` conforms to IndustryContent's rich shape
+  // (the other industries keep the old thin `home`), and a JSON import widens
+  // section discriminants (`type`) to `string`, which a direct assertion can't
+  // reconcile with the HomeSection union. The data is validated separately by
+  // scripts/check-content.mjs and the tncld#89 section map.
+  return (cmsData as unknown as Record<string, IndustryContent>)[INDUSTRY];
 }
 
 export function getHomeContent(): HomeContent {
@@ -118,8 +477,39 @@ export function getAboutContent(): AboutContent {
   return industry().about;
 }
 
+/**
+ * One of the five section-structured interior pages by key (tncld#92). Throws
+ * rather than returning null: unlike a CMS slug these five are a fixed set the
+ * routes name literally, so a miss is a content-file defect that should fail
+ * the build, not 404 in front of a visitor. scripts/check-content.mjs asserts
+ * the same set.
+ */
+export function getSectionPage(key: string): SectionPageContent {
+  const page = industry().sectionPages?.[key];
+  if (!page) {
+    throw new Error(
+      `content: no sectionPages entry for "${key}" in json/cms-data.json (dental.sectionPages)`,
+    );
+  }
+  return page;
+}
+
 export function getContactContent(): ContactContent {
   return industry().contact ?? {};
+}
+
+/**
+ * Footer link groups + hours (tncld#129). Throws like getSectionPage() rather
+ * than degrading to an empty footer: this renders on every route, so a missing
+ * source is a content-file defect that should fail the build rather than
+ * quietly drop the practice's hours off the whole site.
+ */
+export function getFooterContent(): FooterContent {
+  const footer = industry().footer;
+  if (!footer) {
+    throw new Error('content: no footer entry in json/cms-data.json (dental.footer)');
+  }
+  return footer;
 }
 
 /** URL-safe slug for a service title, e.g. "Cleaning Exam" → "cleaning-exam". */

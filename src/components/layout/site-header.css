@@ -16,15 +16,20 @@
   margin: 0 auto;
   padding: 1rem 1.5rem;
 }
+/* Holds the logo lockup (tncld#94). Height matches the original's header mark;
+   width follows the 204x62 aspect so the SVG never distorts. */
 .site-header__brand {
-  color: var(--text-primary);
-  font-family: var(--font-family-heading);
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
   text-decoration: none;
-  white-space: nowrap;
 }
-.site-header__brand:hover {
-  text-decoration: underline;
+.site-header__brand img {
+  width: auto;
+  height: 2.25rem;
+}
+.site-header__brand:hover img {
+  opacity: 0.85;
 }
 
 /* Nav takes the middle, pushing brand left and CTA right. */

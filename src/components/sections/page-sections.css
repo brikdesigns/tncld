@@ -1,0 +1,1541 @@
+/* Marketing section templates (tncld#89). Canonical BDS color/border tokens via
+   var() (see src/styles/theme-tncld.css); spacing is raw rem, matching the
+   shell, home, and legal shells. Every band shares one content max-width so the
+   sections align down the page. */
+
+.section-split,
+.section-steps,
+.section-tabs,
+.section-testimonials,
+.section-payments,
+.section-cta {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+/* Section headings are the original's `.text_heading-lg` — 45.5px / 54.6px
+   line-height / weight 700, measured on every h2 on the homepage. The rebuild
+   inherited the BDS default ramp instead, which is why the page read as flat.
+
+   The size is a TWO-STEP ramp on an authored breakpoint, not a viewport-
+   proportional function (tncld#146). The original resolves it through
+   `--_typography---heading--lg`, which is `--font-size--1000` (45.5px) at
+   1440 and is re-pointed at `--font-size--800` (36px) inside
+   `@media screen and (max-width: 991px)` — flat from there down
+   (`css/tncld.webflow.css:5677,5903`; the ladder itself is `css/head.css:64,67`).
+   A `clamp()` with a `vw` term cannot express that: it kept shrinking, landing
+   on 31.3 / 30 / 30px at 991 / 767 / 479 against the original's flat 36px, and
+   a smaller face also wraps to fewer lines, so the deficit compounded.
+   `--font-size-1000` / `--font-size-800` are the BDS ladder's own steps and
+   carry the same 45.5px / 36px values (`dist/tokens.css:179,181`).
+   The step below 991 lives in the `61.9375rem` block at the foot of this file —
+   it has to come after the per-section rules that also set this size, since a
+   media query adds no specificity. */
+/* .section-steps__title is deliberately absent — the original sets that one a
+   step down the ramp (`.text_heading-md`); see its own rule below. */
+.section-split__title,
+.section-tabs__title,
+.section-testimonials__title,
+.section-payments__title,
+.section-cta__title {
+  font-size: var(--font-size-1000);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────── */
+/* Full-bleed media with the copy overlaid, matching the original: an 800px-tall
+   section at 1440 wide, media filling it behind a 40% black scrim, copy
+   left-aligned on a 16px page gutter. This was a boxed two-column split — copy
+   left, 16:9 image right — which is the single biggest reason `/` did not read
+   as the same site. The hero is deliberately outside the shared 80rem rule
+   above; it is the one band that spans the viewport. */
+.section-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 50rem;
+  padding: 4rem 1rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+.section-hero__copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+.section-hero__title {
+  margin: 0;
+  /* 92.2px at the original's 1440 reference width. */
+  font-size: clamp(2.5rem, 6.4vw, 5.7625rem);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Interior hero (2-column-hero-split) ────────────────────────────────
+ * /about and the five pages #92 covers open with this, not the homepage's
+ * full-bleed media hero: a title, a hairline rule, then the eyebrow and the
+ * body in two columns. Selected by the absence of `image`, so no new
+ * discriminant is needed on the content model. */
+/* The original's `hero_interior` is a fixed 750px block with the title, rule
+   and two-column lede centred inside it — not a content-height box. The
+   rebuild had collapsed it to 337px with `min-height: 0`, which is most of why
+   /about's first band read at 65% (tncld#102). */
+.section-hero--interior {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 46.875rem; /* 750px at the original's 1440 reference width */
+  padding: 0 5rem;
+}
+.section-hero--interior .section-hero__title {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  /* `.content-wrapper.narrow` — tncld#147. See the note above the split head.
+     The original wraps ONLY the h1 here, not the rule or the lede: the wrapper
+     holds a single child (`about.html`, measured 896px inside a 1280px
+     container at 1440). */
+  width: 70%;
+}
+.section-hero__rule {
+  margin: 1.5rem 0 2.5rem;
+  border: 0;
+  border-top: 1px solid var(--border-primary);
+}
+.section-hero__columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 3rem;
+}
+.section-hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 20rem;
+  margin: 0;
+  color: var(--text-brand-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.section-hero__eyebrow-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.section-hero--interior .section-hero__lede {
+  flex: 1 1 34rem;
+  max-width: 56.625rem; /* 906px — the original's body column */
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.section-hero__lede {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
+}
+.section-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+/* Media layer: fills the section rather than sitting in a 16:9 frame. */
+.section-hero__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 0;
+}
+/* The original's background video (tncld#97), layered over the still rather
+   than replacing it: the still is the reduced-motion rendering and the poster
+   until the stream is playable. `--media-object-fit` is mux-player's own hook
+   for the inner <video> (node_modules/@mux/mux-player/dist/mux-player.mjs);
+   `object-fit` on the host element alone would not reach it. */
+.section-hero__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  --media-object-fit: cover;
+  /* Suppresses all player chrome — mux-player reads it as
+     `--media-control-display` (dist/base.mjs:3). A custom property set on the
+     host inherits into the shadow tree, which is where that rule lives. */
+  --controls: none;
+}
+/* The original's scrim — `rgba(0, 0, 0, 0.4)` — is what keeps white copy
+   legible over arbitrary video frames. Reproduced, and load-bearing for
+   contrast: without it the hero text has no guaranteed ratio at all.
+   It hangs off the SECTION, not off `.section-hero__image`, so that it covers
+   the video too. On the image it would have sat under the video layer, and the
+   hero copy would have had no guaranteed ratio over a moving frame — the exact
+   failure this rule exists to prevent. */
+.section-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgb(0 0 0 / 0.4);
+  pointer-events: none;
+}
+
+/* ── Reviews (social proof) ─────────────────────────────────────────── */
+/* A 500px block in the original with 128px padding and its ~130px of content
+   centred in what's left — not a content-height strip. The 3rem paddings that
+   used to sit on __headline and __body were standing in for the section's own
+   padding, so they move here (tncld#102). */
+.section-reviews {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 31.25rem; /* 500px at the original's 1440 reference width */
+  padding: var(--space-2400) 0;
+  background: var(--background-secondary);
+  text-align: center;
+}
+/* Stat, stars and label share one baseline at the original's 57.5px. */
+.section-reviews__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  color: var(--text-primary);
+  font-family: var(--font-family-display);
+  font-size: clamp(1.75rem, 4vw, 3.59375rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+/* Blue, as the original renders them. The brand blue is 4.31:1 on black, below
+   the 4.5:1 AA floor for TEXT — which is why --text-brand-primary is green —
+   but these stars are a graphic (role="img", with the rating in aria-label), so
+   the applicable floor is 3:1 for non-text contrast (WCAG 1.4.11) and blue
+   clears it. Local primitive rather than a semantic token: no BDS semantic name
+   means "brand colour, graphics only". */
+.section-reviews__stars {
+  color: var(--tncld-blue);
+  letter-spacing: 0.05em;
+}
+.section-reviews__body {
+  margin: 1rem auto 0;
+  padding: 0 1.5rem;
+  max-width: 44ch;
+  color: var(--text-secondary);
+}
+
+/* ── Split (feature teaser) ─────────────────────────────────────────────
+ * Measured on all four homepage splits, which are identical: section padding
+ * 40px top / 48px bottom and NO horizontal padding; a copy row inset 96px with
+ * the action pinned to the opposite edge; then a full-width 16:9 image inset
+ * only 36px. The rebuild had copy and image side by side in a 34rem box, which
+ * is why these bands came out at roughly a third of the original's height. */
+/* The section's own 40px row-gap sits between the copy block and the image; the
+   copy stack then carries 128px of its own bottom padding, and its inner stack
+   another 16px. 184px from the last line of copy to the top of the image — the
+   rebuild had 40px, which is these three bands' whole deficit. */
+.section-split {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  padding: 2.5rem 0 3rem;
+  gap: var(--space-1000);
+}
+/* The head is `.inner-padding.stacked` — a COLUMN of two tiers, not a row of
+   copy beside actions (tncld#158). Its gap is the original's own: 16px at 1440,
+   12px at every width below. Measured on the export, band 2 of `/`:
+
+     width   pad   gap   tier 1 (narrow)   tier 2 (body | buttons)
+     1440    16    16    145.2             72     row, 49.4% each
+      991    20    12    118.4             96     row, 49.4% each
+      767    20    12    161.6            148     column, 100%
+      479    20    12    204.8            172     column, 100%
+*/
+.section-split__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  /* 96px inset at the original's 1440 reference width. The 16px top is the
+     original's own heading-wrapper padding, which sits inside the section's
+     40px and is why every split band read 16px short at the top. */
+  padding: var(--space-400) 6rem calc(var(--space-2400) + var(--space-400));
+}
+/* `.content-wrapper.narrow` — `width: 70%` (css/tncld.webflow.css:2464), the
+   wrapper the original seats a band's heading and lede in (tncld#147). It is
+   flat 70% at all four widths and on all 29 of its uses across the seven
+   routes, audited on the export — left-flush where the wrapper's text-align is
+   `start`, centred where it is `center`.
+
+   The rebuild had these blocks full-width, so a heading that wraps to two lines
+   on the original fits on one and the band comes up short. The 54.625rem
+   max-width this replaces was the 1440 value of the same measure (874px) and so
+   did not survive the flex basis growing to fill at 991 and below, where the
+   copy measured 100% of its head. */
+.section-split__copy {
+  flex: 0 1 auto;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+/* `.header-wrapper`, the head's flush variant — see `headFlush` on
+   SplitSection. Zero inline padding, so the 70% wrapper is 70% of the viewport
+   rather than of the padded box. Two instances site-wide.
+
+   `.header-wrapper` is `padding: 0` on every side at all four widths; only the
+   outer `.layout_1-col.stacked` pad-bottom applies (128px at 1440, 57.5px
+   below). So the flush variant drops the `.inner-padding` component and keeps
+   the `.container-lg` gutter — 80px at 1440 against the standard head's 96px,
+   and 0 against its 20px below 991.
+
+   Written as a doubled class deliberately: the 991 and 767 blocks below set
+   padding on `.section-split__head`, and a media query adds no specificity — a
+   single class here would lose to them on source order. */
+.section-split__head.section-split__head--flush {
+  padding: 0 5rem var(--space-2400);
+}
+/* No bottom margins on either — `.content-wrapper.narrow` spaces its children
+   with a `gap`, and a margin here would add to it. */
+.section-split__eyebrow {
+  margin: 0;
+  color: var(--text-brand-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.section-split__title {
+  margin: 0;
+  color: var(--text-primary);
+}
+/* `.inner-padding.none` — the head's second tier, full content width. Its two
+   children hold 49.4% each down to 991 and go to 100% at 767 (tncld#154
+   observed this wrap point but applied it to the head itself, which is why the
+   body ended up inside the 70% column). */
+.section-split__detail {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  align-self: stretch;
+  gap: 1rem;
+}
+.section-split__body {
+  margin: 0;
+  flex: 0 1 49.4%;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+/* The original stacks the two buttons of a `/services` split in one wrapper,
+   primary then secondary, and wraps them rather than shrinking. `button_wrapper
+   .right` right-aligns them within its own 49.4% column. */
+.section-split__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex: 0 1 49.4%;
+}
+.section-split__image {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+/* `.img-wrapper.sm` is `width: 95%` (css/tncld.webflow.css:2888-2892), flat at
+   all four widths. The 36px margin this replaces was that 95% expressed as the
+   1440 gutter it happens to produce — 1440 x 5% / 2 = 36 — so the frame matched
+   at 1440 and was undersized at every width below (tncld#158):
+
+     width   orig            was
+     1440    1368 x 769.5    1368 x 769.5
+      991     941 x 529.5     919 x 516.9   -12.6
+      767     729 x 409.9     695 x 390.9   -19.0
+      479     455 x 256.0     407 x 228.9   -27.1
+
+   Above 991 the parent `.img-wrapper` is `display: flex; justify-content:
+   center`, so the frame is centred; below 991 (:6034) it becomes `display:
+   block` and left-flushes at x=0. Both are reproduced here. */
+.section-split__image--wide {
+  width: 95%;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
+}
+/* /services runs a 547x547 `img-frame-1-1` in a full-bleed row instead of the
+   16:9 band, radius 12 — measured on the export (tncld#92). */
+/* `margin-left: auto` is a KNOWN DEVIATION, not the original: the export
+   centres the frame above 991 (x = 446.4 with 446.4 to spare at 1440, and
+   686.4/686.4 at 1920, on all six blocks) via `.img-wrapper`'s
+   `justify-content: center` (css/tncld.webflow.css:2879). Tracked as tncld#155
+   and left in place here because #141 is a height ticket and this is 447px of
+   purely horizontal displacement. */
+/* The width is also the HEIGHT — `aspect-ratio: 1` — so the original's
+   percentage steps at its breakpoints are what makes this page shrink as the
+   viewport narrows, and holding 547px is the whole of tncld#141. Same defect
+   shape as `.section-steps__icon` below, on the same `.img-frame-1-1.sm`
+   construct: 40% at 1440 (css/tncld.webflow.css:3466), 12% inside
+   `@media (max-width: 991px)` (:6070), 20% inside `@media (max-width: 479px)`
+   (:6729).
+   The percentages are re-based, not copied. The original nests the frame in
+   `.img-wrapper.sm` at `width: 95%` (:2888); the rebuild has no such wrapper,
+   so this box's containing block is the full-width `.section-split`. The
+   composed value is what gets written here — 0.95 x 40 / 12 / 20 = 38 / 11.4 /
+   19% — which reproduces the export's measured 547.2 / 113.0 / 87.4 / 91.0px
+   at 1440 / 991 / 767 / 479. */
+/* Fluid, not the fixed 547px the rebuild carried: `.container-full` caps at
+   1440, so the original holds 547.2px from 1440 up (measured 547.2 at 1920) and
+   scales below it — 456px at 1200, 377px at 992. A fixed 547 is the same
+   hold-the-1440-value defect as the missing breakpoint steps, six blocks deep:
+   +91px each at 1200. `min()` reproduces both halves in one declaration. */
+.section-split__image--square {
+  width: min(38%, 34.1875rem);
+  margin: 0 0 0 auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.75rem;
+}
+
+/* ── Section rhythm (tncld#102) ──────────────────────────────────────────
+ * The original's full-width sections are `padding: 128px 0` with a 48px gap
+ * between the heading block and the content — measured with getComputedStyle
+ * on the rendered export, not read off the CSS. The rebuild had 64px and 40px,
+ * which is the whole of the 2,612px it was short on `/`: strict ink (text and
+ * replaced elements only) came out 81px OVER the original, so none of the
+ * deficit was content.
+ *
+ * Expressed on the fixed --space-* scale rather than --padding-huge or
+ * --gap-md. Those track [data-mode-spacing], and the original's rhythm is BDS
+ * `spacious` exactly (128px padding, 48px gap) — but its 40px split gap has no
+ * token in that mode, and nothing in src/ consumes the padding or gap token
+ * families today, so setting the attribute alone would move nothing. A
+ * --space-* name states the measured value exactly, which is what the AC asks
+ * for.
+ */
+
+/* ── Steps (process) ────────────────────────────────────────────────── */
+.section-steps {
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  text-align: center;
+}
+/* 36px/45px here, not the 45.5px the other section headings use — the original
+   sets this one a step down the ramp. */
+/* The original seats this heading in a wrapper with 16px of its own padding
+   top and bottom, then a 48px stack gap to the cards — so 16px above the
+   heading and 64px below it, not the flat 40px the rebuild had. */
+.section-steps__title {
+  /* `auto` inline, not `0` — this is a centred `.content-wrapper.narrow`
+     (tncld#147). */
+  margin: 0 auto calc(var(--space-400) + var(--space-1200));
+  width: 70%;
+  color: var(--text-primary);
+  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  line-height: 1.25;
+}
+/* Three raised panels, 381x400 at 1440 with a 20px gutter — measured on the
+   original. They were unstyled 15rem grid cells with a numeral badge, so the
+   band collapsed to roughly half the original's height.
+
+   Explicit columns, not `auto-fit` — the same correction #138 made to
+   `.section-cards__grid`. The original's `.layout-3-col` is `1fr 1fr 1fr`
+   (css/tncld.webflow.css:1753) and becomes `1fr` inside its authored
+   `@media (max-width: 991px)` (:5857). Measured on the export, the original's
+   step grid is 3 / 1 / 1 / 1 columns at 1440 / 991 / 767 / 479; `auto-fit`
+   gave the rebuild 3 / 3 / 2 / 1. */
+.section-steps__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.25rem;
+}
+/* Icon sits at the top, copy at the bottom, space between — the original's
+   card leaves a deliberate gap so the three labels align across the row even
+   when one of them wraps to two lines. */
+.section-steps__item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 25rem;
+  padding: 1.5rem;
+  text-align: left;
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+/* The original's `.img-frame-1-1.sm` is a PERCENTAGE of the card's content
+   box, not a fixed square: 40% at 1440 (css/tncld.webflow.css:3466), 12%
+   inside `@media (max-width: 991px)` (:6070) and 20% inside
+   `@media (max-width: 479px)` (:6729). Measured on the export that is
+   133.3 / 99.4 / 72.5 / 86.2px at 1440 / 991 / 767 / 479 — the 8.3125rem the
+   rebuild carried is the 1440 value held at every width, which is the same
+   defect shape as the card `min-height` below (tncld#131). */
+.section-steps__icon {
+  width: 40%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.section-steps__item-title {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
+}
+.section-steps__item-body {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+/* 48px stack gap, same as the heading-to-cards gap above. */
+.section-steps__cta {
+  margin-top: var(--space-1200);
+}
+
+/* ── Tabs (treatments) ───────────────────────────────────── */
+/* The original's `2-column-tabbed-stacked` (tncld#97). The class name is
+   literal: a 412px COLUMN of tab buttons beside an 868px panel, not a
+   horizontal strip above one. Every value below was read off the rendered
+   export at 1440 with getComputedStyle, per markdown/fidelity-method.md § Step
+   3 — the tab strip's own `flex-direction: column` is the thing a screenshot
+   does not tell you.
+     tab button    396x180, radius 12px, padding 20px 24px, 16px gap
+     resting       bg rgb(0,101,255) / text white
+     open          bg rgb(255,255,255) / text rgb(24,24,24)
+     panel         868 wide, padding 128px 0, 28px gap, centred,
+                   bg rgb(24,24,24), radius 12px
+     panel image   347x162, radius 0, object-fit cover
+   The brand blue is a BACKGROUND here, which is the case theme-tncld.css
+   reproduces faithfully — white on it is 4.88:1 and clears AA. */
+.section-tabs {
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+}
+.section-tabs__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin: 0 0 var(--space-1200);
+}
+.section-tabs__intro-copy {
+  max-width: 52ch;
+}
+.section-tabs__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-tabs__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+/* The two columns. 412 + 868 + 16px gap is the original's 1296 content width;
+   `minmax(0, …)` so a wide panel image cannot blow the track out. */
+.section-tabs__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 412fr) minmax(0, 868fr);
+  gap: 1rem;
+  align-items: start;
+}
+.section-tabs__tablist {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.section-tabs__tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 11.25rem;
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  cursor: pointer;
+  /* --background-* , not --surface-* : theme-tncld.css themes the former, and
+     BDS defaults --surface-brand-primary to poppy, which would render this
+     Brik orange instead of TNCLD blue. */
+  background: var(--background-brand-primary);
+  color: var(--text-primary);
+  border: var(--border-width-100) solid transparent;
+  border-radius: var(--border-radius-md);
+}
+/* The original gives hover the same treatment as the open tab. */
+.section-tabs__tab:hover,
+.section-tabs__tab[aria-selected='true'] {
+  background: var(--background-inverse);
+  color: var(--text-inverse);
+}
+.section-tabs__tab:focus-visible {
+  outline: var(--border-width-200) solid var(--border-focus);
+  outline-offset: 2px;
+}
+/* Inherit, so the open tab's dark-on-white applies to the title too. The
+   resting state is white-on-blue and the open state rgb(51,51,51)-on-white —
+   the original computes rgb(24,24,24) there, and --text-inverse is the
+   canonical token nearest it (12.63:1 on white, comfortably AA). */
+.section-tabs__tab-title {
+  font-size: 1.40625rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: inherit;
+}
+.section-tabs__tab-summary {
+  font-size: 1rem;
+  color: inherit;
+}
+.section-tabs__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: var(--space-2400) 0;
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+}
+/* 347x162 with square-ish sources, so the frame crops rather than letterboxes
+   — the original's own `object-fit: cover` at radius 0. */
+.section-tabs__panel-image {
+  width: 21.6875rem;
+  max-width: 100%;
+  height: 10.125rem;
+  object-fit: cover;
+}
+.section-tabs__panel-copy {
+  text-align: center;
+}
+.section-tabs__panel-line {
+  margin: 0;
+  color: var(--text-primary);
+}
+/* Below the original's 991 breakpoint the two columns cannot both hold their
+   measured width, so the tab column goes full-width above the panel. */
+@media (max-width: 61.9375rem) {
+  .section-tabs__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .section-tabs__tab {
+    min-height: 0;
+  }
+  .section-tabs__panel {
+    padding: var(--space-1200) 1.5rem;
+  }
+}
+
+/* ── Testimonials (patient stories) ───────────────────── */
+.section-testimonials {
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+}
+/* A centred `.content-wrapper.narrow` (tncld#147). */
+.section-testimonials__intro {
+  width: 70%;
+  margin: 0 auto var(--space-1200);
+  text-align: center;
+}
+/* 16px to the body, as the original's intro stack sets it — was 8px. */
+.section-testimonials__title {
+  margin: 0 0 var(--space-400);
+  color: var(--text-primary);
+}
+.section-testimonials__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+/* 381x320 panels, 20px gutter — measured on the original's story cards.
+   Same `.layout-3-col` as the step grid above, and the same authored 991
+   breakpoint: measured 3 / 1 / 1 / 1 columns against `auto-fit`'s 3 / 3 / 2 / 1. */
+.section-testimonials__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.25rem;
+}
+.section-testimonials__card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 20rem;
+  padding: 1.5rem;
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+.section-testimonials__card-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
+}
+.section-testimonials__card-body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+/* The animated Mux poster the original puts at the top of each story card
+   (tncld#97).
+   FLUID 16:9, not a fixed crop (tncld#143). The original's `.code-gif` is a
+   shrink-to-fit flex item holding a `width: 100%; height: auto` 640x360 GIF, so
+   the poster measures `min(card content width, 640) x 9/16` and is left-aligned
+   at the content edge — 333.3x187.5 / 640x360 / 604x339.8 / 431x242.4 at
+   1440 / 991 / 767 / 479, exactly 1.778 at every width.
+   `height: 9rem` held it to 144px instead, which both cropped the frame
+   (measured aspect 2.43 / 5.77 / 4.22 / 2.22) and shortened the card. The
+   comment here used to say the card "already measures 381x320 … matching the
+   original"; that was established against a render where the poster had
+   collapsed to 0x0 (tncld#142). The original's card is 487.5px at 1440. */
+.section-testimonials__card-poster {
+  width: 100%;
+  max-width: 40rem; /* 640px — the poster's own natural width, as the original's shrink-to-fit wrapper gives it */
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--border-radius-md);
+}
+/* The copy block, so the card's button stays pinned to the bottom edge
+   regardless of how many lines the story runs to. */
+.section-testimonials__card-copy {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ── Story video modal ─────────────────────────── */
+/* The original's `modal-1..3`: a centred video frame with a dismiss icon above
+   it. Native <dialog>, so the backdrop, Esc, focus trapping and focus return
+   are the element's own behaviour rather than hand-rolled. */
+.story-dialog {
+  width: min(64rem, 92vw);
+  padding: 1.5rem;
+  border: 0;
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+}
+.story-dialog::backdrop {
+  /* Matches the hero's own scrim weight. */
+  background: rgb(0 0 0 / 70%);
+}
+.story-dialog__bar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 1rem;
+}
+.story-dialog__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 44x44 — the WCAG 2.5.5 target floor the original's bare icon misses. */
+  width: 2.75rem;
+  height: 2.75rem;
+  cursor: pointer;
+  background: none;
+  color: var(--text-primary);
+  border: var(--border-width-100) solid var(--border-primary);
+  border-radius: var(--border-radius-circle);
+}
+.story-dialog__dismiss:focus-visible {
+  outline: var(--border-width-200) solid var(--border-focus);
+  outline-offset: 2px;
+}
+.story-dialog__dismiss-glyph {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+/* The accessible name only — the original's affordance is icon-only, and an
+   icon with no name is the part that fails, not the missing text. */
+.story-dialog__dismiss-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.story-dialog__player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* ── Payments ──────────────────────────────────── */
+/* Centered intro over a row of glyph-and-label methods, as the original sets
+   it. Was a two-column flex with the methods rendered as bordered pills. */
+.section-payments {
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  text-align: center;
+}
+/* A centred `.content-wrapper.narrow` (tncld#147) — the 60rem cap it replaces
+   was not a measure the original holds at any width. */
+.section-payments__copy {
+  width: 70%;
+  margin: 0 auto var(--space-1200);
+}
+.section-payments__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-payments__body {
+  margin: 0 auto;
+  color: var(--text-secondary);
+  max-width: 68ch;
+}
+.section-payments__methods {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3rem;
+}
+.section-payments__method {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.section-payments__method-icon {
+  width: 7.5625rem;
+  height: auto;
+}
+.section-payments__method-label {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ── CTA ─────────────────────────────────────── */
+.section-cta--center {
+  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  text-align: center;
+}
+/* A centred `.content-wrapper.narrow` (tncld#147). Only the `--center` variant:
+   the original does NOT narrow-wrap the `--split` CTA (that one is a 400px blue
+   card) or the `--center-lg` CTAs on the three interior routes — audited on the
+   export, where neither appears among the 29 `.content-wrapper.narrow` uses. */
+.section-cta--center .section-cta__copy {
+  width: 70%;
+  margin: 0 auto;
+}
+/* Full-bleed photo with a solid blue card floated over it on the right — the
+   original runs the image 1440x1000 and the card 400x312 at radius 12. It was a
+   side-by-side flex row with a 34rem image. */
+.section-cta--split {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: none;
+  /* 1000px, measured on the original's block (`div.section-map`, which despite
+     the class name is this office/virtual-tour card over a full-bleed photo).
+     This was 50rem/800px — the same value as the homepage hero, carried over
+     rather than measured, and it is 200px of what #102 still had missing. */
+  min-height: 62.5rem;
+  padding: 4rem 1.5rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+.section-cta--split .section-cta__copy {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 25rem;
+  padding: 1.75rem;
+  background: var(--background-brand-primary);
+  border-radius: 0.75rem;
+}
+/* White on --tncld-blue is 4.88:1 — passes AA for body copy. */
+.section-cta--split .section-cta__title,
+.section-cta--split .section-cta__body {
+  color: var(--tncld-white);
+}
+.section-cta__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+.section-cta--split .section-cta__title {
+  font-size: 1.40625rem;
+  line-height: 1.25;
+}
+.section-cta__body {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary);
+  max-width: 52ch;
+}
+.section-cta--center .section-cta__body {
+  margin-left: auto;
+  margin-right: auto;
+}
+.section-cta--split .section-cta__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: auto;
+  margin: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+/* `1-column-cta-center-lg` — the band all five interior pages close on
+   (tncld#92). A 1000px section with the copy centred in an 800px column and the
+   heading at 72.8px/72.8px, measured on the export. It is a distinct component
+   from the 463px `1-column-cta` above, not the same band scaled, so it gets its
+   own variant rather than a modifier on `--center`. */
+.section-cta--center-lg {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 62.5rem;
+  padding: 1rem 1.5rem;
+  text-align: center;
+}
+.section-cta--center-lg .section-cta__copy {
+  max-width: 50rem; /* 800px — the original's container-sm */
+  margin: 0 auto;
+}
+.section-cta--center-lg .section-cta__title {
+  font-size: clamp(2.5rem, 5.06vw, 4.55rem);
+  line-height: 1;
+  font-weight: 700;
+}
+.section-cta--center-lg .section-cta__body {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Cards (3-column-card + its image variants, tncld#92) ─────────────
+ * Measured on the export at 1440: 128px section padding, an 1184px grid of
+ * 381x400 cards at a 20px gutter, `--surface-secondary` fill, 40px radius,
+ * 24px padding. The heading block is centred above it; on the card-img
+ * variants the media replaces the glyph and the card grows to fit. */
+.section-cards {
+  padding: var(--space-2400) 1.5rem;
+}
+/* A centred `.content-wrapper.narrow` (tncld#147). The 50.375rem cap it
+   replaces was 806px — the original's measure at 1440 only, which is 70% of the
+   1152px container it sits in there. Fixed, it read 57.9% at 1440 once the
+   container widened and 91.7% at 991. */
+.section-cards__intro {
+  width: 70%;
+  margin: 0 auto var(--space-1200);
+  text-align: center;
+}
+.section-cards__title {
+  margin: 0 0 var(--space-400);
+  color: var(--text-primary);
+  /* 36px — a step below the section ramp, as the original sets this one. */
+  font-size: clamp(1.625rem, 2.5vw, 2.25rem);
+  line-height: 1.25;
+  font-weight: 700;
+}
+.section-cards__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+.section-cards__grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 74rem;
+  display: grid;
+  /* Explicit columns, not `auto-fit`. The original's `.layout-3-col` is
+     `1fr 1fr 1fr` (css/tncld.webflow.css:1753) and goes to a single column at
+     its 991 breakpoint (:5857) — an authored breakpoint, not an intrinsic one.
+     `repeat(auto-fit, minmax(18rem, 1fr))` held three 301px tracks at 991,
+     where the original had already stacked to one 876px track, which is where
+     most of tncld#133's 5,513px deficit came from. */
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.25rem;
+}
+.section-cards__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+.section-cards--icon .section-cards__card,
+.section-cards--numeral .section-cards__card {
+  min-height: 25rem; /* 400px */
+}
+.section-cards__icon {
+  width: 8.3125rem; /* 133px */
+  height: 8.3125rem;
+  border-radius: 0.75rem;
+}
+/* `text_display-md brand` above the title on the numbered variant. */
+.section-cards__numeral {
+  margin: 0;
+  color: var(--text-brand-primary);
+  font-size: 2.84375rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-cards__media {
+  display: block;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+/* 333x500 portrait for the doctor cards, 333x222 landscape for Related Pages. */
+.section-cards__media--portrait {
+  aspect-ratio: 333 / 500;
+}
+.section-cards__media--landscape {
+  aspect-ratio: 3 / 2;
+}
+.section-cards__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.section-cards__card-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.40625rem; /* 22.5px */
+  line-height: 1.25;
+}
+.section-cards__card-body {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ── Values (4-column-card-center, tncld#92) ──────────────────────────
+ * 308x160 cards at a 16px gutter under a centred heading. The original puts a
+ * Font Awesome glyph above each title with no accessible name; the rebuild
+ * draws a decorative brand rule instead rather than carrying that across. */
+/* The original's `.section_4-col` pads TWICE — 128px on the section and another
+   128px on the `.w-layout-grid.layout-flex` inside it — so the band carries
+   256px above the heading and 256px below the cards, not 128. Measured on the
+   rendered export at 1440, where the section is 775px:
+
+     256 (pad) + 55 (title) + 48 (gap) + 160 (cards) + 256 (pad) = 775
+
+   The single 128 this used to set produced 519px, a flat 256px deficit at every
+   width — the dominant half of the band-3 shortfall #151 reports. There is no
+   256px step on the BDS ladder; `--space-2400` is the 128 it doubles. */
+.section-values {
+  padding: calc(var(--space-2400) * 2) 1.5rem;
+}
+.section-values__title {
+  max-width: 50rem;
+  margin: 0 auto var(--space-1200);
+  color: var(--text-primary);
+  text-align: center;
+  font-size: var(--font-size-1000);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-values__grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 80rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+.section-values__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-height: 10rem; /* 160px */
+  padding: 1.5rem;
+  background: var(--surface-secondary);
+  border-radius: 2.5rem;
+}
+.section-values__mark {
+  width: 1.875rem;
+  height: 0.25rem;
+  border-radius: var(--border-radius-sm);
+  background: var(--background-brand-primary);
+}
+.section-values__card-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.40625rem;
+  line-height: 1.25;
+}
+
+/* ── Reviews embed (3-column-testimonial, tncld#92) ───────────────────── */
+.section-reviews-embed {
+  padding: var(--space-2400) 1.5rem;
+}
+.section-reviews-embed__intro {
+  max-width: 51.1875rem; /* 819px — the original's tight centred measure */
+  margin: 0 auto var(--space-1200);
+  text-align: center;
+}
+.section-reviews-embed__title {
+  margin: 0 0 var(--space-400);
+  color: var(--text-primary);
+  font-size: var(--font-size-1000);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-reviews-embed__body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+/* The vendor's inline `min-width: 100%` collapses the frame to its 300px
+   intrinsic width inside a flex parent (tncld#28). header.css fixes that on the
+   Webflow site with a :has() rule; here the wrapper owns the width outright. */
+.section-reviews-embed__frame {
+  width: 100%;
+  max-width: 80rem; /* 1280px */
+  margin: 0 auto;
+}
+/* 381px is what the widget settles at on the live site, measured at 1440 (it
+   holds that height from 2s to 8s after load). The vendor script then sets its
+   own `height` inline, which wins over this rule — so this is a pre-load
+   reservation that keeps the band from collapsing, not a clamp on the widget.
+   A `min-height` here WOULD clamp it, and at 400px it did. */
+.section-reviews-embed__frame iframe {
+  display: block;
+  width: 100%;
+  height: 23.8125rem;
+  border: 0;
+}
+
+/* ── Principles (2-column-card-list-right, tncld#92) ───────────────────
+ * Copy left, a stack of 600x112 cards right at a 16px gutter and 6px radius —
+ * a different card shape from the 40px-radius grids above, measured on the
+ * export, not assumed to match them. */
+.section-principles {
+  display: grid;
+  /* Same correction as `.section-cards__grid`: the original's
+     `.layout-2-column` is a flex row (css/tncld.webflow.css:3560) that becomes
+     a column at 991 (:6081). `auto-fit` kept two 463px tracks at 991. */
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: var(--space-2400) 1.5rem;
+}
+.section-principles__copy {
+  max-width: 37.5rem; /* 600px */
+}
+.section-principles__title {
+  margin: 0 0 1.5rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-1000);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.section-principles__body {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+.section-principles__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.section-principles__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 7rem; /* 112px */
+  padding: 1rem 1.25rem;
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-sm);
+}
+.section-principles__mark {
+  flex: 0 0 auto;
+  width: 0.25rem;
+  height: 1.875rem;
+  border-radius: var(--border-radius-sm);
+  background: var(--background-brand-primary);
+}
+.section-principles__item-text {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ── Biography dialog (tncld#92) ─────────────────────────────────────────
+ * Shares story-dialog's shell — same backdrop, same 44x44 dismiss target — and
+ * only sets what a long text body needs on top of it. */
+.bio-dialog {
+  width: min(48rem, 92vw);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.bio-dialog__title {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+.bio-dialog__body {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ── Scroll reveal (tncld#96) ────────────────────────────────────────── */
+/* Reproduces the original's only scroll animation — Webflow IX2's `fadeIn`
+   action list, bundled in the checked-in export at js/webflow.js: opacity
+   0 → 1 over 1000ms with easing `outQuart`, one-shot, triggered when any part
+   of the group enters the viewport, no transform and no stagger. The spec and
+   why the payload's two other action lists are not reproduced are in
+   src/components/sections/Reveal.tsx.
+
+   `outQuart` is 1 - (1 - p)^4. The cubic-bezier below is the usual
+   approximation and is off by up to 0.044 opacity mid-curve; the linear()
+   override is that same curve sampled at 16 stops, which brings the error to
+   0.0055. It is written second so a browser without linear() easing keeps the
+   bezier rather than dropping the transition. */
+/* ── CTA button height (tncld#104) ────────────────────────
+ * The original's primary CTA is 64px — `a.button-primary`, padding 16px top
+ * and bottom, measured with getComputedStyle on the rendered export at 1440.
+ * It recurs on every band that carries an action.
+ *
+ * BDS has no 64px button: the ramp is tiny/sm/md/lg/xl = 24/32/40/48/56px
+ * (`.bds-button--*` in @brikdesigns/bds/dist/styles.css:55-85), so `xl` is the
+ * closest and is 8px short. ActionButton passes `size="xl"` for the type and
+ * padding ramp; the height comes up to the original's on --size-1600, which is
+ * a canonical token (tokens.css:286) rather than a bespoke pixel value.
+ *
+ * 64px clears the 44x44 floor WCAG 2.5.5 and the repo's Compliance Profile
+ * require, which the 40px default only cleared on width.
+ */
+.section-split__actions .bds-button,
+.section-steps__cta .bds-button,
+.section-cta__copy .bds-button,
+.section-hero__actions .bds-button,
+/* The story card's "Watch Their Story" was omitted from this list — measured
+   64px on the original at all four widths, 40px in the rebuild (tncld#143). */
+.section-testimonials__card .bds-button {
+  height: var(--size-1600);
+}
+
+/* ── Responsive section rhythm (tncld#106) ────────────────
+ * The 1440 values above are tncld#102's and are not touched here. Below the
+ * original's 991 breakpoint it steps its own section padding down, and the
+ * rebuild did not — which made every full-width band 109-124% of the original
+ * at 991/767/479 while the page as a whole still read short.
+ *
+ * Measured on the rendered export with getComputedStyle at each of Webflow's
+ * four breakpoints (markdown/fidelity-method.md § Step 3), not derived from
+ * the 1440 values:
+ *
+ *   original section        1440        <= 991
+ *   section_about           128 / 128   57.5 / 57.5
+ *   section_videos          128 / 128   57.5 / 57.5
+ *   section_tabbed-accordion 128 / 128  57.5 / 57.5   (row-gap 128 -> 57.5)
+ *   section-tabbed           40 /  48    40 / 40      (row-gap  40 -> 0)
+ *   section_1-column        128 / 128   128 / 128     <- does NOT step
+ *
+ * So .section-payments and .section-cta--center are deliberately absent from
+ * this block: their counterpart holds 128px at every width, and stepping them
+ * "for consistency" would walk the page away from the original.
+ *
+ * 57.5px is not on the BDS scale. --space-1400 (56px) is the nearest canonical
+ * token; the 1.5px per edge it gives up is 3px on a ~900px band, two orders
+ * below the 5% AC. A --space-1437 does not exist and is not worth minting.
+ *
+ * The split's head inset is its own measurement, taken as the slack between
+ * the last line of copy and the image across all four of the original's splits
+ * (they agree to within 2px at every width):
+ *
+ *   width   slack below copy   head -> image gap
+ *   1440    144                40      <- the 1440 value already in .section-split__head
+ *    991     78                 0
+ *    767     94                 0
+ *    479     94                 0
+ *
+ * It is NOT monotonic: 991 is tighter than 767, so a single "below 991" step
+ * cannot express it and there are two breakpoints here rather than one.
+ */
+@media (max-width: 61.9375rem) {
+  /* The second half of the section-title ramp (tncld#146) — see the note at the
+     head of this file. The original re-points `.text_heading-lg` at
+     `--font-size--800` (36px) here and holds it flat through 767 and 479, so
+     there is no further step below this block. Every selector that sets the
+     45.5px value has to be repeated: a media query adds no specificity, and
+     three of these rules are declared later in the file than the shared one. */
+  .section-split__title,
+  .section-tabs__title,
+  .section-testimonials__title,
+  .section-payments__title,
+  .section-cta__title,
+  .section-values__title,
+  .section-reviews-embed__title,
+  .section-principles__title {
+    font-size: var(--font-size-800);
+  }
+  .section-reviews,
+  .section-steps,
+  .section-tabs,
+  .section-testimonials {
+    padding-block: var(--space-1400);
+  }
+  /* The original closes the head-to-image gap entirely here and trims 8px off
+     the section's bottom. */
+  .section-split {
+    padding-bottom: var(--space-1000);
+    gap: 0;
+  }
+  /* tncld#154. The 96px above is an 80px `.container-lg` gutter plus 16px of
+     `.inner-padding`; below 991 the container goes full-bleed and only the 16px
+     becomes 20px. Measured with `getComputedStyle` on the rendered export's
+     `.inner-padding.stacked`, which is this head's counterpart:
+
+       width   .inner-padding.stacked   its box        row inside it
+       1440    16px / 16px              1280 @ x80     1248 @ x96
+        991    20px / 20px               991 @ x0       951 @ x20
+        767    20px / 20px               767 @ x0       727 @ x20
+        479    20px / 20px               479 @ x0       439 @ x20
+
+     The top edge steps with it — 16px here was the 1440 value left behind
+     (tncld#158), and the four figures above are symmetric on all four sides.
+
+     Bottom is the inner 20px plus the outer `.layout_1-col.stacked`'s 57.5px
+     pad — 77.5px, flat at 991, 767 and 479. `--space-1800` (80px) is the
+     nearest canonical token; there is no 77.5px step and the 2.5px is two
+     orders below the 5% AC. */
+  .section-split__head {
+    padding-top: var(--space-500);
+    padding-bottom: var(--space-1800); /* 80px against the measured 77.5 */
+    padding-inline: var(--space-500);
+    gap: var(--space-300); /* 12px — the original's gap below 1440 */
+  }
+  /* The 12px step is on all three of the original's nested wrappers, not just
+     the outer one: `.inner-padding.stacked`, `.content-wrapper.narrow` and
+     `.inner-padding.none` each read 16px at 1440 and 12px at 991, 767 and 479. */
+  .section-split__copy,
+  .section-split__detail {
+    gap: var(--space-300);
+  }
+  /* Flush below 991: no container gutter either, so copy is 70% of the whole
+     viewport (693.7 at 991) and the detail row runs the full width.
+     `--space-1400` (56px) against the outer pad's measured 57.5. */
+  .section-split__head.section-split__head--flush {
+    padding: 0 0 var(--space-1400);
+  }
+  /* The original authors its wrap at 767, not 991: this row's two children
+     measure 49.4% each at both 1440 and 991 and go to 100% only at 767 and
+     below (measured on the export — three bands on `/`, three on /services,
+     identical). A flex line wraps before it shrinks, so `nowrap` is what holds
+     the step; `wrap` is restored in the 767 block. This is tncld#154's finding
+     applied to the row the original actually wraps (tncld#158). */
+  .section-split__detail {
+    flex-wrap: nowrap;
+  }
+  /* `.img-wrapper.sm` left-flushes below 991 — its parent drops to
+     `display: block` at css/tncld.webflow.css:6034, so the 5% of slack all
+     lands on the right rather than being split. */
+  .section-split__image--wide {
+    margin-inline: 0;
+  }
+  /* The original stacks both grids here, not at 767 (tncld#133). */
+  .section-cards__grid,
+  .section-principles {
+    grid-template-columns: 1fr;
+  }
+  /* The original's `.container-lg` measures 876px inside a 991 viewport and
+     652px inside 767 — 57.5px of inline padding at both, against the 24px the
+     rebuild carried up from 1440. At 24px each stacked card is 895px wide
+     against the original's 828px, and since these cards are image-led the
+     extra 8% of width came back as 8% of image height. `--space-1400` (56px)
+     is the canonical token nearest 57.5; there is no 57.5px step. */
+  .section-cards {
+    padding-inline: var(--space-1400);
+  }
+  /* 400px is the *three-across* card height measured at 1440; it is not a
+     property of the card. Once the grid stacks, the original's cards are
+     content-height — 224.7px each on /patient-resources at 991, against the
+     400px this min-height was pinning them to. Same defect shape as tncld#131
+     reports for the step and story cards, on a different component. */
+  .section-cards--icon .section-cards__card,
+  .section-cards--numeral .section-cards__card {
+    min-height: 0;
+  }
+  /* The step and story grids are the original's `.layout-3-col` too, so they
+     stack at this same authored breakpoint (tncld#131) — measured 1 column on
+     the original at 991, 767 and 479 alike — and the original drops their
+     gutter from 20px to 16px here. */
+  .section-steps__list,
+  .section-testimonials__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  /* 400px (steps) and 320px (stories) are the *three-across* card heights
+     measured at 1440; they are not properties of the card. Stacked, the
+     original's step card is content-height — 227.5 / 200.6 / 214.3px at
+     991 / 767 / 479, against the 400px this pinned it to.
+     The story card is released for the same reason, but its remaining deficit
+     is NOT this min-height: the original's poster is a fluid 16:9 box and the
+     rebuild crops it to a fixed 144px, which is tncld#143. */
+  .section-steps__item,
+  .section-testimonials__card {
+    min-height: 0;
+  }
+  .section-steps__icon {
+    width: 12%;
+  }
+  /* tncld#141. `margin-left` goes back to 0 with the width: above 991 the
+     original centres the frame inside a flex `.img-wrapper` (`justify-content:
+     center`, css/tncld.webflow.css:2879), but at this breakpoint the wrapper
+     turns `display: block` (:6034) and the frame falls to the left edge —
+     measured x = 0 on all six blocks of the export at 991, 767 and 479, against
+     446.4 at 1440. Keeping `auto` here would park the small square against the
+     right edge, which is not where the page it reproduces puts it. */
+  .section-split__image--square {
+    width: 11.4%;
+    margin-left: 0;
+  }
+  /* Same `.container-lg` correction #138 made for `.section-cards`: the
+     original's container measures 876px inside a 991 viewport and 652px inside
+     767 — 57.5px of inline padding at both, against the 24px the rebuild
+     carried up from 1440. `--space-1400` (56px) is the nearest canonical token. */
+  .section-steps,
+  .section-testimonials {
+    padding-inline: var(--space-1400);
+  }
+  /* tncld#151. The values band takes the same `.container-lg` correction, and
+     its doubled pad steps with it: the original holds 57.5px on BOTH the
+     section and the inner grid here, against 128px on each above 992. Measured
+     on the export at 991, 900, 767 and 600 alike — 862px section, of which:
+
+       115 (pad) + 43 (title) + 40 (gap) + 549 (cards) + 115 (pad) = 862
+
+     `--space-1400` doubled is 112, 3px under the original's 115 per side; the
+     ladder has no 57.5 step, and #138/#144 already round the same value here. */
+  .section-values {
+    padding-block: calc(var(--space-1400) * 2);
+    padding-inline: var(--space-1400);
+  }
+  /* The original's grid gap steps 48 -> 40 with the rest of the band. */
+  .section-values__title {
+    margin-bottom: var(--space-1000);
+  }
+  /* ONE column, not two or three. `.layout-4-col` declares
+     `grid-template-columns: 1fr 1fr` in this breakpoint
+     (css/tncld.webflow.css:5936), but the rule is inert — the element computes
+     `display: flex` with a column direction, so only the measured render
+     settles it: all four cards sit at x=58 with the container's full 876px
+     width and four distinct tops at 991, 767, 600 and 479. The rebuild's
+     `repeat(auto-fit, minmax(14rem, 1fr))` fitted three across a 943px track
+     and wrapped 3+1. Gutter drops 16 -> 12 with the column. */
+  .section-values__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-300);
+  }
+  /* 160px is the *four-across* card height and is not a property of the card —
+     the same shape #131/#138 found on the step, story and icon cards. The
+     original's card is content-height, and its content shrinks here: the icon
+     wrapper holds 40px at both widths, but the gap under it goes 16 -> 12 and
+     the title drops from two lines to one, so 112px of inner box becomes 80 and
+     the card measures a flat 128px at 991, 767 and 600. Kept as a min-height
+     rather than released to content because the rebuild draws a 4px rule where
+     the original sets a 30px glyph (see the note at the head of this section),
+     so its natural height is 36px short of the page it reproduces. */
+  .section-values__card {
+    min-height: 8rem; /* 128px */
+  }
+}
+@media (max-width: 47.9375rem) {
+  /* The original's own wrap point (tncld#154): this row's children hold 49.4%
+     each down to 991 and go to 100% here, so the row becomes a column. The
+     head's own padding does NOT step here — the export holds 20px inside a
+     57.5px outer pad at 991, 767 and 479 alike, which is why the 96px this
+     block used to set is gone (tncld#158). */
+  .section-split__detail {
+    flex-flow: column nowrap;
+  }
+  .section-split__body,
+  .section-split__actions {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  /* `button_wrapper.right` measures 727x64 on `/` and 727x144 on /services at
+     767 — one full-width button, or two stacked full-width ones. */
+  .section-split__actions {
+    justify-content: flex-start;
+  }
+  .section-split__actions .bds-button {
+    flex: 1 0 100%;
+  }
+}
+/* The original's only other step for this icon — 20% inside its own 479
+   breakpoint, i.e. it grows again below 767 rather than shrinking monotonically
+   (css/tncld.webflow.css:6729). */
+@media (max-width: 29.9375rem) {
+  .section-steps__icon {
+    width: 20%;
+  }
+  /* `.img-frame-1-1.sm` takes the same step back up here (:6729) — the export
+     measures 87.4px at 767 and 91.0px at 479. `margin-left: 0` is inherited
+     from the 991 block; it is not restated. */
+  .section-split__image--square {
+    width: 19%;
+  }
+  /* The original's container is 1184 / 876 / 652 / 479 wide at
+     1440 / 991 / 767 / 479 — i.e. it drops its inline padding to ZERO here,
+     rather than keeping the 57.5px it holds at 991 and 767. #144 applied
+     `--space-1400` from 991 down and so over-padded this breakpoint: the card
+     came out 367px wide against the original's 479. For the story card that is
+     load-bearing, because the poster is a fraction of it. */
+  .section-steps,
+  .section-testimonials {
+    padding-inline: 0;
+  }
+  /* tncld#151. The values band does NOT go full-bleed with those two — it keeps
+     a gutter and drops its TOP pad instead. Measured on the export at 479: the
+     section reads `padding: 0px 20px 57.5px`, so the outer 57.5 survives only
+     at the bottom while the inner grid keeps 57.5 on both edges — 57.5 above
+     the title, 115 below the cards, 20px each side (container 439 in a 479
+     viewport). Total 860px. */
+  .section-values {
+    padding-block: var(--space-1400) calc(var(--space-1400) * 2);
+    padding-inline: var(--space-500);
+  }
+}
+
+.section-reveal {
+  --reveal-duration: 1000ms;
+  --reveal-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --reveal-ease: linear(
+    0, 0.2275, 0.4138, 0.5642, 0.6836, 0.7766, 0.8474, 0.8999, 0.9375, 0.9634,
+    0.9802, 0.9905, 0.9961, 0.9988, 0.9998, 1
+  );
+}
+
+/* The hidden state is scoped to browsers that will actually run the observer
+   and to visitors who have not asked for less motion. Applying it globally and
+   undoing it in JS would strand content at opacity 0 whenever the script does
+   not run — the failure the original is exposed to and tncld#96 AC3 forbids.
+   A browser that does not know `scripting` simply never matches, and the
+   content stays visible. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .section-reveal {
+    opacity: 0;
+  }
+  .section-reveal[data-revealed] {
+    opacity: 1;
+    transition: opacity var(--reveal-duration) var(--reveal-ease);
+  }
+}

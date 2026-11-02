@@ -1,0 +1,1339 @@
+#!/usr/bin/env bash
+# sweep-merged-worktrees.sh — remove task worktrees whose work has landed.
+#
+# Why this exists: new-task.sh CREATES worktrees in ../brik-llm-worktrees/{slug}
+# but nothing removes them once their PR merges, so they accumulate
+# indefinitely (46 worktrees / ~930 MB found 2026-06-24). This is the missing
+# teardown companion to new-task.sh. The primary stays on main (see
+# worktree-guard.sh); task worktrees should disappear when their branch lands.
+#
+# Two teardown passes (brik-llm#1078):
+#
+# 1. TRACKED worktrees (still in `git worktree list`). REMOVABLE when clean AND
+#    landed — PR MERGED, or tip is an ancestor of origin/main AND the branch has
+#    something of its own committed (covers non-squash merges + direct-to-main).
+#    Conservative:
+#      - DIRTY worktrees are KEPT (uncommitted work — never auto-removed).
+#      - OPEN-PR worktrees are KEPT (work in flight).
+#      - NOT-STARTED worktrees (no commits on the branch) never read as landed.
+#        `--is-ancestor` is reflexive, so without this a worktree fresh out of
+#        new-task.sh read as "merged into main" and was swept before its
+#        session's first commit (brik-llm#1616). Their verdict comes from the
+#        ticket's claim (#4376): live → KEEP; stale or absent, with the branch
+#        also older than CLAIM_STALE_SECONDS → REMOVE; unreadable → REVIEW.
+#      - DETACHED worktrees (no branch ref at all) are flagged for REVIEW, never
+#        removed (brik-llm#2277). They used to be invisible here — see the block
+#        in pass 1 for why the verdict is FLAG-only.
+#      - Clean+unlanded+no-PR worktrees are flagged for REVIEW, with a loud STALE
+#        marker once the tip is >=7 days old (never removed — brik-llm#3997).
+#      - CLOSED-unmerged PR + clean + tip == PR head is REMOVABLE after >=14 days
+#        closed (brik-llm#3997). GitHub keeps refs/pull/N/head, so nothing is lost;
+#        a tip past the PR head stays REVIEW. Thresholds: BRIK_SWEEP_CLOSED_DAYS,
+#        BRIK_SWEEP_REVIEW_FLAG_DAYS.
+#
+# 2. ORPHAN directories under the worktree root that git NO LONGER tracks
+#    (absent from `git worktree list` — `git worktree prune` already stripped
+#    the linkage once the branch was deleted, but the on-disk dir + its
+#    node_modules were left behind: a 2026-06-19 sweep found 15 such dirs
+#    totaling 17 GB). An orphan is REAPABLE only when its branch `task/<slug>`
+#    has a MERGED PR AND is gone from both local and remote; otherwise it is
+#    FLAG-ONLY (branch still exists or nothing proves it merged) and never
+#    removed. A severed worktree can't be status-checked, so "merged PR + branch
+#    gone from both sides" is the safe reapable signal — squash merges (which
+#    leave the tip NOT an ancestor of main) are covered by the PR-MERGED check.
+#
+# 3. WORKTREE-LESS local `task/*` branches (brik-llm#2240). Passes 1 and 2 are
+#    both keyed on a worktree — pass 1 iterates `git worktree list`, pass 2 walks
+#    directories under the worktree root. Once BOTH are gone (which an earlier
+#    run of this script does, in that order) the branch becomes invisible to the
+#    sweeper and survives forever: 25 such branches had accumulated in brik-llm by
+#    2026-08-16, while `--delete-branches` reported a clean sweep. DELETABLE only
+#    when the remote branch is gone AND its PR is MERGED. An OPEN PR, or no PR at
+#    all, is reported and KEPT — a branch with no PR is the one shape that could
+#    still be unpushed work, and nothing here proves otherwise.
+#
+#    `git branch -d`/`--merged` cannot substitute for the PR check: squash-merge
+#    leaves the tip NOT an ancestor of main, so `-d` refuses on exactly the
+#    branches that have landed.
+#
+# 4. ORPHAN REMOTE REFS — `origin/task/*` with no local worktree (#1634, adopted
+#    from brik-bds' reaper). Passes 1-3 are all local, so none of them can see a
+#    ref pushed from another machine whose PR merged without auto-delete. OPT-IN
+#    via --sweep-remote-refs: it is the only outward-facing mutation here, and
+#    three of the four repos adopting this script have never done it.
+#
+# CANONICAL COPY — this file is byte-identical across every repo in
+# scripts/audit/reaper-twin-drift.py's CONSUMERS list (#1634). brik-llm holds the
+# source of truth; that gate fails CI when a copy diverges. Fix it HERE and
+# re-sync; a local edit in a consumer repo will be reported as drift, not adopted.
+#
+# READ THE ROSTER FROM THE GATE, not from this comment. It named four repos from
+# #1634 until 2026-09-29, when CONSUMERS held ten — and an agent sizing a one-line
+# fix off the stale number costed the propagation at 2 PRs instead of 11.
+# `python3 scripts/audit/reaper-twin-drift.py --roster` prints the live set.
+# It needs no per-repo edits: the primary worktree, worktree root and repo slug are
+# all derived at runtime from git and gh.
+#
+# Orphan accumulation across all roots is surfaced fleet-wide by
+# claude-weekly-hygiene.sh.
+#
+# Usage:
+#   ./scripts/sweep-merged-worktrees.sh                    # dry-run (default)
+#   ./scripts/sweep-merged-worktrees.sh --apply            # remove landed worktrees + reap orphans
+#   ./scripts/sweep-merged-worktrees.sh --reap             # alias for --apply
+#   ./scripts/sweep-merged-worktrees.sh --delete-branches  # dry-run, incl. pass 3
+#   ./scripts/sweep-merged-worktrees.sh --apply --delete-branches
+#                                                          # also delete landed local branches,
+#                                                          # worktree or not (pass 3)
+#   ./scripts/sweep-merged-worktrees.sh --keep foo         # spare worktree/branch 'foo'
+#   ./scripts/sweep-merged-worktrees.sh --apply --sweep-remote-refs
+#                                                          # also delete landed origin/task/* refs
+#   ./scripts/sweep-merged-worktrees.sh --json             # one JSON object on stdout, then exit
+#                                                          # (always a dry-run read; never mutates)
+#   ./scripts/sweep-merged-worktrees.sh --slim-only        # delete node_modules + .next from merged
+#                                                          # worktrees; never removes a worktree (#5134)
+#   ./scripts/sweep-merged-worktrees.sh --slim-only --only foo
+#                                                          # ...for worktree/branch 'foo' only
+#
+# --slim-only (#5134): a merged worktree held ~3.3 GB of node_modules and ~0.7 GB of .next
+# until the daily reaper removed the whole worktree, and a dirty or REVIEW one held it
+# forever. It is its own mode, and --apply runs the same pass over the worktrees it did not
+# remove. A worktree is slimmed only when its PR is MERGED, its tip IS that PR's head (nothing
+# newer was committed), and both directories are git-IGNORED and real directories — so nothing
+# tracked or uncommitted is touched. Unless BRIK_SWEEP_SLIM_IDLE_MIN is 0, a worktree with a
+# non-ignored write, or a .next / npm write, inside that many minutes is skipped (a session may
+# still be working in it). The caller that owns the worktree passes 0 with --only.
+#
+# Env: BRIK_WORKTREE_ROOT overrides the swept root (default: <primary>-worktrees).
+#      CLAIM_STALE_SECONDS (default 43200, issue-claim.sh's) is the zero-commit window.
+#      BRIK_SWEEP_SLIM_IDLE_MIN (default 60) is the --slim-only idle window; 0 disables it.
+# Requires: gh (for PR state). Without gh, falls back to ancestor-of-main only
+# for tracked worktrees; orphans need a MERGED PR so they stay flag-only. When gh
+# is INSTALLED but its call fails, that same fallback engages and the run says so
+# on stderr — see the warning below (#2277).
+
+set -uo pipefail
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
+
+APPLY=false
+DELETE_BRANCHES=false
+SWEEP_REMOTE_REFS=false
+SLIM_ONLY=false
+JSON=false
+declare -a KEEP_LIST=()
+declare -a ONLY_LIST=()
+# `--keep` takes a value, so the loop consumes two args — a bare `for arg in "$@"`
+# cannot express that.
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --apply|--reap) APPLY=true ;;
+    --delete-branches) DELETE_BRANCHES=true ;;
+    --sweep-remote-refs) SWEEP_REMOTE_REFS=true ;;
+    --slim-only) SLIM_ONLY=true ;;
+    --only)
+      [ $# -ge 2 ] || { echo -e "${RED}--only needs a worktree or slug name${NC}" >&2; exit 2; }
+      ONLY_LIST+=("$2"); shift ;;
+    --keep)
+      [ $# -ge 2 ] || { echo -e "${RED}--keep needs a worktree or slug name${NC}" >&2; exit 2; }
+      KEEP_LIST+=("$2"); shift ;;
+    --json) JSON=true ;;
+    -h|--help) sed -n '2,113p' "$0"; exit 0 ;;   # header ends at the Requires: note
+    *) echo -e "${RED}Unknown flag: $1${NC}" >&2; exit 2 ;;
+  esac
+  shift
+done
+
+# --json is an audit READ, so pairing it with a mutation is a usage error, not a
+# preference to resolve. Silently downgrading --apply to a dry-run would be worse than
+# the ANSI-prose bug this flag started with (#2609): the caller asked for a reap, saw
+# exit 0 and a clean payload, and nothing was reaped.
+if $JSON && { $APPLY || $SWEEP_REMOTE_REFS; }; then
+  echo -e "${RED}--json reports; it does not reap. Drop --apply/--sweep-remote-refs, or drop --json.${NC}" >&2
+  exit 2
+fi
+
+# --slim-only is its own mode, so a flag that asks for another pass is a usage error, not
+# something to drop silently: the caller asked for a removal, saw exit 0, and nothing happened.
+if $SLIM_ONLY && { $APPLY || $DELETE_BRANCHES || $SWEEP_REMOTE_REFS || $JSON; }; then
+  echo -e "${RED}--slim-only deletes build output only. Drop --apply/--delete-branches/--sweep-remote-refs/--json, or drop --slim-only.${NC}" >&2
+  exit 2
+fi
+if [ ${#ONLY_LIST[@]} -gt 0 ] && ! $SLIM_ONLY; then
+  echo -e "${RED}--only narrows --slim-only; it does nothing on its own.${NC}" >&2
+  exit 2
+fi
+
+# kept NAME — 0 when --keep spared it. Matched on the SLUG (a worktree's basename,
+# a branch's `task/` suffix) so one `--keep foo` spares the worktree, its directory
+# and its branch together; sparing only one of the three would let a later pass
+# reap what an earlier pass was told to leave alone.
+kept() {
+  local name="$1" k
+  [ ${#KEEP_LIST[@]} -eq 0 ] && return 1
+  for k in "${KEEP_LIST[@]}"; do
+    [ "$name" = "$k" ] && return 0
+    [ "$name" = "task/$k" ] && return 0
+  done
+  return 1
+}
+
+# Primary = the first worktree git lists (the main working tree), NOT
+# `git rev-parse --show-toplevel` — that returns the CURRENT worktree, which
+# is wrong when this script runs from a task worktree. Mirrors new-task.sh.
+PRIMARY="$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+SELF_WT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || echo "")"
+
+git fetch origin main --quiet 2>/dev/null || true
+
+# Pass 4 reads refs/remotes/origin/task/*, and those refs outlive the branches
+# they name: GitHub's delete-branch-on-merge, `gh pr merge --delete-branch` and
+# another session's sweep all remove the remote branch without touching this
+# checkout. The stale ref was then offered for deletion, the push failed, and —
+# because the delete is one batch — it took every genuinely-live orphan ref with
+# it. The only prune in the old script ran inside the SUCCESS branch, the one
+# path where it was no longer needed, so the failure never self-healed
+# (brik-llm#2333).
+#
+# Scoped to the task namespace, not a bare `git fetch --prune origin`: the fetch
+# above is deliberately `origin main`, and pruning all of origin is a much bigger
+# read on every run. Confined to the pass that needs it — a sweep without
+# --sweep-remote-refs still makes exactly the one fetch it always did.
+if $SWEEP_REMOTE_REFS; then
+  git fetch origin --prune --quiet \
+    '+refs/heads/task/*:refs/remotes/origin/task/*' 2>/dev/null || true
+fi
+
+# PR map: headRefName -> best state (any OPEN PR wins, then the newest — #4352).
+#
+# A reused slug can carry an older MERGED PR and a newer OPEN one. Ranking MERGED
+# first made the live branch read REMOVE while its PR was open; brik-bds fixed it
+# locally (c919c9b2, #2676) and it never came upstream.
+#
+# When gh is present but the CALL fails — bad token scope, exhausted GraphQL
+# bucket — PR_JSON stays empty and every branch classifies as "no PR" → KEEP. That
+# is fail-safe, but it used to be SILENT, which made a degraded run indistinguishable
+# from a genuinely clean one (#2277). Errors are surfaced, not swallowed: this is the
+# swallow-stderr shape #1590 exists to kill, and worktree-status.sh already reports
+# the same condition rather than degrading without a word.
+#
+# Self-contained on purpose — worktree-status.sh gets its wording from
+# scripts/lib/gh-error-classify.sh, but this file is byte-identical in four repos
+# and brikdesigns has no copy of that lib, so sourcing it would break the twin.
+PR_JSON=""
+if command -v gh >/dev/null 2>&1; then
+  GH_ERR="$(mktemp)"
+  if ! PR_JSON="$(gh pr list --state all --limit 800 --json number,headRefName,state,mergedAt,closedAt,headRefOid 2>"$GH_ERR")" \
+     || [ -z "$PR_JSON" ]; then
+    PR_JSON=""
+    echo -e "${YELLOW}⚠  'gh pr list' failed — PR state shows '—' for every branch, so nothing below can classify as merged.${NC}" >&2
+    sed 's/^/   /' "$GH_ERR" >&2
+  fi
+  rm -f "$GH_ERR"
+fi
+
+pr_for_branch() {  # $1=branch -> "num|state"
+  [ -z "$PR_JSON" ] && { echo "none|—"; return; }
+  printf '%s' "$PR_JSON" | BRANCH="$1" python3 -c '
+import json, os, sys
+b = os.environ["BRANCH"]
+prs = json.load(sys.stdin)
+m = [p for p in prs if p.get("headRefName") == b]
+if not m:
+    print("none|-")
+    sys.exit()
+m.sort(key=lambda p: (p.get("state") == "OPEN", p.get("number")), reverse=True)
+p = m[0]
+print("#%s|%s" % (p["number"], p["state"]))'
+}
+
+# A CLOSED-unmerged PR, for the age-out bands (#3997). Picks the SAME PR as
+# pr_for_branch (any OPEN first, then highest number) so the two never disagree, and
+# returns "closedAt|headRefOid" — empty fields when the PR is not CLOSED or the map
+# was unreadable. Separate from pr_for_branch on purpose: its "num|state" shape is
+# parsed with ${pr%%|*} / ${pr##*|} at every call site.
+pr_closed_info() {  # $1=branch -> "closedAt|headRefOid"
+  [ -z "$PR_JSON" ] && { echo "|"; return; }
+  printf '%s' "$PR_JSON" | BRANCH="$1" python3 -c '
+import json, os, sys
+b = os.environ["BRANCH"]
+m = [p for p in json.load(sys.stdin) if p.get("headRefName") == b]
+if not m:
+    print("|")
+m.sort(key=lambda p: (p.get("state") == "OPEN", p.get("number")), reverse=True)
+p = m[0]
+if p.get("state") != "CLOSED":
+    print("|")
+print("%s|%s" % (p.get("closedAt") or "", p.get("headRefOid") or ""))'
+}
+
+# Whole days since an ISO-8601 timestamp (GitHub's closedAt) or a unix epoch.
+age_days() {  # $1=ISO-8601 or epoch -> integer days, empty when unparseable
+  python3 -c '
+import sys, time, datetime
+v = sys.argv[1]
+try:
+    t = float(v) if v.isdigit() else datetime.datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()
+except ValueError:
+    sys.exit()
+print(int((time.time() - t) // 86400))' "$1" 2>/dev/null
+}
+
+# Age thresholds, overridable so the tests need not wait two weeks (#3997).
+#   CLOSED_REAP_DAYS  — a CLOSED-unmerged PR whose worktree is clean and whose tip IS
+#                       the PR's head is reapable once it has been closed this long.
+#   REVIEW_FLAG_DAYS  — a REVIEW verdict (no PR, clean, unlanded) is loudly flagged
+#                       once its tip is this old. Flag only; never removed.
+CLOSED_REAP_DAYS="${BRIK_SWEEP_CLOSED_DAYS:-14}"
+REVIEW_FLAG_DAYS="${BRIK_SWEEP_REVIEW_FLAG_DAYS:-7}"
+
+# Did the PR lookup ANSWER for this branch? `pr_for_branch` already returns two
+# different "none" shapes — the em-dash when PR_JSON is empty (the call failed, so
+# nothing was read), the ASCII hyphen when the map was read and held no PR for this
+# branch. Every verdict below used to collapse both into "no merged PR", which is an
+# absence claim a degraded run never established: on 2026-09-21, with the GraphQL
+# bucket exhausted, three branches whose PRs WERE merged (#3579, #3597, #3601) each
+# printed "KEEP — no merged PR", and the one warning saying so was already off the
+# top of the screen (#3603). The reaping behaviour was right; only the wording lied.
+pr_unknown() { [ "$1" = "—" ]; }
+UNKNOWN_PR=0
+
+# A ZERO-COMMIT worktree asks the ticket's CLAIM whether its session is alive
+# (#4376). It used to read `REVIEW — no commits yet (session may be mid-setup)`
+# forever: the reaper could not tell a session five minutes old from one dead for
+# weeks, so only an operator ever cleared the row. Liveness is the claim's `Since`
+# — renewed every turn by the session-heartbeat hook — not the presence of a
+# directory (a worktree is not a claim, rag:fleet-op-lock).
+#
+# The join: branches are `task/<slug>` with no number (#2514), so the branch name
+# cannot find the ticket. new-task.sh records it on the branch as git config
+# `branch.<b>.brikTaskIssue` (new-task.sh, #1707) — a bare `N` (this repo) or
+# `owner/repo#N`. The claim marker on that issue names its branches as
+# `owner/repo:<branch>` entries; it counts for THIS worktree only when one entry's
+# branch part is this branch.
+#
+# VENDORED, not sourced. scripts/lib/issue-claim.sh is the canon (claim_is_stale,
+# parse_claim), but three of this file's consumers carry it and the client sites
+# do not — the same reason gh-error-classify.sh is not sourced above. The window
+# and skew are the lib's own names and defaults, so one override governs both. The
+# in-window decision is claim_is_stale's; the two "cannot date it" arms differ ON
+# PURPOSE: the lib calls an undatable or far-future stamp stale because its action
+# is "do not block", and here stale means REMOVE, so they read UNREADABLE instead.
+#
+# One REST read per zero-commit worktree that has a ticket, never GraphQL — the
+# fleet shares that bucket (rag:github-api-quota-is-shared-across-the-fleet).
+#
+# Sets CLAIM_STATE (live|stale|absent|noref|unreadable) + CLAIM_HOST, CLAIM_AGE
+# (seconds), CLAIM_REF, CLAIM_WHY. Call it bare, never in $(…) — see dirty_count.
+CLAIM_STALE_SECONDS="${CLAIM_STALE_SECONDS:-43200}"
+CLAIM_SKEW_SECONDS="${CLAIM_SKEW_SECONDS:-300}"
+CLAIM_STATE="" CLAIM_HOST="" CLAIM_AGE="" CLAIM_REF="" CLAIM_WHY=""
+zero_commit_claim() {  # $1=worktree path  $2=branch
+  local wt="$1" b="$2" ref nwo num err out rc=0 parsed
+  CLAIM_STATE="unreadable"; CLAIM_HOST=""; CLAIM_AGE=""; CLAIM_WHY=""
+  ref="$(git -C "$wt" config --get "branch.$b.brikTaskIssue" 2>/dev/null || true)"
+  CLAIM_REF="$ref"
+  [ -n "$ref" ] || { CLAIM_STATE="noref"; return; }
+  case "$ref" in
+    *'#'*) nwo="${ref%%#*}"; num="${ref#*#}" ;;
+    *)     nwo="";           num="$ref" ;;
+  esac
+  # gh fills {owner}/{repo} from this checkout's remote, locally, for no API cost.
+  [ -n "$nwo" ] || nwo='{owner}/{repo}'
+  case "$num" in ''|*[!0-9]*) CLAIM_WHY="ticket record '$ref' is not an issue ref"; return ;; esac
+  case "$nwo" in
+    '{owner}/{repo}') : ;;
+    */*/*|*[!A-Za-z0-9._/-]*|/*|*/) CLAIM_WHY="ticket record '$ref' is not an issue ref"; return ;;
+    */*) : ;;
+    *) CLAIM_WHY="ticket record '$ref' is not an issue ref"; return ;;
+  esac
+  command -v gh >/dev/null 2>&1 || { CLAIM_WHY="gh not installed"; return; }
+  err="$(mktemp)"
+  out="$(cd "$PRIMARY" && gh api "repos/$nwo/issues/$num/comments" --paginate \
+    --jq '.[] | select((.body // "") | contains("<!-- claim -->")) | .body | @json' 2>"$err")" || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    CLAIM_WHY="comments read failed: $(head -1 "$err" | cut -c1-80)"
+    rm -f "$err"; return
+  fi
+  rm -f "$err"
+  parsed="$(printf '%s' "$out" | BRANCH="$b" NOW="$(date +%s)" WINDOW="$CLAIM_STALE_SECONDS" \
+    SKEW="$CLAIM_SKEW_SECONDS" python3 -c '
+import datetime, json, os, re, sys
+# Unit-separated, not tab: tab is IFS whitespace, so the shell read would collapse
+# the empty middle fields and shift the reason into the host.
+def out(state, host="", age="", why=""):
+    print("\x1f".join((state, host, age, why)))
+    sys.exit()
+lines = [l for l in sys.stdin.read().splitlines() if l.strip()]
+if not lines:
+    out("absent", why="no claim marker on the ticket")
+try:
+    body = json.loads(lines[-1])            # the newest marker, as parse_claim reads it
+except ValueError:
+    out("unreadable", why="claim marker is not JSON")
+def row(label):
+    m = re.search(r"^\| %s \| (.*) \|$" % label, body, re.M)
+    return m.group(1).strip() if m else ""
+tick = chr(96)                              # a backtick, kept out of the shell string
+host, cell, since = row("Host").strip(tick), row("Branch").replace(tick, ""), row("Since")
+if not (host and cell and since):
+    out("unreadable", why="claim marker has no Host/Branch/Since row")
+named = {e.strip().split(":", 1)[-1] for e in cell.split(",") if e.strip()}
+if os.environ["BRANCH"] not in named:
+    out("absent", host, why="the claim names other branches, not this one")
+try:
+    then = datetime.datetime.strptime(since, "%Y-%m-%dT%H:%M:%SZ") \
+        .replace(tzinfo=datetime.timezone.utc).timestamp()
+except ValueError:
+    out("unreadable", host, why="claim Since %s is undatable" % since)
+age = int(os.environ["NOW"]) - int(then)
+if age < -int(os.environ["SKEW"]):
+    out("unreadable", host, why="claim Since %s is in the future" % since)
+age = max(age, 0)
+out("live" if age < int(os.environ["WINDOW"]) else "stale", host, str(age))' 2>/dev/null)" \
+    || parsed=""
+  [ -n "$parsed" ] || { CLAIM_WHY="claim marker could not be parsed"; return; }
+  IFS=$'\x1f' read -r CLAIM_STATE CLAIM_HOST CLAIM_AGE CLAIM_WHY <<<"$parsed"
+}
+
+# Seconds as `45m` / `14h3m` / `12h` — the shape claim_age_human prints.
+human_secs() {  # $1=seconds
+  local s="${1:-0}"
+  if [ "$s" -lt 3600 ]; then printf '%dm' $(( s / 60 ))
+  elif [ $(( s % 3600 )) -eq 0 ]; then printf '%dh' $(( s / 3600 ))
+  else printf '%dh%dm' $(( s / 3600 )) $(( (s % 3600) / 60 )); fi
+}
+
+# Uncommitted work in a worktree, counted as WORK rather than as lines of
+# `git status --porcelain` (#2782). Two shapes reach porcelain as a line while
+# carrying nothing recoverable, and because the verdict for any dirt is KEEP they
+# pinned merged worktrees forever — three of them on brik-mini dated back to
+# 2026-05-29 with their PRs long merged, and had to be removed by hand:
+#
+#   - a MODE-ONLY change (100755 -> 100644): ` M path` in porcelain, `0 0` in
+#     --numstat, and a `mode change` line in --summary. One worktree carried 8.
+#   - an untracked SYMLINK: `.gitignore`'s `node_modules/` has a trailing slash,
+#     which matches a directory but never a symlink, so it reports `?? node_modules`.
+#     git cannot be asked to adjudicate this one — `check-ignore` refuses any path
+#     "beyond a symbolic link" (verified 2026-09-29, with and without --no-index and
+#     --stdin), so the test is direct: a symlink stores no content, and removing the
+#     worktree leaves whatever it pointed at untouched.
+#   - a GITLINK whose POINTER drifted: bds-propagate advances foundations/brik-bds in
+#     the base branch, a worktree merges that in, and its submodule checkout stays
+#     where it was — ` M foundations/brik-bds` nobody authored. repo-state.sh:341
+#     already names this as the #829 failure mode. On 2026-10-17 it pinned three
+#     worktrees at KEEP, two with PRs merged ~23 days earlier (#4919).
+#
+# That last one is NARROWER than "the path is a submodule", and deliberately so.
+# THREE different submodule states all reach porcelain as the same ` M <path>` line,
+# and only the first carries no authored work (probed 2026-10-17, git 2.x):
+#
+#   state                      `git diff --raw HEAD -- <path>`      work inside?
+#   pointer drift              :160000 160000 <src> 0000000 M       no
+#   content edited inside      :160000 160000 <src> <src> M         YES
+#   untracked file inside      (no raw line at all)                 YES
+#
+# So the dst sha discriminates, and even then the submodule's OWN porcelain is
+# consulted before skipping: `git checkout <other-sha>` inside a submodule AND an
+# uncommitted edit on top is one worktree, one porcelain line, and real work to
+# lose. Both conditions must hold or the line counts as dirt, as before.
+#
+# This NARROWS what counts as dirt; it does not weaken the guard. Anything else
+# still counts, still yields KEEP, and DIRTY_WHY carries the reason into the verdict
+# so an operator can adjudicate without re-running git by hand.
+#
+# Sets DIRTY_N + DIRTY_WHY as globals and returns nothing on stdout. Call it bare,
+# NEVER as `n=$(dirty_count …)` — a command substitution runs it in a subshell and
+# the caller sees neither global, which is how the reason silently went missing.
+DIRTY_N=0
+DIRTY_WHY=""
+dirty_count() {  # $1=worktree path -> sets DIRTY_N (real changes) + DIRTY_WHY (what they are)
+  local wt="$1" line st p real=0 why="" numstat
+  DIRTY_N=0; DIRTY_WHY=""
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    st="${line:0:2}"; p="${line:3}"
+    # porcelain quotes a path containing odd bytes; the tests below need it bare.
+    case "$p" in '"'*'"') p="${p#\"}"; p="${p%\"}" ;; esac
+    case "$st" in
+      '??')
+        [ -L "$wt/$p" ] && continue ;;
+      ' M'|'M '|'MM')
+        numstat="$(git -C "$wt" diff --numstat HEAD -- "$p" 2>/dev/null | awk 'NR==1{print $1"/"$2}')"
+        if [ "$numstat" = "0/0" ] \
+           && git -C "$wt" diff --summary HEAD -- "$p" 2>/dev/null | grep -q '^ mode change '; then
+          continue
+        fi
+        # Gitlink POINTER drift, and only that: both modes 160000, dst sha all-zero
+        # (git does not resolve the checked-out commit), and nothing uncommitted
+        # inside the submodule itself. See the table in the preamble.
+        if git -C "$wt" diff --raw HEAD -- "$p" 2>/dev/null \
+             | grep -qE '^:160000 160000 [0-9a-f]+ 0+ ' \
+           && [ -z "$(git -C "$wt/$p" status --porcelain 2>/dev/null)" ]; then
+          continue
+        fi ;;
+    esac
+    real=$((real+1))
+    [ ${#why} -lt 90 ] && why="${why}${why:+, }${st} ${p}"
+  done < <(git -C "$wt" status --porcelain 2>/dev/null)
+  DIRTY_N="$real"
+  DIRTY_WHY="$why"
+}
+
+# Worktree root swept for orphan directories (pass 2). Overridable for tests.
+WORKTREE_ROOT="${BRIK_WORKTREE_ROOT:-$(dirname "$PRIMARY")/$(basename "$PRIMARY")-worktrees}"
+
+# Remote branch heads, fetched once. REMOTE_OK distinguishes "fetched, branch
+# absent" (safe to reap) from "couldn't reach origin" (unknown → never reap).
+REMOTE_HEADS=""; REMOTE_OK=false
+if command -v git >/dev/null 2>&1 && REMOTE_HEADS="$(git ls-remote --heads origin 2>/dev/null | sed 's#.*refs/heads/##')"; then
+  REMOTE_OK=true
+fi
+
+branch_exists_local() { git show-ref --verify --quiet "refs/heads/$1"; }
+# "remote-absent" is only trustworthy when the fetch succeeded; otherwise treat
+# the branch as present so an unreachable origin can never trigger a reap.
+branch_absent_remote() { $REMOTE_OK && ! grep -qxF "$1" <<<"$REMOTE_HEADS"; }
+
+# True when everything in $1 is build output git never tracks: .next, .source,
+# node_modules, and a `supabase` tree holding no files. Top-level names only —
+# a file or any other directory fails it, and so does a `supabase` with a file in it.
+only_build_output() {  # $1=dir; an empty dir is not build output, so it stays FLAG
+  [ -n "$(find "$1" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ] \
+    && [ -z "$(find "$1" -mindepth 1 -maxdepth 1 ! -name .next ! -name .source ! -name node_modules ! -name supabase -print -quit 2>/dev/null)" ] \
+    && [ -z "$(find "$1/supabase" ! -type d -print -quit 2>/dev/null)" ]
+}
+
+human_size() {  # $1=KB -> human string
+  awk -v k="$1" 'BEGIN{ if(k>=1048576) printf "%.1f GB", k/1048576; else if(k>=1024) printf "%.0f MB", k/1024; else printf "%d KB", k }'
+}
+
+# The slim pass (#5134). Deletes node_modules and .next from a worktree whose work has landed
+# and leaves everything else: the worktree, its branch, tracked and uncommitted files. See the
+# --slim-only header for the contract; this is the one place it is enforced.
+#
+# The PR picked is the SAME one pr_for_branch picks (any OPEN first, then highest number), so
+# this can never slim a worktree the classification below calls open. headRefOid is the PR head
+# at merge: a tip past it is commits that never landed, and the worktree is left alone.
+#
+# `git check-ignore` is the guard that the directory is build output. It reports nothing for a
+# tracked path, and refuses a path beyond a symlink — which is why a symlinked node_modules is
+# skipped outright: it holds no content, and removing the link frees nothing.
+#
+# $1.. = worktree paths to leave to the removal pass (--apply passes REMOVE_PATHS).
+SLIM_IDLE_MIN="${BRIK_SWEEP_SLIM_IDLE_MIN:-60}"
+SLIM_DIRS=(node_modules .next)
+pr_merged_head() {  # $1=branch -> the merged PR's headRefOid, empty when the chosen PR is not MERGED
+  [ -z "$PR_JSON" ] && return
+  printf '%s' "$PR_JSON" | BRANCH="$1" python3 -c '
+import json, os, sys
+m = [p for p in json.load(sys.stdin) if p.get("headRefName") == os.environ["BRANCH"]]
+if not m:
+    sys.exit()
+m.sort(key=lambda p: (p.get("state") == "OPEN", p.get("number")), reverse=True)
+if m[0].get("state") == "MERGED":
+    print(m[0].get("headRefOid") or "")'
+}
+
+# Was anything a session might be using written inside the idle window? 0 means the caller
+# owns the worktree and has said so, so there is nothing to wait for.
+slim_recently_active() {  # $1=worktree path -> 0 when active
+  local wt="$1" min="$SLIM_IDLE_MIN" f
+  [ "$min" -gt 0 ] 2>/dev/null || return 1
+  while IFS= read -r -d '' f; do
+    [ -n "$(find "$wt/$f" -mmin "-$min" -print -quit 2>/dev/null)" ] && return 0
+  done < <(git -C "$wt" ls-files -m -o --exclude-standard -z 2>/dev/null)
+  [ -n "$(find "$wt/.next" -maxdepth 2 -type f -mmin "-$min" -print -quit 2>/dev/null)" ] && return 0
+  [ -n "$(find "$wt/node_modules/.package-lock.json" -mmin "-$min" -print -quit 2>/dev/null)" ] && return 0
+  return 1
+}
+
+slim_merged_worktrees() {
+  local path ref branch tip head slim_n=0 slim_kb=0 skip i d kb hit only wt_root_phys p_phys
+  local -a targets
+  wt_root_phys="$(cd "$WORKTREE_ROOT" 2>/dev/null && pwd -P)"
+  if [ -z "$PR_JSON" ]; then
+    echo -e "${YELLOW}⚠  PR state unreadable — nothing slimmed.${NC}" >&2
+    return 0
+  fi
+  while IFS=$'\t' read -r path ref; do
+    [ "$path" = "$PRIMARY" ] && continue
+    [ "$ref" = "-" ] && continue                      # detached: no branch to prove it landed
+    branch="${ref#refs/heads/}"
+    kept "$(basename "$path")" && continue
+    kept "$branch" && continue
+    if [ ${#ONLY_LIST[@]} -gt 0 ]; then
+      only=false
+      for hit in "${ONLY_LIST[@]}"; do
+        [ "$(basename "$path")" = "$hit" ] || [ "$branch" = "$hit" ] || [ "$branch" = "task/$hit" ] && only=true
+      done
+      $only || continue
+    fi
+    skip=false
+    for ((i=0; i<${#REMOVE_PATHS[@]}; i++)); do
+      [ "${REMOVE_PATHS[$i]}" = "$path" ] && skip=true
+    done
+    $skip && continue
+    # Physical path under the worktree root, same guard as every rm in this script.
+    p_phys="$(cd "$path" 2>/dev/null && pwd -P)"
+    case "${p_phys:-/nonexistent}" in "${wt_root_phys:-/nonexistent-root}"/?*) ;; *) continue ;; esac
+    head="$(pr_merged_head "$branch")"
+    [ -n "$head" ] || continue
+    tip="$(git -C "$path" rev-parse HEAD 2>/dev/null)"
+    [ "$tip" = "$head" ] || continue
+    targets=()
+    for d in "${SLIM_DIRS[@]}"; do
+      [ -d "$path/$d" ] || continue
+      [ -L "$path/$d" ] && continue                     # a link points at a tree this worktree does not own
+      git -C "$path" check-ignore -q "$d" 2>/dev/null || continue
+      targets+=("$d")
+    done
+    [ ${#targets[@]} -gt 0 ] || continue
+    slim_recently_active "$path" && continue
+    kb=0
+    for d in "${targets[@]}"; do
+      kb=$(( kb + $(du -sk "$p_phys/$d" 2>/dev/null | awk '{print $1+0}') ))
+      rm -rf "${p_phys:?}/$d"
+    done
+    slim_n=$((slim_n+1)); slim_kb=$((slim_kb+kb))
+    echo -e "  ${GREEN}SLIM${NC} ${branch} $(human_size "$kb") (${targets[*]})"
+  done < <(git worktree list --porcelain | awk '
+    /^worktree /{ if (wt != "") print wt "\t" (ref == "" ? "-" : ref); wt=$2; ref="" }
+    /^branch /  { ref=$2 }
+    END         { if (wt != "") print wt "\t" (ref == "" ? "-" : ref) }')
+  echo -e "${GREEN}Slimmed ${slim_n} merged worktree(s), $(human_size "$slim_kb").${NC}"
+}
+
+declare -a REMOVE_PATHS=()   # read by the slim pass; --slim-only exits before pass 1 fills it
+if $SLIM_ONLY; then
+  slim_merged_worktrees
+  exit 0
+fi
+
+# --json rows accumulate as TSV and are serialised by python3 at the end (#2609).
+# Hand-escaping a verdict like `KEEP — PR #123 open` into JSON from shell is exactly
+# how a payload ends up unparseable, which is the bug this flag started with. python3
+# is already a dependency of this script — see the PR-map reader below.
+JSON_ROWS=""
+json_row() {  # $1=pass, $2.. = that pass's fields, in table order
+  $JSON || return 0
+  local IFS=$'\t'
+  JSON_ROWS+="$*"$'\n'
+}
+
+declare -a REMOVE_PATHS=() REMOVE_BRANCHES=() REMOVE_LABELS=()
+KEPT=0 REVIEW=0
+
+$JSON || { printf '%-50s %-9s %-9s %s\n' "BRANCH" "DIRTY" "PR" "VERDICT"; printf '%.0s─' {1..110}; echo; }
+
+while IFS=$'\t' read -r path ref; do
+  [ "$path" = "$PRIMARY" ] && continue
+  [ "$path" = "$SELF_WT" ] && { $JSON || printf '%-50s %-9s %-9s %s\n' "$(basename "$path")" "-" "-" "SKIP — running from here"; json_row worktree "$(basename "$path")" "-" "-" "SKIP — running from here"; KEPT=$((KEPT+1)); continue; }
+
+  # DETACHED worktree — `ref` is the `-` sentinel the reader emits when the
+  # porcelain block carried no `branch` line (#2277). Before that, the row was
+  # never printed at all: the sweeper reported `Nothing to remove` with a detached
+  # worktree sitting in the swept root, which reads as the reaper being broken.
+  #
+  # The verdict is FLAG-ONLY — REVIEW, never REMOVE — and it is deliberately
+  # narrower than the two cleanup-merged-worktrees.sh copies this script replaced,
+  # which removed `detached || branch ref missing` outright (portal :125,
+  # brik-bds :146). Every REMOVE in this pass rests on a branch ref: the PR lookup
+  # keys on it and `--is-ancestor` needs a named tip, and those two ARE how "this
+  # landed" gets established. A detached worktree can hold commits whose only
+  # reference is its own HEAD; nothing reachable from here proves they landed, and
+  # removing it makes them unrecoverable. Flagging costs an operator one decision;
+  # the alternative costs the work.
+  if [ "$ref" = "-" ]; then
+    slug="$(basename "$path")"
+    if kept "$slug"; then
+      $JSON || printf '%-50s %-9s %-9s %s\n' "$slug (detached)" "-" "-" "KEEP — --keep"
+      json_row worktree "$slug (detached)" "-" "-" "KEEP — --keep"
+      KEPT=$((KEPT+1)); continue
+    fi
+    # Dirty first, matching the branch path below: uncommitted work outranks every
+    # other signal. Redundant while the verdict is FLAG-only, and kept anyway so a
+    # future loosening of that verdict cannot skip the guard.
+    dirty_count "$path"; dirty="$DIRTY_N"
+    if [ "$dirty" != "0" ]; then
+      verdict="KEEP — ${dirty} uncommitted change(s), detached HEAD: ${DIRTY_WHY}"; KEPT=$((KEPT+1))
+    else
+      verdict="REVIEW — detached HEAD, no branch ref to prove it landed"; REVIEW=$((REVIEW+1))
+    fi
+    $JSON || printf '%-50s %-9s %-9s %s\n' "$slug (detached)" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "-" "$verdict"
+    json_row worktree "$slug (detached)" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "-" "$verdict"
+    continue
+  fi
+
+  branch="${ref#refs/heads/}"
+  if kept "$(basename "$path")" || kept "$branch"; then
+    $JSON || printf '%-50s %-9s %-9s %s\n' "$branch" "-" "-" "KEEP — --keep"
+    json_row worktree "$branch" "-" "-" "KEEP — --keep"
+    KEPT=$((KEPT+1)); continue
+  fi
+  # Claude Code's `isolation: worktree` puts agent worktrees in
+  # <primary>/.claude/worktrees/, outside $WORKTREE_ROOT. The removal pass guards
+  # its rm fallback to $WORKTREE_ROOT (correctly), so a merged harness worktree
+  # whose `git worktree remove` fails (any repo with a submodule) was counted
+  # removable, refused at removal, and never converged (#4258). The harness owns
+  # that directory, so say so instead of promising a removal this script cannot do.
+  case "$path" in
+    "$PRIMARY"/.claude/worktrees/*)
+      verdict="REVIEW — harness-managed (.claude/worktrees), outside reaper scope"; REVIEW=$((REVIEW+1))
+      $JSON || printf '%-50s %-9s %-9s %s\n' "$branch" "-" "-" "$verdict"
+      json_row worktree "$branch" "-" "-" "$verdict"
+      continue ;;
+  esac
+  dirty_count "$path"; dirty="$DIRTY_N"
+  tip=$(git -C "$path" rev-parse "$branch" 2>/dev/null)
+  anc="no"; git merge-base --is-ancestor "$tip" origin/main 2>/dev/null && anc="yes"
+  pr=$(pr_for_branch "$branch"); prnum="${pr%%|*}"; prstate="${pr##*|}"
+
+  # Has anything ever been committed on this branch? A branch fresh out of
+  # new-task.sh points at the base it was created from, and `--is-ancestor` is
+  # reflexive, so the ancestor test alone reports it as "merged into main" and
+  # sweeps it — taking the worktree and (with --delete-branches) the branch, in
+  # the window between new-task.sh and the session's first commit (#1616).
+  #
+  # The branch REFLOG answers this directly and is the only signal that does.
+  # Two tempting alternatives are both wrong:
+  #   - "commits ahead of origin/main" — after a non-squash merge a landed
+  #     branch is also 0 ahead, so this stops recognising exactly the merges the
+  #     ancestor check exists for.
+  #   - "tip == origin/main" — once main advances past a fresh branch's base the
+  #     fresh branch stops matching, while a branch whose merge was the newest
+  #     commit starts matching. Both directions invert.
+  # A fresh branch's reflog holds exactly one entry, "branch: Created from …";
+  # anything committed, amended, rebased, or reset adds another.
+  #
+  # When the reflog is entirely absent (fresh clone, expired per gc.reflogExpire)
+  # there is no information, so fall through to the pre-existing behaviour rather
+  # than start keeping every landed worktree forever.
+  reflog_all=$(git -C "$path" reflog show --format='%gs' "refs/heads/$branch" 2>/dev/null | wc -l | tr -d ' ')
+  reflog_work=$(git -C "$path" reflog show --format='%gs' "refs/heads/$branch" 2>/dev/null \
+    | grep -cvE '^branch: Created from ' || true)
+  started="yes"
+  if [ "${reflog_all:-0}" -gt 0 ] && [ "${reflog_work:-0}" -eq 0 ]; then
+    started="no"
+  fi
+
+  landed=false
+  if [ "$prstate" = "MERGED" ]; then
+    landed=true                                   # squash or merge commit — PR is authoritative
+  elif [ "$anc" = "yes" ] && [ "$started" = "yes" ]; then
+    landed=true                                   # non-squash merge / direct-to-main
+  fi
+
+  if [ "$dirty" != "0" ]; then
+    verdict="KEEP — ${dirty} uncommitted change(s): ${DIRTY_WHY}"; KEPT=$((KEPT+1))
+  elif $landed; then
+    reason=$([ "$prstate" = "MERGED" ] && echo "PR $prnum merged" || echo "merged into main")
+    verdict="REMOVE — $reason"
+    REMOVE_PATHS+=("$path"); REMOVE_BRANCHES+=("$branch"); REMOVE_LABELS+=("$reason")
+  elif [ "$prstate" = "OPEN" ]; then
+    verdict="KEEP — PR $prnum open"; KEPT=$((KEPT+1))
+  elif [ "$started" = "no" ]; then
+    # Ask the ticket's claim (#4376) — see zero_commit_claim. REMOVE needs BOTH the
+    # claim AND the branch past the window: new-task.sh proceeds unclaimed when its
+    # claim write fails (fail-open, issue-claim.sh), so a stale or absent claim on a
+    # branch cut minutes ago is that failure, not a dead session. Nothing is lost on
+    # REMOVE — no commits, the dirty guard above already ran, the branch is its base.
+    zero_commit_claim "$path" "$branch"
+    created="$(git -C "$path" reflog show --date=unix --format='%gd' "refs/heads/$branch" 2>/dev/null \
+      | tail -1 | sed -n 's/.*@{\([0-9][0-9]*\)}$/\1/p')"
+    branch_age=""; [ -n "$created" ] && branch_age=$(( $(date +%s) - created ))
+    window="$(human_secs "$CLAIM_STALE_SECONDS")"
+    on_ref="${CLAIM_REF:+ on #${CLAIM_REF##*#}}"
+    case "$CLAIM_STATE" in
+      live)
+        verdict="KEEP — claimed by ${CLAIM_HOST} $(human_secs "$CLAIM_AGE") ago${on_ref}, no commits yet"; KEPT=$((KEPT+1)) ;;
+      stale|absent)
+        if [ "$CLAIM_STATE" = "stale" ]; then
+          why="claim stale ($(human_secs "$CLAIM_AGE") > ${window})"
+        else
+          why="claim absent${on_ref} (${CLAIM_WHY})"
+        fi
+        if pr_unknown "$prstate"; then
+          verdict="REVIEW — no commits yet, ${why}, but PR state UNREADABLE (gh call failed)"
+          REVIEW=$((REVIEW+1)); UNKNOWN_PR=$((UNKNOWN_PR+1))
+        elif [ -z "$branch_age" ] || [ "$branch_age" -lt "$CLAIM_STALE_SECONDS" ]; then
+          verdict="REVIEW — no commits yet, ${why}, but branch is $([ -n "$branch_age" ] && echo "only $(human_secs "$branch_age") old" || echo "of unknown age") (session may be mid-setup)"
+          REVIEW=$((REVIEW+1))
+        else
+          reason="no commits, ${why}, branch $(human_secs "$branch_age") old"
+          verdict="REMOVE — $reason"
+          REMOVE_PATHS+=("$path"); REMOVE_BRANCHES+=("$branch"); REMOVE_LABELS+=("$reason")
+        fi ;;
+      noref)
+        verdict="REVIEW — no commits yet, no ticket recorded on the branch to ask its claim (session may be mid-setup)"; REVIEW=$((REVIEW+1)) ;;
+      *)
+        verdict="REVIEW — no commits yet, claim UNREADABLE${on_ref}: ${CLAIM_WHY}"; REVIEW=$((REVIEW+1)) ;;
+    esac
+  elif pr_unknown "$prstate"; then
+    verdict="REVIEW — clean, unlanded, PR state UNREADABLE (gh call failed)"
+    REVIEW=$((REVIEW+1)); UNKNOWN_PR=$((UNKNOWN_PR+1))
+  elif [ "$prstate" = "CLOSED" ]; then
+    # CLOSED-unmerged (#3997). Abandoned work, and without this band it sat in
+    # REVIEW forever. Reapable only when the tip IS the PR's head: GitHub keeps
+    # refs/pull/N/head, so nothing is lost. A tip that moved past the PR head holds
+    # commits the PR never saw and stays REVIEW.
+    IFS='|' read -r closed_at head_oid <<<"$(pr_closed_info "$branch")"
+    closed_age="$(age_days "$closed_at")"
+    if [ -z "$closed_age" ] || [ -z "$head_oid" ]; then
+      verdict="REVIEW — clean, PR $prnum closed unmerged, close date/head unreadable"; REVIEW=$((REVIEW+1))
+    elif [ "$tip" != "$head_oid" ]; then
+      verdict="REVIEW — PR $prnum closed unmerged, but local tip is past the PR head (unpushed commits)"; REVIEW=$((REVIEW+1))
+    elif [ "$closed_age" -ge "$CLOSED_REAP_DAYS" ]; then
+      reason="PR $prnum closed unmerged ${closed_age}d, tip == PR head"
+      verdict="REMOVE — $reason"
+      REMOVE_PATHS+=("$path"); REMOVE_BRANCHES+=("$branch"); REMOVE_LABELS+=("$reason")
+    else
+      verdict="REVIEW — PR $prnum closed unmerged ${closed_age}d ago (reapable at ${CLOSED_REAP_DAYS}d)"; REVIEW=$((REVIEW+1))
+    fi
+  else
+    verdict="REVIEW — clean, unlanded, no merged PR"
+    # Age flag (#3997): a worktree can sit here for weeks. Flag only — with no PR the
+    # commits may be the only copy, so this is never a removal.
+    tip_age="$(age_days "$(git -C "$path" log -1 --format=%ct "$branch" 2>/dev/null)")"
+    if [ -n "$tip_age" ] && [ "$tip_age" -ge "$REVIEW_FLAG_DAYS" ]; then
+      verdict="REVIEW — ⚠ STALE ${tip_age}d: clean, unlanded, no PR — open a PR or discard"
+    fi
+    REVIEW=$((REVIEW+1))
+  fi
+  $JSON || printf '%-50s %-9s %-9s %s\n' "$branch" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "$prnum" "$verdict"
+  json_row worktree "$branch" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "$prnum" "$verdict"
+# One row per WORKTREE, not per `branch` line. The old reader printed only inside
+# the `/^branch /` action, and a detached worktree's porcelain block has no such
+# line — `worktree` / `HEAD` / `detached` and nothing else — so the whole row was
+# dropped and no pass ever saw it (#2277). Emitting on the NEXT `worktree` header
+# (plus END for the last block) keeps every worktree, with `-` standing in for the
+# missing ref; the loop above classifies that sentinel. `-` cannot collide with a
+# real value: `ref` is only ever assigned from a `branch refs/heads/…` line.
+#
+# A BARE repo's entry also carries no `branch` line and so also reads `-`. It is
+# always the first entry, which is $PRIMARY, which the loop skips by path before it
+# looks at the ref — so it never reaches the detached branch and is never mislabelled.
+done < <(git worktree list --porcelain | awk '
+  /^worktree /{ if (wt != "") print wt "\t" (ref == "" ? "-" : ref); wt=$2; ref="" }
+  /^branch /  { ref=$2 }
+  END         { if (wt != "") print wt "\t" (ref == "" ? "-" : ref) }')
+
+# ── Pass 2: orphan directories git no longer tracks ──
+declare -a REAP_PATHS=() REAP_LABELS=() REAP_KB=()
+ORPHAN_FLAG=0; ORPHAN_REAP_KB=0
+tracked_paths="$(git worktree list --porcelain | awk '/^worktree /{print $2}')"
+
+# Is $1 the same worktree as one git still tracks? `-ef` compares device+inode,
+# which closes BOTH ways the two sides can spell the same directory differently:
+#   - symlink resolution — `git worktree list` emits the physical path while
+#     `cd && pwd` keeps the logical one, and on macOS every $TMPDIR path crosses
+#     /var → /private/var (#2293);
+#   - path CASE — on a case-insensitive APFS volume $WORKTREE_ROOT can be spelled
+#     `GitHub` while git recorded `Github`, and a lexical `grep -qxF` — even one
+#     over `pwd -P`, which resolves symlinks but never casefolds — still misses it
+#     (brikdesigns#1431).
+# One inode test settles both, and unlike a casefold it stays correct on a
+# case-SENSITIVE volume. Bash builtin, so no stat(1) flavour split across the four
+# repos this file is byte-identical in.
+path_is_tracked() {  # $1=dir  reads $tracked_paths
+  local t
+  while IFS= read -r t; do
+    [ -n "$t" ] || continue
+    [ "$1" -ef "$t" ] && return 0
+  done <<<"$tracked_paths"
+  return 1
+}
+
+if [ -d "$WORKTREE_ROOT" ]; then
+  $JSON || { echo; printf '%-50s %-11s %s\n' "ORPHAN DIR" "SIZE" "VERDICT"; printf '%.0s─' {1..110}; echo; }
+  for dir in "$WORKTREE_ROOT"/*/; do
+    [ -d "$dir" ] || continue
+    abs="$(cd "$dir" && pwd)"
+    path_is_tracked "$abs" && continue   # still tracked → pass 1 handled it
+    slug="$(basename "$abs")"
+    if kept "$slug"; then
+      $JSON || printf '%-50s %-11s %s\n' "$slug" "-" "FLAG — --keep"
+      json_row orphan "$slug" "-" "FLAG — --keep"
+      ORPHAN_FLAG=$((ORPHAN_FLAG+1)); continue
+    fi
+    kb=$(du -sk "$abs" 2>/dev/null | awk '{print $1}'); kb=${kb:-0}
+    # A dir git no longer tracks but that still carries a `.git` gitlink WAS a
+    # worktree, so new-task.sh's convention — branch `task/<slug>` named after the
+    # directory — holds and the derivation below is sound. A dir with NO `.git` was
+    # never a worktree; deriving `task/<slug>` from its name and reaping it because
+    # that GUESS happens to match a merged PR is the name-collision `rm -rf` #2293
+    # warns of. Report that there is no branch to resolve rather than guessing one.
+    # The exception (#4199): a `npm run dev` that outlived `git worktree remove`
+    # recreates the directory holding nothing but build output. There is no work in
+    # it to lose, so it is reapable without a branch. Anything else in the dir —
+    # one source file, a symlink with another name — keeps the FLAG below.
+    if [ ! -e "$abs/.git" ] && only_build_output "$abs"; then
+      verdict="REAP — no .git, holds only build output"
+      REAP_PATHS+=("$abs"); REAP_LABELS+=("build output only"); REAP_KB+=("$kb")
+      ORPHAN_REAP_KB=$((ORPHAN_REAP_KB+kb))
+      $JSON || printf '%-50s %-11s %s\n' "$slug" "$(human_size "$kb")" "$verdict"
+      json_row orphan "$slug" "$kb" "$verdict"
+      continue
+    fi
+    if [ ! -e "$abs/.git" ]; then
+      verdict="FLAG — not a worktree (no .git), no branch to resolve"; ORPHAN_FLAG=$((ORPHAN_FLAG+1))
+      $JSON || printf '%-50s %-11s %s\n' "$slug" "$(human_size "$kb")" "$verdict"
+      json_row orphan "$slug" "$kb" "$verdict"
+      continue
+    fi
+    branch="task/$slug"
+    pr=$(pr_for_branch "$branch"); prnum="${pr%%|*}"; prstate="${pr##*|}"
+
+    # A live local branch normally FLAGs the orphan: the branch is the last handle
+    # on that work, and the severed directory cannot be status-checked to prove
+    # otherwise. But pass 3 — classified twenty lines below — is about to delete
+    # that same branch on a STRICTER predicate (remote gone AND PR MERGED), and
+    # this pass cannot see it, because DELETE_BRANCH_NAMES does not exist yet. So
+    # one orphan cost THREE --apply runs on nicks-MacBook-Pro-M1 (2026-09-29):
+    # run 1 FLAGged the 1.9 GB dir, run 2 --delete-branches took the branch, run 3
+    # finally reaped. Apply pass 3's own predicate here rather than flagging on
+    # local-branch-exists alone; the branch is still deleted by pass 3, in this run.
+    branch_is_landed=false
+    if $DELETE_BRANCHES && branch_absent_remote "$branch" && [ "$prstate" = "MERGED" ]; then
+      branch_is_landed=true
+    fi
+
+    if branch_exists_local "$branch" && ! $branch_is_landed; then
+      verdict="FLAG — local branch $branch still exists"; ORPHAN_FLAG=$((ORPHAN_FLAG+1))
+    elif ! branch_absent_remote "$branch"; then
+      verdict="FLAG — $($REMOTE_OK && echo "remote branch still exists" || echo "origin unreachable, can't confirm")"; ORPHAN_FLAG=$((ORPHAN_FLAG+1))
+    elif [ "$prstate" = "MERGED" ]; then
+      verdict="REAP — PR $prnum merged, branch $(branch_exists_local "$branch" && echo "deleted by pass 3 this run" || echo "gone")"
+      REAP_PATHS+=("$abs"); REAP_LABELS+=("PR $prnum merged"); REAP_KB+=("$kb")
+      ORPHAN_REAP_KB=$((ORPHAN_REAP_KB+kb))
+    elif pr_unknown "$prstate"; then
+      verdict="FLAG — PR state UNREADABLE for $branch (gh call failed)"
+      ORPHAN_FLAG=$((ORPHAN_FLAG+1)); UNKNOWN_PR=$((UNKNOWN_PR+1))
+    else
+      verdict="FLAG — no merged PR for $branch"; ORPHAN_FLAG=$((ORPHAN_FLAG+1))
+    fi
+    $JSON || printf '%-50s %-11s %s\n' "$slug" "$(human_size "$kb")" "$verdict"
+    json_row orphan "$slug" "$kb" "$verdict"
+  done
+fi
+nr=${#REAP_PATHS[@]}
+
+# ── Pass 3: worktree-less local task/* branches (#2240) ──
+# Passes 1 and 2 both start from a worktree, so a branch outlives the sweeper the
+# moment its worktree is gone. Deletable ONLY on remote-gone + PR MERGED.
+declare -a DELETE_BRANCH_NAMES=() DELETE_BRANCH_LABELS=()
+BRANCH_KEPT=0; BRANCH_HEADER_SHOWN=no
+# refs/heads/, not `git branch` — the latter marks the current branch with "* ".
+wt_branches="$(git worktree list --porcelain | awk '/^branch /{sub(/^refs\/heads\//,"",$2); print $2}')"
+
+while IFS= read -r branch; do
+  [ -n "$branch" ] || continue
+  # A branch with a worktree belongs to pass 1, which applies the dirty/started
+  # checks this pass has no worktree to run. Never classify it twice.
+  grep -qxF "$branch" <<<"$wt_branches" && continue
+  kept "$branch" && continue
+  pr=$(pr_for_branch "$branch"); prnum="${pr%%|*}"; prstate="${pr##*|}"
+
+  if ! branch_absent_remote "$branch"; then
+    verdict="KEEP — $($REMOTE_OK && echo "remote branch still exists" || echo "origin unreachable, can't confirm")"
+    BRANCH_KEPT=$((BRANCH_KEPT+1))
+  elif [ "$prstate" = "MERGED" ]; then
+    verdict="DELETE — PR $prnum merged, remote gone"
+    DELETE_BRANCH_NAMES+=("$branch"); DELETE_BRANCH_LABELS+=("PR $prnum merged")
+  elif [ "$prstate" = "OPEN" ]; then
+    verdict="KEEP — PR $prnum open"; BRANCH_KEPT=$((BRANCH_KEPT+1))
+  elif pr_unknown "$prstate"; then
+    verdict="KEEP — PR state UNREADABLE for $branch (gh call failed)"
+    BRANCH_KEPT=$((BRANCH_KEPT+1)); UNKNOWN_PR=$((UNKNOWN_PR+1))
+  elif [ "$prstate" = "CLOSED" ] \
+       && IFS='|' read -r closed_at head_oid <<<"$(pr_closed_info "$branch")" \
+       && closed_age="$(age_days "$closed_at")" && [ -n "$closed_age" ] \
+       && [ "$closed_age" -ge "$CLOSED_REAP_DAYS" ] \
+       && [ -n "$head_oid" ] && [ "$(git rev-parse "refs/heads/$branch" 2>/dev/null)" = "$head_oid" ]; then
+    # CLOSED-unmerged and the branch tip IS the PR head (#3997): refs/pull/N/head
+    # keeps every commit, so deleting loses nothing.
+    verdict="DELETE — PR $prnum closed unmerged ${closed_age}d, tip == PR head, remote gone"
+    DELETE_BRANCH_NAMES+=("$branch"); DELETE_BRANCH_LABELS+=("PR $prnum closed unmerged")
+  else
+    # No PR at all is the one shape that may be unpushed work. Keep it.
+    verdict="KEEP — no merged PR for $branch"; BRANCH_KEPT=$((BRANCH_KEPT+1))
+  fi
+  $JSON || { [ "$BRANCH_HEADER_SHOWN" = "no" ] && { echo; printf '%-50s %-9s %s\n' "WORKTREE-LESS BRANCH" "PR" "VERDICT"; printf '%.0s─' {1..110}; echo; BRANCH_HEADER_SHOWN=yes; }
+             printf '%-50s %-9s %s\n' "$branch" "$prnum" "$verdict"; }
+  json_row branch "$branch" "$prnum" "$verdict"
+# A bare prefix, not a glob: for-each-ref matches "completely or from the
+# beginning up to a slash", so this catches task/<slug> and task/<a>/<b> alike,
+# where `refs/heads/task/*` would need one pattern per nesting depth.
+done < <(git for-each-ref --format='%(refname:short)' refs/heads/task)
+
+nb=${#DELETE_BRANCH_NAMES[@]}
+
+# ── Pass 4: orphan REMOTE refs (#1634, from brik-bds' reaper) ──
+# `origin/task/*` outlives the local side entirely: a session on another machine
+# pushes a branch, its PR merges without auto-delete, and nothing local ever sees
+# that ref again. Passes 1-3 are all local, so none of them can reach it.
+#
+# OPT-IN, unlike brik-bds' copy which runs this by default. Deleting a remote ref
+# is the only outward-facing thing this script does — it touches state other
+# machines and other people see — so three of the four repos adopting the canonical
+# script must not silently acquire it. brik-bds keeps its current behaviour by
+# passing the flag.
+declare -a DELETE_REF_NAMES=() DELETE_REF_LABELS=()
+REF_KEPT=0; REF_HEADER_SHOWN=no
+if $SWEEP_REMOTE_REFS; then
+  while IFS= read -r branch; do
+    [ -n "$branch" ] || continue
+    # A branch a worktree still holds belongs to pass 1, which has the dirty and
+    # not-started checks; deleting its remote out from under it is not this pass's call.
+    grep -qxF "$branch" <<<"$wt_branches" && continue
+    kept "$branch" && continue
+    pr=$(pr_for_branch "$branch"); prnum="${pr%%|*}"; prstate="${pr##*|}"
+
+    case "$prstate" in
+      MERGED) verdict="DELETE — PR $prnum merged"
+              DELETE_REF_NAMES+=("$branch"); DELETE_REF_LABELS+=("PR $prnum merged") ;;
+      # A CLOSED PR is a rejected branch: the ref is dead, and brik-bds has reaped
+      # these since before this script existed. Not adopting it there would be the
+      # regression this consolidation is meant to avoid.
+      CLOSED) verdict="DELETE — PR $prnum closed (rejected)"
+              DELETE_REF_NAMES+=("$branch"); DELETE_REF_LABELS+=("PR $prnum closed") ;;
+      OPEN)   verdict="KEEP — PR $prnum open"; REF_KEPT=$((REF_KEPT+1)) ;;
+      "—")    verdict="KEEP — PR state UNREADABLE for $branch (gh call failed)"
+              REF_KEPT=$((REF_KEPT+1)); UNKNOWN_PR=$((UNKNOWN_PR+1)) ;;
+      *)      verdict="KEEP — no PR for $branch"; REF_KEPT=$((REF_KEPT+1)) ;;
+    esac
+    $JSON || { [ "$REF_HEADER_SHOWN" = "no" ] && { echo; printf '%-50s %-9s %s\n' "ORPHAN REMOTE REF" "PR" "VERDICT"; printf '%.0s─' {1..110}; echo; REF_HEADER_SHOWN=yes; }
+               printf '%-50s %-9s %s\n' "origin/$branch" "$prnum" "$verdict"; }
+    json_row remote_ref "origin/$branch" "$prnum" "$verdict"
+  done < <(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin/task)
+fi
+nrf=${#DELETE_REF_NAMES[@]}
+
+n=${#REMOVE_PATHS[@]}
+
+# --json emits the payload and exits: a machine caller wants one object on stdout, and
+# the apply-phase progress lines below are prose by nature. Every diagnostic in this
+# script already goes to stderr, so stdout is single-format here without redirecting
+# anything (#2609).
+if $JSON; then
+  ROWS="$JSON_ROWS" \
+  N="$n" KEPT="$KEPT" REVIEW="$REVIEW" NR="$nr" ORPHAN_KB="$ORPHAN_REAP_KB" \
+  ORPHAN_FLAG="$ORPHAN_FLAG" NB="$nb" BRANCH_KEPT="$BRANCH_KEPT" NRF="$nrf" \
+  REF_KEPT="$REF_KEPT" UNKNOWN_PR="$UNKNOWN_PR" \
+  DELETE_BRANCHES="$($DELETE_BRANCHES && echo true || echo false)" \
+  SWEEP_REFS="$($SWEEP_REMOTE_REFS && echo true || echo false)" \
+  REPO="$(basename "$PRIMARY")" \
+  python3 -c '
+import json, os
+FIELDS = {
+    "worktree":   (["name", "dirty", "pr", "verdict"], "worktrees"),
+    "orphan":     (["name", "size_kb", "verdict"], "orphans"),
+    "branch":     (["branch", "pr", "verdict"], "worktree_less_branches"),
+    "remote_ref": (["ref", "pr", "verdict"], "orphan_remote_refs"),
+}
+out = {key: [] for _, key in FIELDS.values()}
+for line in os.environ["ROWS"].splitlines():
+    if not line:
+        continue
+    kind, *values = line.split("\t")
+    names, key = FIELDS[kind]
+    row = dict(zip(names, values))
+    # The verdict string carries the REASON the human table shows ("KEEP — PR 123
+    # open"). Split it so a caller can filter on the decision without parsing prose,
+    # and keep the full string so nothing is lost.
+    verdict = row.get("verdict", "")
+    row["decision"] = verdict.split(" — ", 1)[0].strip()
+    out[key].append(row)
+print(json.dumps({
+    "repo": os.environ["REPO"],
+    "dry_run": True,
+    "delete_branches": os.environ["DELETE_BRANCHES"] == "true",
+    "sweep_remote_refs": os.environ["SWEEP_REFS"] == "true",
+    **out,
+    "summary": {
+        "worktrees_removable": int(os.environ["N"]),
+        "worktrees_kept": int(os.environ["KEPT"]),
+        "worktrees_review": int(os.environ["REVIEW"]),
+        "orphans_reapable": int(os.environ["NR"]),
+        "orphans_reapable_kb": int(os.environ["ORPHAN_KB"]),
+        "orphans_flagged": int(os.environ["ORPHAN_FLAG"]),
+        "branches_deletable": int(os.environ["NB"]),
+        "branches_kept": int(os.environ["BRANCH_KEPT"]),
+        "remote_refs_deletable": int(os.environ["NRF"]),
+        "remote_refs_kept": int(os.environ["REF_KEPT"]),
+        # Non-zero means the gh pr list call failed and the verdicts above could
+        # not read PR state — a machine caller must not read those KEEPs as
+        # "unlanded" (#3603). No backticks in here: shellcheck reads this whole
+        # python body as one single-quoted shell string and SC2016 fires on them.
+        "pr_state_unreadable": int(os.environ["UNKNOWN_PR"]),
+    },
+}, indent=2))
+'
+  git worktree prune 2>/dev/null || true
+  exit 0
+fi
+
+echo
+echo -e "${CYAN}Summary:${NC} ${n} worktree(s) removable · ${KEPT} kept · ${REVIEW} need review · ${nr} orphan(s) reapable ($(human_size "$ORPHAN_REAP_KB")) · ${ORPHAN_FLAG} orphan(s) flagged · ${nb} worktree-less branch(es) deletable · ${BRANCH_KEPT} kept · ${nrf} remote ref(s) deletable · ${REF_KEPT} kept"
+
+# "kept because unlanded" and "kept because we could not tell" are different
+# answers, and a fully-degraded run used to summarise as a clean one (#3603). The
+# warning that `gh pr list` failed is printed hundreds of lines above this, so it
+# has scrolled off in any real run; repeat the consequence where the counts are.
+if [ "$UNKNOWN_PR" -gt 0 ]; then
+  echo -e "${YELLOW}  ⚠  ${UNKNOWN_PR} of those verdicts could not read PR state — 'gh pr list' failed, so nothing above is evidence a branch did NOT land.${NC}" >&2
+fi
+
+# Before the "nothing to remove" exit, because the worktrees it helps are exactly the ones
+# nothing else removes — dirty or REVIEW, merged, holding their weight (#5134). The ones this
+# run is about to remove are left to it.
+$APPLY && slim_merged_worktrees
+
+if [ "$n" -eq 0 ] && [ "$nr" -eq 0 ] && [ "$nb" -eq 0 ] && [ "$nrf" -eq 0 ]; then
+  echo -e "${GREEN}Nothing to remove.${NC}"
+  git worktree prune 2>/dev/null || true
+  exit 0
+fi
+
+if ! $APPLY; then
+  echo -e "${YELLOW}Dry-run. Re-run with --apply to remove ${n} worktree(s) + reap ${nr} orphan(s)${NC}$($DELETE_BRANCHES && echo " + delete ${nb} worktree-less branch(es) + landed branches")$($SWEEP_REMOTE_REFS && echo " + delete ${nrf} remote ref(s)")."
+  # Without --delete-branches the pass-3 verdicts above are advisory only. Say so
+  # here rather than let a dry-run listing DELETE lines imply --apply would act.
+  $DELETE_BRANCHES || [ "$nb" -eq 0 ] || \
+    echo -e "${YELLOW}  ${nb} worktree-less branch(es) need --delete-branches too; --apply alone leaves them.${NC}"
+  exit 0
+fi
+
+# Delete the branch a just-removed worktree was on — LOUDLY (#2719).
+#
+# Both call sites below used `git branch -D "$b" >/dev/null 2>&1 && echo "↳ branch
+# deleted"`, whose only failure signal is the ABSENCE of a success line in a list
+# where absence is easy to miss. On the fallback path that absence was the NORMAL
+# case: `rm -rf` does not deregister the worktree, so git still believes the branch
+# is checked out and refuses to delete it — the run's own `git worktree prune` at
+# the very bottom comes far too late. Two branches survived a sweep that reported
+# "removed 4/4" and said nothing. Prune FIRST so the refusal cannot happen, then
+# report git's own reason if it happens anyway.
+#
+# `git worktree prune` here is a no-op on the normal path (`git worktree remove`
+# already deregistered) and cannot touch a worktree still on disk, so it is safe to
+# run per-iteration while other REMOVE targets are still pending.
+wt_branch_deleted=0
+wt_branch_failed=0
+delete_landed_branch() {  # $1=branch
+  local b="$1" err
+  git worktree prune 2>/dev/null || true
+  if err="$(git branch -D "$b" 2>&1)"; then
+    echo -e "      ${GREEN}↳${NC} branch deleted"
+    wt_branch_deleted=$((wt_branch_deleted+1))
+  else
+    echo -e "      ${RED}↳${NC} branch NOT deleted — ${b}"
+    printf '%s\n' "$err" | sed 's/^/        /' >&2
+    wt_branch_failed=$((wt_branch_failed+1))
+  fi
+}
+
+# Remove tracked worktrees (pass 1).
+removed=0
+if [ "$n" -gt 0 ]; then
+  echo -e "${YELLOW}▸ Removing ${n} worktree(s)...${NC}"
+  for i in "${!REMOVE_PATHS[@]}"; do
+    p="${REMOVE_PATHS[$i]}"; b="${REMOVE_BRANCHES[$i]}"
+    # Capture the real error instead of discarding it: the old `2>/dev/null` plus
+    # a guessed "(locked or untracked junk?)" message sent an operator hunting for
+    # junk that was not there. git states the actual reason.
+    if err="$(git worktree remove "$p" 2>&1)"; then
+      echo -e "  ${GREEN}✓${NC} ${b} (${REMOVE_LABELS[$i]})"
+      removed=$((removed+1))
+      $DELETE_BRANCHES && delete_landed_branch "$b"
+    elif printf '%s' "$err" | grep -qE 'containing submodules|[Dd]irectory not empty'; then
+      # `git worktree remove` refuses outright on a populated submodule — this
+      # repo has foundations/brik-bds, so ANY worktree whose submodule got
+      # checked out was unreapable, and the sweeper silently no-op'd on it. That
+      # defeats the accumulation this script exists to prevent (#1078: 46
+      # worktrees / 930 MB). Fall back to the same rm + prune the orphan pass
+      # already uses, under the same $WORKTREE_ROOT guard.
+      #
+      # `Directory not empty` is the SECOND shape that needs this same fallback,
+      # and until 2026-09-29 only the submodule wording was matched, so it fell
+      # through to the bare "skipped" below. git's teardown ends in rmdir(2),
+      # which fails on any IGNORED build output the checkout left behind —
+      # `.next`, `.source`, `test-results`, `node_modules`. Observed live:
+      #   ✗ task/customer-story-save-500 — 'git worktree remove' failed; skipped
+      #     error: failed to delete '…/customer-story-save-500': Directory not empty
+      # Ignored output is exactly what this fallback is for, and the safety
+      # argument below covers it unchanged.
+      #
+      # The "submodule fallback" wording below is now WIDER than its name and must
+      # stay anyway. #3936 renamed it to "cleanup fallback" and broke brik-bds and
+      # brikdesigns, whose OWN copies of the classification test assert the old
+      # string — the TEST is a second twin, and reaper-twin-drift.py watches only
+      # CANONICAL_PATH (:93), so nothing reports drift on it. Until that gate covers
+      # the test too, this string is a cross-repo contract: do not rename it. #3939
+      #
+      # The safety argument below covers it unchanged: the verdict is already REMOVE,
+      # which requires clean AND landed.
+      #
+      # It used to add "and `dirty_count` counts real work only", which was FALSE for a
+      # gitlink nobody authored and made this whole fallback unreachable in the one case
+      # it was written for: a populated submodule drifts its pointer, `dirty_count`
+      # scored it real=1, and the worktree was filtered out at CLASSIFICATION long before
+      # the removal loop could ever run. Three worktrees sat that way, two with PRs merged
+      # ~23 days earlier. `dirty_count` now carves the drift out (see its preamble), so the
+      # clause is true as written — but it is a PROPERTY of that function, not a premise
+      # this block may assume. #4919
+      #
+      # Safe because the verdict for $p is already REMOVE, which requires clean
+      # AND landed; a dirty or unlanded worktree never reaches this loop. The
+      # branch also survives (worktree removal does not delete refs), so the
+      # commits remain reachable even if this were wrong.
+      # Compare PHYSICAL paths on both sides. $p comes from `git worktree list`,
+      # which resolves symlinks; $WORKTREE_ROOT is built from `dirname` and does
+      # not. On macOS every mktemp path is /var → /private/var, so a purely
+      # lexical guard rejects a legitimate path — caught by the fixture in
+      # test-sweep-worktree-classification.sh. The orphan pass is unaffected
+      # because it builds its paths by walking $WORKTREE_ROOT itself.
+      wt_root_phys="$(cd "$WORKTREE_ROOT" 2>/dev/null && pwd -P)"
+      p_phys="$(cd "$p" 2>/dev/null && pwd -P)"
+      case "${p_phys:-/nonexistent}" in
+        "${wt_root_phys:-/nonexistent-root}"/?*)
+          if rm -rf "$p_phys"; then
+            echo -e "  ${GREEN}✓${NC} ${b} (${REMOVE_LABELS[$i]}; submodule fallback: rm + prune)"
+            removed=$((removed+1))
+            $DELETE_BRANCHES && delete_landed_branch "$b"
+          else
+            echo -e "  ${RED}✗${NC} ${b} — submodule fallback rm failed; skipped"
+          fi ;;
+        *) echo -e "  ${RED}✗${NC} refusing to rm outside \$WORKTREE_ROOT: $p" >&2 ;;
+      esac
+    else
+      echo -e "  ${RED}✗${NC} ${b} — 'git worktree remove' failed; skipped"
+      printf '%s\n' "$err" | sed 's/^/        /' >&2
+    fi
+  done
+fi
+
+# Reap orphan dirs (pass 2) — plain rm, git no longer tracks them. The path is
+# guarded to WORKTREE_ROOT/* so a mis-derived root can never rm outside it.
+#
+# PHYSICAL prefix on both sides (pwd -P), the same normalisation the submodule
+# fallback uses above and the mirror of the pass-2 comparison fix (#2293, AC3):
+# each $p came from `cd && pwd` (logical) while $WORKTREE_ROOT is unresolved, so a
+# lexical prefix check crosses /var → /private/var and would reject a legitimate
+# reap target outright. Resolving both first also means the rm acts on the real
+# path, never a symlink that could point elsewhere.
+reaped=0
+if [ "$nr" -gt 0 ]; then
+  echo -e "${YELLOW}▸ Reaping ${nr} orphan dir(s)...${NC}"
+  wt_root_phys="$(cd "$WORKTREE_ROOT" 2>/dev/null && pwd -P)"
+  for i in "${!REAP_PATHS[@]}"; do
+    p="${REAP_PATHS[$i]}"
+    p_phys="$(cd "$p" 2>/dev/null && pwd -P)"
+    case "${p_phys:-/nonexistent}" in
+      "${wt_root_phys:-/nonexistent-root}"/?*)
+        if rm -rf "$p_phys"; then
+          echo -e "  ${GREEN}✓${NC} $(basename "$p") ($(human_size "${REAP_KB[$i]}") — ${REAP_LABELS[$i]})"
+          reaped=$((reaped+1))
+        else
+          echo -e "  ${RED}✗${NC} $(basename "$p") — rm failed; skipped"
+        fi ;;
+      *) echo -e "  ${RED}✗${NC} refusing to rm outside \$WORKTREE_ROOT: $p" >&2 ;;
+    esac
+  done
+fi
+
+# Delete worktree-less landed branches (pass 3). Gated on --delete-branches, the
+# same flag that governs branch deletion in pass 1 — --apply alone never touches
+# a ref. `-D`, not `-d`: squash-merge leaves the tip un-ancestored so `-d` refuses
+# on exactly the landed branches this pass exists for. The remote-gone + PR-MERGED
+# verdict is what makes that safe, and the commits stay on origin/main regardless.
+deleted=0
+if $DELETE_BRANCHES && [ "$nb" -gt 0 ]; then
+  echo -e "${YELLOW}▸ Deleting ${nb} worktree-less branch(es)...${NC}"
+  for i in "${!DELETE_BRANCH_NAMES[@]}"; do
+    b="${DELETE_BRANCH_NAMES[$i]}"
+    if err="$(git branch -D "$b" 2>&1)"; then
+      echo -e "  ${GREEN}✓${NC} ${b} (${DELETE_BRANCH_LABELS[$i]})"
+      deleted=$((deleted+1))
+    else
+      echo -e "  ${RED}✗${NC} ${b} — branch delete failed; skipped"
+      printf '%s\n' "$err" | sed 's/^/        /' >&2
+    fi
+  done
+elif [ "$nb" -gt 0 ]; then
+  echo -e "${YELLOW}▸ ${nb} worktree-less branch(es) left in place — re-run with --delete-branches.${NC}"
+fi
+
+# Delete orphan remote refs (pass 4). The only outward-facing mutation here, so it
+# needs BOTH --apply and the opt-in flag; `git push --delete` is batched into one
+# invocation because each push is a network round trip and a shared-quota call.
+ref_deleted=0
+ref_failed=0
+# "already gone" is SUCCESS for a delete, not an error. The prune above closes the
+# common case, but a concurrent sweep on the other machine can still remove a ref
+# between that prune and this push, so the condition has to be tolerated here too
+# rather than only prevented upstream.
+ref_already_gone() {
+  case "$1" in
+    *"remote ref does not exist"*) return 0 ;;
+    *"remote ref"*"does not exist"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+if $SWEEP_REMOTE_REFS && [ "$nrf" -gt 0 ]; then
+  echo -e "${YELLOW}▸ Deleting ${nrf} orphan remote ref(s)...${NC}"
+  # Batch first: each push is a network round trip against a shared quota, and the
+  # batch is one call for the whole set.
+  if err="$(git push origin --delete "${DELETE_REF_NAMES[@]}" 2>&1)"; then
+    for i in "${!DELETE_REF_NAMES[@]}"; do
+      echo -e "  ${GREEN}✓${NC} origin/${DELETE_REF_NAMES[$i]} (${DELETE_REF_LABELS[$i]})"
+    done
+    ref_deleted=$nrf
+  else
+    # A batched delete is all-or-nothing, so ONE ref that was already gone used to
+    # block every live orphan beside it — and the run before this fix printed
+    # "nothing removed" while still exiting 0. Retry individually; the extra round
+    # trips are paid only on the failure path.
+    echo -e "${YELLOW}  batch delete failed — retrying each ref individually${NC}" >&2
+    for i in "${!DELETE_REF_NAMES[@]}"; do
+      rname="${DELETE_REF_NAMES[$i]}"
+      if err1="$(git push origin --delete "$rname" 2>&1)"; then
+        echo -e "  ${GREEN}✓${NC} origin/${rname} (${DELETE_REF_LABELS[$i]})"
+        ref_deleted=$((ref_deleted+1))
+      elif ref_already_gone "$err1"; then
+        echo -e "  ${GREEN}✓${NC} origin/${rname} (already gone on the remote)"
+        ref_deleted=$((ref_deleted+1))
+      else
+        echo -e "  ${RED}✗${NC} origin/${rname} — delete failed" >&2
+        printf '%s\n' "$err1" | sed 's/^/        /' >&2
+        ref_failed=$((ref_failed+1))
+      fi
+    done
+  fi
+  # Unconditional, not success-only: after a partial run the local refs are the
+  # input to the NEXT run, and leaving them stale is what made this non-self-healing.
+  git fetch origin --prune --quiet \
+    '+refs/heads/task/*:refs/remotes/origin/task/*' 2>/dev/null || true
+fi
+
+git worktree prune 2>/dev/null || true
+# The branch count used to track pass 3 ONLY, so a run that printed "↳ branch
+# deleted" twice still summarised as "deleted 0/0 branch(es)" — the item list and
+# the summary described the same run differently (#2719). Landed branches removed
+# alongside their worktree in pass 1 are counted here too, named separately so the
+# number keeps saying which pass it came from.
+echo -e "${GREEN}Done — removed ${removed}/${n} worktree(s), reaped ${reaped}/${nr} orphan(s), deleted ${deleted}/${nb} worktree-less branch(es) + ${wt_branch_deleted} landed branch(es), ${ref_deleted}/${nrf} remote ref(s).${NC}"
+if [ "$wt_branch_failed" -gt 0 ]; then
+  echo -e "${RED}✗ ${wt_branch_failed} landed branch(es) could not be deleted — see the reasons above.${NC}" >&2
+fi
+
+# A pass that was asked to run and could not do its work must not report success.
+# The old script printed "nothing removed" and exited 0, so a scheduled caller
+# read a failed sweep as a clean one — which is why this went unnoticed for weeks
+# (brik-llm#2333). Scoped to the remote-ref pass: it is the pass this ticket
+# evidenced, and widening the exit contract to passes 1-3 would change the
+# contract for every consumer repo in one undiscussed step.
+if [ "$ref_failed" -gt 0 ]; then
+  echo -e "${RED}✗ ${ref_failed} remote ref(s) could not be deleted — exiting non-zero so a scheduled caller sees it.${NC}" >&2
+  exit 1
+fi

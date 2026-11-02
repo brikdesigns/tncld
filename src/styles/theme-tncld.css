@@ -6,15 +6,29 @@
  * cascade layer by src/app/globals.css.
  *
  * Selector contract (mirrors brikdesigns `.theme-brand-brik`): `.theme-tncld`
- * is applied to <body> in layout.tsx. Light-mode tokens live on `.theme-tncld`;
- * dark-mode tokens on `:root[data-theme="dark"] .theme-tncld`.
+ * is applied to <body> in layout.tsx. The site's OWN tokens live on
+ * `.theme-tncld`; the opposite scheme lives on `:root[data-theme="…"]
+ * .theme-tncld`.
  *
- * Atmosphere: minimal-clinical (dental precedent — pure white, zero-effect).
- * The current canonical atmosphere is inert; its content is inlined at the end.
+ * DARK IS THE SITE'S DEFAULT, not a mode (tncld#95). Measured from the live
+ * Webflow original: every h1/h2 renders white on an `rgb(0, 0, 0)` backdrop —
+ * all 12 homepage sections, no light section anywhere. The rebuild shipped
+ * light because it inherited the BDS default, which is why /` and /about read
+ * as a different site. Flipping the default here rather than per section keeps
+ * one source of truth and means new sections inherit the right scheme.
  *
- * TOKEN DISCIPLINE: every semantic token below is a name defined in
- * @brikdesigns/bds dist/tokens.css (validated against the registry). Only the
- * `--tncld-*` primitives are local.
+ * Atmosphere: minimal-clinical. The canonical atmosphere is inert (adds no
+ * color); its content is inlined at the end.
+ *
+ * TOKEN DISCIPLINE — ADR-043 § 6 binding shape (brik-bds#2678, tncld#189).
+ * From @brikdesigns/bds 0.195.0, BDS components read only `--bds-*` names, so
+ * re-declaring a bare BDS name here no longer reaches them. Each value lives
+ * under TNCLD's System ID (`--tncld-{body}`), and the block ends with:
+ *   1. BDS bindings — `--bds-{body}: var(--tncld-{body})`.
+ *   2. Bridge re-scope — `--{body}: var(--bds-{body})`, for site CSS that
+ *      still reads the old names.
+ * Every {body} is a name defined in @brikdesigns/bds dist/tokens.css.
+ * Guarded by scripts/check-bds-binding.mjs, which runs before `next build`.
  * ─────────────────────────────────────────────────────────────────── */
 
 /* NOTE: the Poppins @font-face @import lives at the top of globals.css, not
@@ -23,13 +37,13 @@
 
 .theme-tncld {
   /* ── Brand primitives ──────────────────────────────────────────────
-   * TODO: confirm TNCLD brand. Derived from the live Webflow site's
-   * design-tokens/webflow-tokens.json, which maps semantic tokens onto the
-   * BDS "blue" theme palette (design-tokens/tokens.json → theme.blue-*).
-   * Hover/pressed/secondary tonal stops taken from that same blue ramp; the
-   * ramp has no dedicated interaction stops, so these are best-fit placeholders
-   * pending a confirmed brand palette. */
-  --tncld-blue:           #4665f5; /* theme.blue-blue-light — primary */
+   * Measured from the live Webflow original, not derived from the template
+   * palette (tncld#95): the primary action renders `rgb(0, 101, 255)` and the
+   * page sits on `rgb(0, 0, 0)` with one `rgb(24, 24, 24)` panel tone.
+   * Hover/pressed stops have no counterpart in the original — it ships no
+   * interaction states — so those remain best-fit stops on the same ramp. */
+  --tncld-blue:           #0065ff; /* measured: primary action background */
+  --tncld-off-black:      #181818; /* measured: raised panel tone on black */
   --tncld-blue-lighter:   #79b0d9; /* theme.blue-blue-lighter */
   --tncld-blue-lightest:  #edf2f6; /* theme.blue-blue-lightest */
   --tncld-blue-dark:      #0e212a; /* theme.blue-blue-dark — deep navy */
@@ -44,68 +58,133 @@
   --tncld-gray-lighter:   #e0e0e0;
   --tncld-gray-lightest:  #f2f2f2;
 
-  /* ── Fonts (TNCLD = Poppins, per design-tokens) ────────────────────── */
-  --font-family-display:  Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-heading:  Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-subtitle: Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-body:     Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-label:    Poppins, -apple-system, BlinkMacSystemFont, sans-serif;
+  /* ── Fonts (TNCLD = Inter, measured on the original) ────────────────
+   * `var(--font-inter)` is the `next/font/google` handle declared in
+   * `src/app/layout.tsx`. The bare `Inter` these read before never resolved to
+   * a webfont — nothing loaded one — so every route rendered in the system
+   * sans (tncld#158). The fallbacks stay for the swap window. */
+  --tncld-font-family-display:  var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --tncld-font-family-heading:  var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --tncld-font-family-subtitle: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --tncld-font-family-body:     var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --tncld-font-family-label:    var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* ── Light-mode semantic overrides (minimal-clinical: white surfaces) ── */
-  --background-brand-primary:         var(--tncld-blue);
-  --background-brand-primary-hover:   var(--tncld-blue-lighter);
-  --background-brand-primary-pressed: var(--tncld-blue-dark);
-  --background-brand-secondary:       var(--tncld-blue-lightest);
-  --background-primary:               var(--tncld-white);
-  --background-secondary:             var(--tncld-white);
-  --background-tertiary:              var(--tncld-gray-lightest);
-  --background-inverse:               var(--tncld-blue-dark);
-  --background-input:                 var(--tncld-white);
+  /* ── Site-default semantics: black surfaces, white type ──────────────
+   * Matches the measured original. Contrast ratios below are against
+   * `--tncld-black`, the surface these actually render on. */
+  --tncld-background-brand-primary:         var(--tncld-blue);
+  --tncld-background-brand-primary-hover:   var(--tncld-blue-lighter);
+  --tncld-background-brand-primary-pressed: var(--tncld-blue-dark);
+  --tncld-background-brand-secondary:       var(--tncld-off-black);
+  --tncld-background-primary:               var(--tncld-black);
+  --tncld-background-secondary:             var(--tncld-black);
+  --tncld-background-tertiary:              var(--tncld-off-black);
+  --tncld-background-inverse:               var(--tncld-white);
+  --tncld-background-input:                 var(--tncld-off-black);
 
-  --surface-primary:   var(--tncld-white);
-  --surface-secondary: var(--tncld-white);
+  --tncld-surface-primary:   var(--tncld-black);
+  --tncld-surface-secondary: var(--tncld-off-black);
 
-  --text-primary:       var(--tncld-gray-darkest); /* 12.6:1 on white */
-  --text-secondary:     var(--tncld-gray-darker);  /* 9.0:1 on white */
-  --text-muted:         var(--tncld-gray-dark);     /* 3.5:1 — decorative/placeholder use */
-  --text-inverse:       var(--tncld-white);
-  --text-brand-primary: var(--tncld-blue);          /* 4.67:1 on white — passes AA */
-  --text-on-color-light: var(--tncld-gray-darkest);
-  --text-link:          var(--tncld-blue);
+  --tncld-text-primary:       var(--tncld-white);         /* 21.00:1 on black */
+  --tncld-text-secondary:     var(--tncld-gray-lighter);  /* 15.91:1 on black */
+  --tncld-text-muted:         var(--tncld-gray-light);    /* 11.18:1 on black */
+  --tncld-text-inverse:       var(--tncld-gray-darkest);
+  /* DELIBERATE DEVIATION (WCAG 2.1 AA, per the repo Compliance Profile):
+     the original renders brand-blue TEXT on black at 4.31:1, below the 4.5:1
+     AA threshold for body copy. Brand text and links therefore use the green
+     accent (11.99:1 on black). The blue is reproduced faithfully where it is a
+     BACKGROUND — white on --tncld-blue is 4.88:1 and passes. */
+  --tncld-text-brand-primary: var(--tncld-green);
+  --tncld-text-on-color-light: var(--tncld-gray-darkest);
+  --tncld-text-link:          var(--tncld-green);
+  --tncld-text-text-link:     var(--tncld-text-link);
 
-  --border-primary:       var(--tncld-gray-light);
-  --border-brand-primary: var(--tncld-blue);
-  --border-input:         var(--tncld-gray-light);
+  /* --tncld-gray-darker (#4f4f4f) is only 2.56:1 on black and would fail the
+     3:1 floor for UI-component boundaries (WCAG 1.4.11). --tncld-gray-dark is
+     5.46:1. */
+  --tncld-border-primary:       var(--tncld-gray-dark);
+  --tncld-border-brand-primary: var(--tncld-blue);
+  --tncld-border-input:         var(--tncld-gray-dark);
 
-  --page-primary: var(--tncld-white);
-  --page-accent:  var(--tncld-blue-lightest);
+  --tncld-page-primary: var(--tncld-black);
+  --tncld-page-accent:  var(--tncld-off-black);
+
+  /* ── BDS bindings (ADR-043 § 6) ──────────────────────────────────────
+   * The only lines BDS components see. */
+  --bds-font-family-display:              var(--tncld-font-family-display);
+  --bds-font-family-heading:              var(--tncld-font-family-heading);
+  --bds-font-family-subtitle:             var(--tncld-font-family-subtitle);
+  --bds-font-family-body:                 var(--tncld-font-family-body);
+  --bds-font-family-label:                var(--tncld-font-family-label);
+  --bds-background-brand-primary:         var(--tncld-background-brand-primary);
+  --bds-background-brand-primary-hover:   var(--tncld-background-brand-primary-hover);
+  --bds-background-brand-primary-pressed: var(--tncld-background-brand-primary-pressed);
+  --bds-background-brand-secondary:       var(--tncld-background-brand-secondary);
+  --bds-background-primary:               var(--tncld-background-primary);
+  --bds-background-secondary:             var(--tncld-background-secondary);
+  --bds-background-tertiary:              var(--tncld-background-tertiary);
+  --bds-background-inverse:               var(--tncld-background-inverse);
+  --bds-background-input:                 var(--tncld-background-input);
+  --bds-surface-primary:                  var(--tncld-surface-primary);
+  --bds-surface-secondary:                var(--tncld-surface-secondary);
+  --bds-text-primary:                     var(--tncld-text-primary);
+  --bds-text-secondary:                   var(--tncld-text-secondary);
+  --bds-text-muted:                       var(--tncld-text-muted);
+  --bds-text-inverse:                     var(--tncld-text-inverse);
+  --bds-text-brand-primary:               var(--tncld-text-brand-primary);
+  --bds-text-on-color-light:              var(--tncld-text-on-color-light);
+  --bds-text-link:                        var(--tncld-text-link);
+  /* The token `.bds-prose a` actually reads (BDS emits the path-joined name).
+     Left unset it resolves to system blue: 3.44:1 on black, a WCAG 1.4.3 fail. */
+  --bds-text-text-link:                   var(--tncld-text-text-link);
+  --bds-border-primary:                   var(--tncld-border-primary);
+  --bds-border-brand-primary:             var(--tncld-border-brand-primary);
+  --bds-border-input:                     var(--tncld-border-input);
+  --bds-page-primary:                     var(--tncld-page-primary);
+  --bds-page-accent:                      var(--tncld-page-accent);
+
+  /* ── Bridge re-scope ─────────────────────────────────────────────────
+   * The BDS prefix bridge aliases each old name at `:root`, which resolves it
+   * to the BDS default before `.theme-tncld` is reached. These re-point the old
+   * names here, for site CSS that still reads them. Delete with the bridge
+   * (brik-bds#2711). */
+  --font-family-display:              var(--bds-font-family-display);
+  --font-family-heading:              var(--bds-font-family-heading);
+  --font-family-subtitle:             var(--bds-font-family-subtitle);
+  --font-family-body:                 var(--bds-font-family-body);
+  --font-family-label:                var(--bds-font-family-label);
+  --background-brand-primary:         var(--bds-background-brand-primary);
+  --background-brand-primary-hover:   var(--bds-background-brand-primary-hover);
+  --background-brand-primary-pressed: var(--bds-background-brand-primary-pressed);
+  --background-brand-secondary:       var(--bds-background-brand-secondary);
+  --background-primary:               var(--bds-background-primary);
+  --background-secondary:             var(--bds-background-secondary);
+  --background-tertiary:              var(--bds-background-tertiary);
+  --background-inverse:               var(--bds-background-inverse);
+  --background-input:                 var(--bds-background-input);
+  --surface-primary:                  var(--bds-surface-primary);
+  --surface-secondary:                var(--bds-surface-secondary);
+  --text-primary:                     var(--bds-text-primary);
+  --text-secondary:                   var(--bds-text-secondary);
+  --text-muted:                       var(--bds-text-muted);
+  --text-inverse:                     var(--bds-text-inverse);
+  --text-brand-primary:               var(--bds-text-brand-primary);
+  --text-on-color-light:              var(--bds-text-on-color-light);
+  --text-link:                        var(--bds-text-link);
+  --text-text-link:                   var(--bds-text-text-link);
+  --border-primary:                   var(--bds-border-primary);
+  --border-brand-primary:             var(--bds-border-brand-primary);
+  --border-input:                     var(--bds-border-input);
+  --page-primary:                     var(--bds-page-primary);
+  --page-accent:                      var(--bds-page-accent);
 }
 
-/* ── Dark-mode divergences ─────────────────────────────────────────── */
-:root[data-theme="dark"] .theme-tncld {
-  --background-primary:   var(--tncld-blue-dark);
-  --background-secondary: var(--tncld-blue-dark);
-  --background-tertiary:  var(--tncld-blue-dark);
-  --background-inverse:   var(--tncld-white);
-  --background-input:     var(--tncld-blue-dark);
-
-  --surface-primary:   var(--tncld-blue-dark);
-  --surface-secondary: var(--tncld-blue-dark);
-
-  --text-primary:       var(--tncld-white);
-  --text-secondary:     var(--tncld-gray-lighter);
-  --text-muted:         var(--tncld-gray-light);
-  --text-inverse:       var(--tncld-gray-darkest);
-  /* Blue brand primitive fails AA on the navy surface, so brand text/links use
-     the green accent in dark mode (9.3:1 on --tncld-blue-dark). */
-  --text-brand-primary: var(--tncld-green);
-  --text-link:          var(--tncld-green);
-
-  --border-primary: var(--tncld-gray-dark);
-
-  --page-primary: var(--tncld-blue-dark);
-  --page-accent:  var(--tncld-blue-dark);
-}
+/* No light-scheme block. The original ships no light scheme and no switcher,
+ * layout.tsx pins data-theme="dark", and nothing in the app writes
+ * localStorage.theme — so a `[data-theme="light"]` block here would be
+ * unreachable. The dark values above are the site's only palette, which is
+ * also why they live on `.theme-tncld` itself: server-rendered HTML is correct
+ * before the pre-hydration script runs, so there is no flash. */
 
 /* Heading font family (mirrors the dental precedent theme). */
 .theme-tncld h1,

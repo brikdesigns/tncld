@@ -60,14 +60,13 @@ Any information on this website, or any form normally completed on paper, is ava
 
 ## Office Accessibility
 
-Our office at 204 Miller Springs Ct., Suite 200, Franklin, TN 37064 is physically accessible:
+<!-- UNSOURCED: the four premises claims previously listed here — ADA-compliant
+     parking, step-free entrance, accessible restrooms, accessible treatment
+     rooms — were agent-written with no client source. Do not restore them
+     without TNCLD confirming each in their own words; see brik-llm#2649. A
+     specific, sourced list may replace this paragraph once confirmed. -->
 
-- ADA-compliant parking available on-site
-- Step-free entrance
-- Accessible restrooms
-- Accessible treatment rooms
-
-If you have a specific accessibility concern about visiting the office, please call ahead so we can prepare for your visit.
+If you have a specific accessibility need for visiting our office at 204 Miller Springs Ct., Suite 200, Franklin, TN 37064, please call **(615) 595-8070** or email **accessibility@tncld.com** ahead of your visit and we will make arrangements.
 
 ---
 
