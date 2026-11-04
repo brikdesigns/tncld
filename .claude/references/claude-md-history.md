@@ -28,3 +28,7 @@ CLAUDE.md used to link a legacy "Notion API Keys" Notion page as the credential 
 ## Dead Notion ID
 
 A dead Notion DB ID once sat in the Notion Databases table. It caused real content to be filed as missing. The table now holds one ID, and CLAUDE.md says to use that one and no other.
+
+## Webflow token location and access route
+
+Until 2026-11-04 CLAUDE.md pointed at a Development-vault item (`v7yjeqrzuqolnt7boicclvheb4`) that does not exist, told agents to `op read` it, and said to prefer direct API calls over the Webflow MCP. The token is `webflow-tncld` in the Production vault (prod-write), readable only via `op_operator_run` under Touch ID. Site tokens are refused by every custom-code endpoint, so that advice sent a Read Bio fix (TSK-970) into a dead end; custom code goes through the Webflow MCP.
