@@ -74,7 +74,7 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 
 ## Security — read the canonical 5 before any credential work
 
-> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN`, stored in 1Password (Development vault, item id `v7yjeqrzuqolnt7boicclvheb4` — title `Webflow - TNCLD (tncld-claude-20260122)`, field `credential`). Read it with `op read "op://Development/v7yjeqrzuqolnt7boicclvheb4/credential"`. Used by build automation in `brik-llm/scripts/webflow/`, and callable directly for Data API operations (page DOM read/text + html-embed edits, site publish) — verified working headless 2026-07-09.
+> **TNCLD-specific:** the only Brik-managed runtime credential for this site is the per-client `WEBFLOW_API_TOKEN`, stored in 1Password (**Production** vault, purpose `webflow-tncld`, item id `xsxgubilcqslukgwkmzqpnauhq`, field `credential`, tier `prod-write` — the Development-vault id this line used to carry does not exist). The agent service account cannot see it by design (ADR-049 D6), so an agent reads it on the laptop for one call under Touch ID: `op_operator_run run --env-file=<file holding WF_TOKEN=op://Production/xsxgubilcqslukgwkmzqpnauhq/credential> -- <cmd>` (`operations/security/safe-helpers.sh`). Never `op read` it to the terminal. Used by build automation in `brik-llm/scripts/webflow/`. Verified 2026-11-04: it reads the site, pages and page DOM; it gets 403 `invalid_auth_version` on every custom-code endpoint (see § API Access Strategy). Writing the DOM and publishing with it are untested.
 >
 > Read the canonical 5 doctrine docs before doing anything credential-related:
 >
@@ -84,13 +84,18 @@ Legal page drafts for TNCLD live in [markdown/legal-drafts/](markdown/legal-draf
 > 4. **Rotation doctrine:** [`brik-llm/operations/security/when-to-rotate.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/security/when-to-rotate.md) — **HARD RULE: agents never initiate rotation.**
 > 5. **Manual procedure:** [`brik-llm/operations/macos/openclaw/runbooks/token-rotation.md`](https://github.com/brikdesigns/brik-llm/blob/main/operations/macos/openclaw/runbooks/token-rotation.md)
 >
-> **Source-of-truth for all credentials: 1Password Development vault.** Never paste secrets into chat or commits. Reference 1P items by ID, not title. (Retired page → [`claude-md-history.md`](.claude/references/claude-md-history.md) § Credentials source.)
+> **Source-of-truth for all credentials: 1Password (Development vault; the Webflow token above is the Production-vault exception).** Never paste secrets into chat or commits. Reference 1P items by ID, not title. (Retired page → [`claude-md-history.md`](.claude/references/claude-md-history.md) § Credentials source.)
 
 ---
 
 ## API Access Strategy
 
-**PREFER direct API calls with tokens from `.env` over Webflow MCP OAuth** — MCP tokens expire and need browser re-auth; `.env` tokens are instant and reliable. → rag:tncld-webflow-api-access
+**Two routes, split by what each can do.** Webflow's site tokens cannot call custom-code endpoints ([docs](https://developers.webflow.com/data/v2.0.0/reference/authentication/site-token.md): "Custom code endpoints" are excluded; OAuth only), so:
+
+- **Read the site, pages and DOM** → the site token above (§ Security), via `op_operator_run`.
+- **Read or write custom code** (site or page head/footer, registered scripts) → the **Webflow MCP** (OAuth): `claude mcp add --transport http webflow https://mcp.webflow.com/mcp`, then authorize in the browser as a site owner/admin. Call `webflow_guide_tool` once per session first. Verified 2026-11-04: `data_scripts_tool` `get_site_freeform_code` and `get_page_freeform_code` read TNCLD. The old `mcp-remote …/sse` entry fails to connect — replace it. Writing and publishing through the MCP are untested.
+
+Any custom-code change is a prod write on a live client site: confirm in chat before writing or publishing. This replaces "PREFER direct API over MCP", which only held for what a site token can do. Worked example: the Read Bio modal scroll fix (TSK-970) is a `<style>` block in the `meet-the-doctors` page's footer custom code — the same block pasted without `<style>` tags renders as page text and does nothing. → rag:tncld-webflow-api-access
 
 ---
 
