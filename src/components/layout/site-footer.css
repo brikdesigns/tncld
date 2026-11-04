@@ -17,7 +17,7 @@
   gap: 2rem 3rem;
   max-width: 80rem;
   margin: 0 auto;
-  padding: var(--space-2400) 1.5rem;
+  padding: var(--bds-space-2400) 1.5rem;
 }
 
 .site-footer__brand {
@@ -142,7 +142,7 @@
   border-top: 1px solid var(--border-primary);
   /* The original sets this row in its `text_body-tiny` style; at body size the
      bar ran ~57px of content against the original's 15px. */
-  font-size: var(--body-xs);
+  font-size: var(--bds-body-xs);
 }
 .site-footer__copyright {
   margin: 0;
@@ -158,7 +158,7 @@
 .site-footer__col a:focus-visible,
 .site-footer__legal a:focus-visible,
 .site-footer__heading a:focus-visible {
-  outline: 2px solid var(--border-focus);
+  outline: 2px solid var(--bds-border-focus);
   outline-offset: 2px;
   border-radius: 2px;
 }

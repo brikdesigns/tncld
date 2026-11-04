@@ -26,7 +26,7 @@
    A `clamp()` with a `vw` term cannot express that: it kept shrinking, landing
    on 31.3 / 30 / 30px at 991 / 767 / 479 against the original's flat 36px, and
    a smaller face also wraps to fewer lines, so the deficit compounded.
-   `--font-size-1000` / `--font-size-800` are the BDS ladder's own steps and
+   `--bds-font-size-1000` / `--bds-font-size-800` are the BDS ladder's own steps and
    carry the same 45.5px / 36px values (`dist/tokens.css:179,181`).
    The step below 991 lives in the `61.9375rem` block at the foot of this file —
    it has to come after the per-section rules that also set this size, since a
@@ -38,7 +38,7 @@
 .section-testimonials__title,
 .section-payments__title,
 .section-cta__title {
-  font-size: var(--font-size-1000);
+  font-size: var(--bds-font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -195,7 +195,7 @@
   flex-direction: column;
   justify-content: center;
   min-height: 31.25rem; /* 500px at the original's 1440 reference width */
-  padding: var(--space-2400) 0;
+  padding: var(--bds-space-2400) 0;
   background: var(--background-secondary);
   text-align: center;
 }
@@ -247,7 +247,7 @@
   flex-direction: column;
   max-width: none;
   padding: 2.5rem 0 3rem;
-  gap: var(--space-1000);
+  gap: var(--bds-space-1000);
 }
 /* The head is `.inner-padding.stacked` — a COLUMN of two tiers, not a row of
    copy beside actions (tncld#158). Its gap is the original's own: 16px at 1440,
@@ -267,7 +267,7 @@
   /* 96px inset at the original's 1440 reference width. The 16px top is the
      original's own heading-wrapper padding, which sits inside the section's
      40px and is why every split band read 16px short at the top. */
-  padding: var(--space-400) 6rem calc(var(--space-2400) + var(--space-400));
+  padding: var(--bds-space-400) 6rem calc(var(--bds-space-2400) + var(--bds-space-400));
 }
 /* `.content-wrapper.narrow` — `width: 70%` (css/tncld.webflow.css:2464), the
    wrapper the original seats a band's heading and lede in (tncld#147). It is
@@ -301,7 +301,7 @@
    padding on `.section-split__head`, and a media query adds no specificity — a
    single class here would lose to them on source order. */
 .section-split__head.section-split__head--flush {
-  padding: 0 5rem var(--space-2400);
+  padding: 0 5rem var(--bds-space-2400);
 }
 /* No bottom margins on either — `.content-wrapper.narrow` spaces its children
    with a `gap`, and a margin here would add to it. */
@@ -422,7 +422,7 @@
 
 /* ── Steps (process) ────────────────────────────────────────────────── */
 .section-steps {
-  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  padding: calc(var(--bds-space-2400) + var(--bds-space-400)) 1.5rem;
   text-align: center;
 }
 /* 36px/45px here, not the 45.5px the other section headings use — the original
@@ -433,7 +433,7 @@
 .section-steps__title {
   /* `auto` inline, not `0` — this is a centred `.content-wrapper.narrow`
      (tncld#147). */
-  margin: 0 auto calc(var(--space-400) + var(--space-1200));
+  margin: 0 auto calc(var(--bds-space-400) + var(--bds-space-1200));
   width: 70%;
   color: var(--text-primary);
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
@@ -497,7 +497,7 @@
 }
 /* 48px stack gap, same as the heading-to-cards gap above. */
 .section-steps__cta {
-  margin-top: var(--space-1200);
+  margin-top: var(--bds-space-1200);
 }
 
 /* ── Tabs (treatments) ───────────────────────────────────── */
@@ -516,7 +516,7 @@
    The brand blue is a BACKGROUND here, which is the case theme-tncld.css
    reproduces faithfully — white on it is 4.88:1 and clears AA. */
 .section-tabs {
-  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  padding: calc(var(--bds-space-2400) + var(--bds-space-400)) 1.5rem;
 }
 .section-tabs__intro {
   display: flex;
@@ -524,7 +524,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 1.25rem;
-  margin: 0 0 var(--space-1200);
+  margin: 0 0 var(--bds-space-1200);
 }
 .section-tabs__intro-copy {
   max-width: 52ch;
@@ -563,8 +563,8 @@
      Brik orange instead of TNCLD blue. */
   background: var(--background-brand-primary);
   color: var(--text-primary);
-  border: var(--border-width-100) solid transparent;
-  border-radius: var(--border-radius-md);
+  border: var(--bds-border-width-100) solid transparent;
+  border-radius: var(--bds-border-radius-md);
 }
 /* The original gives hover the same treatment as the open tab. */
 .section-tabs__tab:hover,
@@ -573,7 +573,7 @@
   color: var(--text-inverse);
 }
 .section-tabs__tab:focus-visible {
-  outline: var(--border-width-200) solid var(--border-focus);
+  outline: var(--bds-border-width-200) solid var(--bds-border-focus);
   outline-offset: 2px;
 }
 /* Inherit, so the open tab's dark-on-white applies to the title too. The
@@ -595,9 +595,9 @@
   flex-direction: column;
   align-items: center;
   gap: 1.75rem;
-  padding: var(--space-2400) 0;
+  padding: var(--bds-space-2400) 0;
   background: var(--surface-secondary);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--bds-border-radius-md);
 }
 /* 347x162 with square-ish sources, so the frame crops rather than letterboxes
    — the original's own `object-fit: cover` at radius 0. */
@@ -624,23 +624,23 @@
     min-height: 0;
   }
   .section-tabs__panel {
-    padding: var(--space-1200) 1.5rem;
+    padding: var(--bds-space-1200) 1.5rem;
   }
 }
 
 /* ── Testimonials (patient stories) ───────────────────── */
 .section-testimonials {
-  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  padding: calc(var(--bds-space-2400) + var(--bds-space-400)) 1.5rem;
 }
 /* A centred `.content-wrapper.narrow` (tncld#147). */
 .section-testimonials__intro {
   width: 70%;
-  margin: 0 auto var(--space-1200);
+  margin: 0 auto var(--bds-space-1200);
   text-align: center;
 }
 /* 16px to the body, as the original's intro stack sets it — was 8px. */
 .section-testimonials__title {
-  margin: 0 0 var(--space-400);
+  margin: 0 0 var(--bds-space-400);
   color: var(--text-primary);
 }
 .section-testimonials__body {
@@ -695,7 +695,7 @@
   height: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--bds-border-radius-md);
 }
 /* The copy block, so the card's button stays pinned to the bottom edge
    regardless of how many lines the story runs to. */
@@ -715,7 +715,7 @@
   padding: 1.5rem;
   border: 0;
   background: var(--surface-secondary);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--bds-border-radius-md);
   color: var(--text-primary);
 }
 .story-dialog::backdrop {
@@ -737,11 +737,11 @@
   cursor: pointer;
   background: none;
   color: var(--text-primary);
-  border: var(--border-width-100) solid var(--border-primary);
-  border-radius: var(--border-radius-circle);
+  border: var(--bds-border-width-100) solid var(--border-primary);
+  border-radius: var(--bds-border-radius-circle);
 }
 .story-dialog__dismiss:focus-visible {
-  outline: var(--border-width-200) solid var(--border-focus);
+  outline: var(--bds-border-width-200) solid var(--bds-border-focus);
   outline-offset: 2px;
 }
 .story-dialog__dismiss-glyph {
@@ -767,14 +767,14 @@
 /* Centered intro over a row of glyph-and-label methods, as the original sets
    it. Was a two-column flex with the methods rendered as bordered pills. */
 .section-payments {
-  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  padding: calc(var(--bds-space-2400) + var(--bds-space-400)) 1.5rem;
   text-align: center;
 }
 /* A centred `.content-wrapper.narrow` (tncld#147) — the 60rem cap it replaces
    was not a measure the original holds at any width. */
 .section-payments__copy {
   width: 70%;
-  margin: 0 auto var(--space-1200);
+  margin: 0 auto var(--bds-space-1200);
 }
 .section-payments__title {
   margin: 0 0 1rem;
@@ -815,7 +815,7 @@
 
 /* ── CTA ─────────────────────────────────────── */
 .section-cta--center {
-  padding: calc(var(--space-2400) + var(--space-400)) 1.5rem;
+  padding: calc(var(--bds-space-2400) + var(--bds-space-400)) 1.5rem;
   text-align: center;
 }
 /* A centred `.content-wrapper.narrow` (tncld#147). Only the `--center` variant:
@@ -917,7 +917,7 @@
  * 24px padding. The heading block is centred above it; on the card-img
  * variants the media replaces the glyph and the card grows to fit. */
 .section-cards {
-  padding: var(--space-2400) 1.5rem;
+  padding: var(--bds-space-2400) 1.5rem;
 }
 /* A centred `.content-wrapper.narrow` (tncld#147). The 50.375rem cap it
    replaces was 806px — the original's measure at 1440 only, which is 70% of the
@@ -925,11 +925,11 @@
    container widened and 91.7% at 991. */
 .section-cards__intro {
   width: 70%;
-  margin: 0 auto var(--space-1200);
+  margin: 0 auto var(--bds-space-1200);
   text-align: center;
 }
 .section-cards__title {
-  margin: 0 0 var(--space-400);
+  margin: 0 0 var(--bds-space-400);
   color: var(--text-primary);
   /* 36px — a step below the section ramp, as the original sets this one. */
   font-size: clamp(1.625rem, 2.5vw, 2.25rem);
@@ -1026,16 +1026,16 @@
 
    The single 128 this used to set produced 519px, a flat 256px deficit at every
    width — the dominant half of the band-3 shortfall #151 reports. There is no
-   256px step on the BDS ladder; `--space-2400` is the 128 it doubles. */
+   256px step on the BDS ladder; `--bds-space-2400` is the 128 it doubles. */
 .section-values {
-  padding: calc(var(--space-2400) * 2) 1.5rem;
+  padding: calc(var(--bds-space-2400) * 2) 1.5rem;
 }
 .section-values__title {
   max-width: 50rem;
-  margin: 0 auto var(--space-1200);
+  margin: 0 auto var(--bds-space-1200);
   color: var(--text-primary);
   text-align: center;
-  font-size: var(--font-size-1000);
+  font-size: var(--bds-font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -1060,7 +1060,7 @@
 .section-values__mark {
   width: 1.875rem;
   height: 0.25rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--bds-border-radius-sm);
   background: var(--background-brand-primary);
 }
 .section-values__card-title {
@@ -1072,17 +1072,17 @@
 
 /* ── Reviews embed (3-column-testimonial, tncld#92) ───────────────────── */
 .section-reviews-embed {
-  padding: var(--space-2400) 1.5rem;
+  padding: var(--bds-space-2400) 1.5rem;
 }
 .section-reviews-embed__intro {
   max-width: 51.1875rem; /* 819px — the original's tight centred measure */
-  margin: 0 auto var(--space-1200);
+  margin: 0 auto var(--bds-space-1200);
   text-align: center;
 }
 .section-reviews-embed__title {
-  margin: 0 0 var(--space-400);
+  margin: 0 0 var(--bds-space-400);
   color: var(--text-primary);
-  font-size: var(--font-size-1000);
+  font-size: var(--bds-font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -1124,7 +1124,7 @@
   gap: 1rem;
   max-width: 80rem;
   margin: 0 auto;
-  padding: var(--space-2400) 1.5rem;
+  padding: var(--bds-space-2400) 1.5rem;
 }
 .section-principles__copy {
   max-width: 37.5rem; /* 600px */
@@ -1132,7 +1132,7 @@
 .section-principles__title {
   margin: 0 0 1.5rem;
   color: var(--text-primary);
-  font-size: var(--font-size-1000);
+  font-size: var(--bds-font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -1157,13 +1157,13 @@
   min-height: 7rem; /* 112px */
   padding: 1rem 1.25rem;
   background: var(--surface-secondary);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--bds-border-radius-sm);
 }
 .section-principles__mark {
   flex: 0 0 auto;
   width: 0.25rem;
   height: 1.875rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--bds-border-radius-sm);
   background: var(--background-brand-primary);
 }
 .section-principles__item-text {
@@ -1215,7 +1215,7 @@
  * BDS has no 64px button: the ramp is tiny/sm/md/lg/xl = 24/32/40/48/56px
  * (`.bds-button--*` in @brikdesigns/bds/dist/styles.css:55-85), so `xl` is the
  * closest and is 8px short. ActionButton passes `size="xl"` for the type and
- * padding ramp; the height comes up to the original's on --size-1600, which is
+ * padding ramp; the height comes up to the original's on --bds-size-1600, which is
  * a canonical token (tokens.css:286) rather than a bespoke pixel value.
  *
  * 64px clears the 44x44 floor WCAG 2.5.5 and the repo's Compliance Profile
@@ -1228,7 +1228,7 @@
 /* The story card's "Watch Their Story" was omitted from this list — measured
    64px on the original at all four widths, 40px in the rebuild (tncld#143). */
 .section-testimonials__card .bds-button {
-  height: var(--size-1600);
+  height: var(--bds-size-1600);
 }
 
 /* ── Responsive section rhythm (tncld#106) ────────────────
@@ -1252,7 +1252,7 @@
  * this block: their counterpart holds 128px at every width, and stepping them
  * "for consistency" would walk the page away from the original.
  *
- * 57.5px is not on the BDS scale. --space-1400 (56px) is the nearest canonical
+ * 57.5px is not on the BDS scale. --bds-space-1400 (56px) is the nearest canonical
  * token; the 1.5px per edge it gives up is 3px on a ~900px band, two orders
  * below the 5% AC. A --space-1437 does not exist and is not worth minting.
  *
@@ -1284,18 +1284,18 @@
   .section-values__title,
   .section-reviews-embed__title,
   .section-principles__title {
-    font-size: var(--font-size-800);
+    font-size: var(--bds-font-size-800);
   }
   .section-reviews,
   .section-steps,
   .section-tabs,
   .section-testimonials {
-    padding-block: var(--space-1400);
+    padding-block: var(--bds-space-1400);
   }
   /* The original closes the head-to-image gap entirely here and trims 8px off
      the section's bottom. */
   .section-split {
-    padding-bottom: var(--space-1000);
+    padding-bottom: var(--bds-space-1000);
     gap: 0;
   }
   /* tncld#154. The 96px above is an 80px `.container-lg` gutter plus 16px of
@@ -1313,27 +1313,27 @@
      (tncld#158), and the four figures above are symmetric on all four sides.
 
      Bottom is the inner 20px plus the outer `.layout_1-col.stacked`'s 57.5px
-     pad — 77.5px, flat at 991, 767 and 479. `--space-1800` (80px) is the
+     pad — 77.5px, flat at 991, 767 and 479. `--bds-space-1800` (80px) is the
      nearest canonical token; there is no 77.5px step and the 2.5px is two
      orders below the 5% AC. */
   .section-split__head {
-    padding-top: var(--space-500);
-    padding-bottom: var(--space-1800); /* 80px against the measured 77.5 */
-    padding-inline: var(--space-500);
-    gap: var(--space-300); /* 12px — the original's gap below 1440 */
+    padding-top: var(--bds-space-500);
+    padding-bottom: var(--bds-space-1800); /* 80px against the measured 77.5 */
+    padding-inline: var(--bds-space-500);
+    gap: var(--bds-space-300); /* 12px — the original's gap below 1440 */
   }
   /* The 12px step is on all three of the original's nested wrappers, not just
      the outer one: `.inner-padding.stacked`, `.content-wrapper.narrow` and
      `.inner-padding.none` each read 16px at 1440 and 12px at 991, 767 and 479. */
   .section-split__copy,
   .section-split__detail {
-    gap: var(--space-300);
+    gap: var(--bds-space-300);
   }
   /* Flush below 991: no container gutter either, so copy is 70% of the whole
      viewport (693.7 at 991) and the detail row runs the full width.
-     `--space-1400` (56px) against the outer pad's measured 57.5. */
+     `--bds-space-1400` (56px) against the outer pad's measured 57.5. */
   .section-split__head.section-split__head--flush {
-    padding: 0 0 var(--space-1400);
+    padding: 0 0 var(--bds-space-1400);
   }
   /* The original authors its wrap at 767, not 991: this row's two children
      measure 49.4% each at both 1440 and 991 and go to 100% only at 767 and
@@ -1359,10 +1359,10 @@
      652px inside 767 — 57.5px of inline padding at both, against the 24px the
      rebuild carried up from 1440. At 24px each stacked card is 895px wide
      against the original's 828px, and since these cards are image-led the
-     extra 8% of width came back as 8% of image height. `--space-1400` (56px)
+     extra 8% of width came back as 8% of image height. `--bds-space-1400` (56px)
      is the canonical token nearest 57.5; there is no 57.5px step. */
   .section-cards {
-    padding-inline: var(--space-1400);
+    padding-inline: var(--bds-space-1400);
   }
   /* 400px is the *three-across* card height measured at 1440; it is not a
      property of the card. Once the grid stacks, the original's cards are
@@ -1410,10 +1410,10 @@
   /* Same `.container-lg` correction #138 made for `.section-cards`: the
      original's container measures 876px inside a 991 viewport and 652px inside
      767 — 57.5px of inline padding at both, against the 24px the rebuild
-     carried up from 1440. `--space-1400` (56px) is the nearest canonical token. */
+     carried up from 1440. `--bds-space-1400` (56px) is the nearest canonical token. */
   .section-steps,
   .section-testimonials {
-    padding-inline: var(--space-1400);
+    padding-inline: var(--bds-space-1400);
   }
   /* tncld#151. The values band takes the same `.container-lg` correction, and
      its doubled pad steps with it: the original holds 57.5px on BOTH the
@@ -1422,15 +1422,15 @@
 
        115 (pad) + 43 (title) + 40 (gap) + 549 (cards) + 115 (pad) = 862
 
-     `--space-1400` doubled is 112, 3px under the original's 115 per side; the
+     `--bds-space-1400` doubled is 112, 3px under the original's 115 per side; the
      ladder has no 57.5 step, and #138/#144 already round the same value here. */
   .section-values {
-    padding-block: calc(var(--space-1400) * 2);
-    padding-inline: var(--space-1400);
+    padding-block: calc(var(--bds-space-1400) * 2);
+    padding-inline: var(--bds-space-1400);
   }
   /* The original's grid gap steps 48 -> 40 with the rest of the band. */
   .section-values__title {
-    margin-bottom: var(--space-1000);
+    margin-bottom: var(--bds-space-1000);
   }
   /* ONE column, not two or three. `.layout-4-col` declares
      `grid-template-columns: 1fr 1fr` in this breakpoint
@@ -1442,7 +1442,7 @@
      and wrapped 3+1. Gutter drops 16 -> 12 with the column. */
   .section-values__grid {
     grid-template-columns: 1fr;
-    gap: var(--space-300);
+    gap: var(--bds-space-300);
   }
   /* 160px is the *four-across* card height and is not a property of the card —
      the same shape #131/#138 found on the step, story and icon cards. The
@@ -1496,7 +1496,7 @@
   /* The original's container is 1184 / 876 / 652 / 479 wide at
      1440 / 991 / 767 / 479 — i.e. it drops its inline padding to ZERO here,
      rather than keeping the 57.5px it holds at 991 and 767. #144 applied
-     `--space-1400` from 991 down and so over-padded this breakpoint: the card
+     `--bds-space-1400` from 991 down and so over-padded this breakpoint: the card
      came out 367px wide against the original's 479. For the story card that is
      load-bearing, because the poster is a fraction of it. */
   .section-steps,
@@ -1510,8 +1510,8 @@
      the title, 115 below the cards, 20px each side (container 439 in a 479
      viewport). Total 860px. */
   .section-values {
-    padding-block: var(--space-1400) calc(var(--space-1400) * 2);
-    padding-inline: var(--space-500);
+    padding-block: var(--bds-space-1400) calc(var(--bds-space-1400) * 2);
+    padding-inline: var(--bds-space-500);
   }
 }
 
