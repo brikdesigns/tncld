@@ -25,12 +25,12 @@
 /* Visible keyboard focus for every link in the legal shell (WCAG 2.4.7).
    BDS ships :focus-visible only for its own components (buttons, inputs), not
    for anchors, so the home link, footer nav, and in-prose links need it here.
-   Mirrors the BDS button pattern: outline in the canonical --border-focus. */
+   Mirrors the BDS button pattern: outline in the canonical --bds-border-focus. */
 .legal-skip-link:focus-visible,
 .legal-home-link:focus-visible,
 .legal-footer a:focus-visible,
 .legal-main .bds-prose a:focus-visible {
-  outline: 2px solid var(--border-focus);
+  outline: 2px solid var(--bds-border-focus);
   outline-offset: 2px;
   border-radius: 2px;
 }
