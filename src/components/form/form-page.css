@@ -15,11 +15,11 @@
 }
 .form-page__title {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .form-page__lede {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   max-width: 48ch;
 }
 
@@ -42,13 +42,13 @@
 .form-page__notice {
   margin: 0 0 2rem;
   padding: 1rem 1.25rem;
-  background: var(--background-tertiary);
-  border: 1px solid var(--border-primary);
+  background: var(--bds-background-tertiary);
+  border: 1px solid var(--bds-border-primary);
   border-radius: var(--bds-border-radius-md);
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 .form-page__notice a {
-  color: var(--text-link);
+  color: var(--bds-text-link);
 }
 
 .form-page__details {
@@ -56,22 +56,22 @@
 }
 .form-page__details-heading {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .form-page__detail {
   margin: 0 0 1rem;
 }
 .form-page__detail-term {
   display: block;
-  color: var(--text-muted);
+  color: var(--bds-text-muted);
   margin-bottom: 0.25rem;
 }
 .form-page__detail-value {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .form-page__detail-value a {
-  color: var(--text-link);
+  color: var(--bds-text-link);
   text-decoration: none;
 }
 .form-page__detail-value a:hover {

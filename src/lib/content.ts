@@ -139,7 +139,7 @@ export interface CardItem {
  * Three-across card grid — Webflow `3-column-card`, `3-column-card-img-portrait`
  * and `3-column-card-img-landscape`, which differ only in what sits above the
  * card title (tncld#92). Measured on the export: 381x400 cards, 20px gutter,
- * `--surface-secondary` fill, 40px radius.
+ * `--bds-surface-secondary` fill, 40px radius.
  */
 export interface CardsSection {
   type: 'cards';

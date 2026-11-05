@@ -74,7 +74,7 @@
   font-size: clamp(2.5rem, 6.4vw, 5.7625rem);
   line-height: 1;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 
 /* ── Interior hero (2-column-hero-split) ────────────────────────────────
@@ -104,7 +104,7 @@
 .section-hero__rule {
   margin: 1.5rem 0 2.5rem;
   border: 0;
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid var(--bds-border-primary);
 }
 .section-hero__columns {
   display: flex;
@@ -117,7 +117,7 @@
   gap: 0.5rem;
   flex: 0 0 20rem;
   margin: 0;
-  color: var(--text-brand-primary);
+  color: var(--bds-text-brand-primary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.875rem;
@@ -132,13 +132,13 @@
   max-width: 56.625rem; /* 906px — the original's body column */
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .section-hero__lede {
   margin: 0;
   font-size: 1.125rem;
   line-height: 1.25rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .section-hero__actions {
   display: flex;
@@ -196,7 +196,7 @@
   justify-content: center;
   min-height: 31.25rem; /* 500px at the original's 1440 reference width */
   padding: var(--bds-space-2400) 0;
-  background: var(--background-secondary);
+  background: var(--bds-background-secondary);
   text-align: center;
 }
 /* Stat, stars and label share one baseline at the original's 57.5px. */
@@ -209,14 +209,14 @@
   max-width: 60rem;
   margin: 0 auto;
   padding: 0 1.5rem;
-  color: var(--text-primary);
-  font-family: var(--font-family-display);
+  color: var(--bds-text-primary);
+  font-family: var(--bds-font-family-display);
   font-size: clamp(1.75rem, 4vw, 3.59375rem);
   font-weight: 700;
   line-height: 1.1;
 }
 /* Blue, as the original renders them. The brand blue is 4.31:1 on black, below
-   the 4.5:1 AA floor for TEXT — which is why --text-brand-primary is green —
+   the 4.5:1 AA floor for TEXT — which is why --bds-text-brand-primary is green —
    but these stars are a graphic (role="img", with the rating in aria-label), so
    the applicable floor is 3:1 for non-text contrast (WCAG 1.4.11) and blue
    clears it. Local primitive rather than a semantic token: no BDS semantic name
@@ -229,7 +229,7 @@
   margin: 1rem auto 0;
   padding: 0 1.5rem;
   max-width: 44ch;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 
 /* ── Split (feature teaser) ─────────────────────────────────────────────
@@ -307,7 +307,7 @@
    with a `gap`, and a margin here would add to it. */
 .section-split__eyebrow {
   margin: 0;
-  color: var(--text-brand-primary);
+  color: var(--bds-text-brand-primary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.875rem;
@@ -315,7 +315,7 @@
 }
 .section-split__title {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 /* `.inner-padding.none` — the head's second tier, full content width. Its two
    children hold 49.4% each down to 991 and go to 100% at 767 (tncld#154
@@ -331,7 +331,7 @@
 .section-split__body {
   margin: 0;
   flex: 0 1 49.4%;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -411,8 +411,8 @@
  * replaced elements only) came out 81px OVER the original, so none of the
  * deficit was content.
  *
- * Expressed on the fixed --space-* scale rather than --padding-huge or
- * --gap-md. Those track [data-mode-spacing], and the original's rhythm is BDS
+ * Expressed on the fixed --space-* scale rather than --bds-padding-huge or
+ * --bds-gap-md. Those track [data-mode-spacing], and the original's rhythm is BDS
  * `spacious` exactly (128px padding, 48px gap) — but its 40px split gap has no
  * token in that mode, and nothing in src/ consumes the padding or gap token
  * families today, so setting the attribute alone would move nothing. A
@@ -435,7 +435,7 @@
      (tncld#147). */
   margin: 0 auto calc(var(--bds-space-400) + var(--bds-space-1200));
   width: 70%;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: clamp(1.75rem, 2.5vw, 2.25rem);
   line-height: 1.25;
 }
@@ -468,7 +468,7 @@
   min-height: 25rem;
   padding: 1.5rem;
   text-align: left;
-  background: var(--surface-secondary);
+  background: var(--bds-surface-secondary);
   border-radius: 2.5rem;
 }
 /* The original's `.img-frame-1-1.sm` is a PERCENTAGE of the card's content
@@ -485,13 +485,13 @@
 }
 .section-steps__item-title {
   margin: 0 0 0.5rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: 1.40625rem;
   line-height: 1.25;
 }
 .section-steps__item-body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -531,11 +531,11 @@
 }
 .section-tabs__title {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .section-tabs__body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 /* The two columns. 412 + 868 + 16px gap is the original's 1296 content width;
    `minmax(0, …)` so a wide panel image cannot blow the track out. */
@@ -559,18 +559,18 @@
   text-align: left;
   cursor: pointer;
   /* --background-* , not --surface-* : theme-tncld.css themes the former, and
-     BDS defaults --surface-brand-primary to poppy, which would render this
+     BDS defaults --bds-surface-brand-primary to poppy, which would render this
      Brik orange instead of TNCLD blue. */
-  background: var(--background-brand-primary);
-  color: var(--text-primary);
+  background: var(--bds-background-brand-primary);
+  color: var(--bds-text-primary);
   border: var(--bds-border-width-100) solid transparent;
   border-radius: var(--bds-border-radius-md);
 }
 /* The original gives hover the same treatment as the open tab. */
 .section-tabs__tab:hover,
 .section-tabs__tab[aria-selected='true'] {
-  background: var(--background-inverse);
-  color: var(--text-inverse);
+  background: var(--bds-background-inverse);
+  color: var(--bds-text-inverse);
 }
 .section-tabs__tab:focus-visible {
   outline: var(--bds-border-width-200) solid var(--bds-border-focus);
@@ -578,7 +578,7 @@
 }
 /* Inherit, so the open tab's dark-on-white applies to the title too. The
    resting state is white-on-blue and the open state rgb(51,51,51)-on-white —
-   the original computes rgb(24,24,24) there, and --text-inverse is the
+   the original computes rgb(24,24,24) there, and --bds-text-inverse is the
    canonical token nearest it (12.63:1 on white, comfortably AA). */
 .section-tabs__tab-title {
   font-size: 1.40625rem;
@@ -596,7 +596,7 @@
   align-items: center;
   gap: 1.75rem;
   padding: var(--bds-space-2400) 0;
-  background: var(--surface-secondary);
+  background: var(--bds-surface-secondary);
   border-radius: var(--bds-border-radius-md);
 }
 /* 347x162 with square-ish sources, so the frame crops rather than letterboxes
@@ -612,7 +612,7 @@
 }
 .section-tabs__panel-line {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 /* Below the original's 991 breakpoint the two columns cannot both hold their
    measured width, so the tab column goes full-width above the panel. */
@@ -641,11 +641,11 @@
 /* 16px to the body, as the original's intro stack sets it — was 8px. */
 .section-testimonials__title {
   margin: 0 0 var(--bds-space-400);
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .section-testimonials__body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 /* 381x320 panels, 20px gutter — measured on the original's story cards.
    Same `.layout-3-col` as the step grid above, and the same authored 991
@@ -664,18 +664,18 @@
   gap: 1rem;
   min-height: 20rem;
   padding: 1.5rem;
-  background: var(--surface-secondary);
+  background: var(--bds-surface-secondary);
   border-radius: 2.5rem;
 }
 .section-testimonials__card-title {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: 1.40625rem;
   line-height: 1.25;
 }
 .section-testimonials__card-body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 /* The animated Mux poster the original puts at the top of each story card
    (tncld#97).
@@ -714,9 +714,9 @@
   width: min(64rem, 92vw);
   padding: 1.5rem;
   border: 0;
-  background: var(--surface-secondary);
+  background: var(--bds-surface-secondary);
   border-radius: var(--bds-border-radius-md);
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .story-dialog::backdrop {
   /* Matches the hero's own scrim weight. */
@@ -736,8 +736,8 @@
   height: 2.75rem;
   cursor: pointer;
   background: none;
-  color: var(--text-primary);
-  border: var(--bds-border-width-100) solid var(--border-primary);
+  color: var(--bds-text-primary);
+  border: var(--bds-border-width-100) solid var(--bds-border-primary);
   border-radius: var(--bds-border-radius-circle);
 }
 .story-dialog__dismiss:focus-visible {
@@ -778,11 +778,11 @@
 }
 .section-payments__title {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .section-payments__body {
   margin: 0 auto;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   max-width: 68ch;
 }
 .section-payments__methods {
@@ -806,7 +806,7 @@
   height: auto;
 }
 .section-payments__method-label {
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.75rem;
@@ -850,7 +850,7 @@
   width: 100%;
   max-width: 25rem;
   padding: 1.75rem;
-  background: var(--background-brand-primary);
+  background: var(--bds-background-brand-primary);
   border-radius: 0.75rem;
 }
 /* White on --tncld-blue is 4.88:1 — passes AA for body copy. */
@@ -860,7 +860,7 @@
 }
 .section-cta__title {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .section-cta--split .section-cta__title {
   font-size: 1.40625rem;
@@ -868,7 +868,7 @@
 }
 .section-cta__body {
   margin: 0 0 1.5rem;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   max-width: 52ch;
 }
 .section-cta--center .section-cta__body {
@@ -913,7 +913,7 @@
 
 /* ── Cards (3-column-card + its image variants, tncld#92) ─────────────
  * Measured on the export at 1440: 128px section padding, an 1184px grid of
- * 381x400 cards at a 20px gutter, `--surface-secondary` fill, 40px radius,
+ * 381x400 cards at a 20px gutter, `--bds-surface-secondary` fill, 40px radius,
  * 24px padding. The heading block is centred above it; on the card-img
  * variants the media replaces the glyph and the card grows to fit. */
 .section-cards {
@@ -930,7 +930,7 @@
 }
 .section-cards__title {
   margin: 0 0 var(--bds-space-400);
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   /* 36px — a step below the section ramp, as the original sets this one. */
   font-size: clamp(1.625rem, 2.5vw, 2.25rem);
   line-height: 1.25;
@@ -938,7 +938,7 @@
 }
 .section-cards__body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 .section-cards__grid {
   list-style: none;
@@ -961,7 +961,7 @@
   align-items: flex-start;
   gap: 1.25rem;
   padding: 1.5rem;
-  background: var(--surface-secondary);
+  background: var(--bds-surface-secondary);
   border-radius: 2.5rem;
 }
 .section-cards--icon .section-cards__card,
@@ -976,7 +976,7 @@
 /* `text_display-md brand` above the title on the numbered variant. */
 .section-cards__numeral {
   margin: 0;
-  color: var(--text-brand-primary);
+  color: var(--bds-text-brand-primary);
   font-size: 2.84375rem;
   line-height: 1.2;
   font-weight: 700;
@@ -1002,13 +1002,13 @@
 }
 .section-cards__card-title {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: 1.40625rem; /* 22.5px */
   line-height: 1.25;
 }
 .section-cards__card-body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -1033,7 +1033,7 @@
 .section-values__title {
   max-width: 50rem;
   margin: 0 auto var(--bds-space-1200);
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   text-align: center;
   font-size: var(--bds-font-size-1000);
   line-height: 1.2;
@@ -1054,18 +1054,18 @@
   gap: 0.625rem;
   min-height: 10rem; /* 160px */
   padding: 1.5rem;
-  background: var(--surface-secondary);
+  background: var(--bds-surface-secondary);
   border-radius: 2.5rem;
 }
 .section-values__mark {
   width: 1.875rem;
   height: 0.25rem;
   border-radius: var(--bds-border-radius-sm);
-  background: var(--background-brand-primary);
+  background: var(--bds-background-brand-primary);
 }
 .section-values__card-title {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: 1.40625rem;
   line-height: 1.25;
 }
@@ -1081,14 +1081,14 @@
 }
 .section-reviews-embed__title {
   margin: 0 0 var(--bds-space-400);
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: var(--bds-font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
 .section-reviews-embed__body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 /* The vendor's inline `min-width: 100%` collapses the frame to its 300px
    intrinsic width inside a flex parent (tncld#28). header.css fixes that on the
@@ -1131,14 +1131,14 @@
 }
 .section-principles__title {
   margin: 0 0 1.5rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: var(--bds-font-size-1000);
   line-height: 1.2;
   font-weight: 700;
 }
 .section-principles__body {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   font-size: 1.125rem;
   line-height: 1.5;
 }
@@ -1156,7 +1156,7 @@
   gap: 1rem;
   min-height: 7rem; /* 112px */
   padding: 1rem 1.25rem;
-  background: var(--surface-secondary);
+  background: var(--bds-surface-secondary);
   border-radius: var(--bds-border-radius-sm);
 }
 .section-principles__mark {
@@ -1164,11 +1164,11 @@
   width: 0.25rem;
   height: 1.875rem;
   border-radius: var(--bds-border-radius-sm);
-  background: var(--background-brand-primary);
+  background: var(--bds-background-brand-primary);
 }
 .section-principles__item-text {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -1183,13 +1183,13 @@
 }
 .bio-dialog__title {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   font-size: 1.75rem;
   line-height: 1.25;
 }
 .bio-dialog__body {
   margin: 0 0 1rem;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   font-size: 1rem;
   line-height: 1.6;
 }

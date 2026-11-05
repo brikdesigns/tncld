@@ -11,11 +11,11 @@
 }
 .resource-page__title {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .resource-page__lede {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   max-width: 60ch;
 }
 
@@ -29,14 +29,14 @@
 }
 .resource-page__section {
   padding-top: 2rem;
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid var(--bds-border-primary);
 }
 .resource-page__section-title {
   margin: 0 0 0.75rem;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .resource-page__section-link {
-  color: var(--text-link);
+  color: var(--bds-text-link);
   text-decoration: none;
 }
 .resource-page__section-link:hover {

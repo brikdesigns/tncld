@@ -7,8 +7,8 @@
   top: -4rem;
   z-index: 100;
   padding: 0.75rem 1rem;
-  background: var(--background-inverse);
-  color: var(--text-inverse);
+  background: var(--bds-background-inverse);
+  color: var(--bds-text-inverse);
   border-radius: 0 0 4px 0;
   text-decoration: none;
   transition: top 0.15s ease-in-out;

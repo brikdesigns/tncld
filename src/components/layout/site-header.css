@@ -5,8 +5,8 @@
    not for bare anchors. */
 
 .site-header {
-  border-bottom: 1px solid var(--border-primary);
-  background: var(--background-primary);
+  border-bottom: 1px solid var(--bds-border-primary);
+  background: var(--bds-background-primary);
 }
 .site-header__inner {
   display: flex;
@@ -45,11 +45,11 @@
   gap: 0.5rem 1.5rem;
 }
 .site-header__nav-link {
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   text-decoration: none;
 }
 .site-header__nav-link:hover {
-  color: var(--text-link);
+  color: var(--bds-text-link);
   text-decoration: underline;
 }
 
