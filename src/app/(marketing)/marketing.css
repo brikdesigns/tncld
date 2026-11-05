@@ -17,6 +17,6 @@
   top: 0;
 }
 .marketing-skip-link:focus-visible {
-  outline: 2px solid var(--border-focus);
+  outline: 2px solid var(--bds-border-focus);
   outline-offset: 2px;
 }

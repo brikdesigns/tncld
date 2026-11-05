@@ -28,7 +28,7 @@
   width: 100%;
   height: auto;
   max-width: 36rem;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--bds-border-radius-lg);
   object-fit: cover;
 }
 
@@ -61,7 +61,7 @@
   text-decoration: underline;
 }
 .content-page__section-link:focus-visible {
-  outline: 2px solid var(--border-focus);
+  outline: 2px solid var(--bds-border-focus);
   outline-offset: 2px;
   border-radius: 2px;
 }

@@ -44,7 +44,7 @@
   padding: 1rem 1.25rem;
   background: var(--background-tertiary);
   border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--bds-border-radius-md);
   color: var(--text-secondary);
 }
 .form-page__notice a {
@@ -78,7 +78,7 @@
   text-decoration: underline;
 }
 .form-page__detail-value a:focus-visible {
-  outline: 2px solid var(--border-focus);
+  outline: 2px solid var(--bds-border-focus);
   outline-offset: 2px;
   border-radius: 2px;
 }
