@@ -111,10 +111,10 @@ export function StoryVideo({ story }: { story: StoryItem & { playbackId: string 
             playbackId={story.playbackId}
             streamType="on-demand"
             preload="metadata"
-            // --background-brand-primary, not --surface-brand-primary:
+            // --bds-background-brand-primary, not --bds-surface-brand-primary:
             // theme-tncld.css themes the former to TNCLD blue and leaves the
             // latter at the BDS default, which is Brik poppy.
-            accentColor="var(--background-brand-primary)"
+            accentColor="var(--bds-background-brand-primary)"
             metadata={{ video_title: story.title }}
           />
         ) : null}

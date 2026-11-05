@@ -4,8 +4,8 @@
    for bare anchors. */
 
 .site-footer {
-  border-top: 1px solid var(--border-primary);
-  background: var(--background-secondary);
+  border-top: 1px solid var(--bds-border-primary);
+  background: var(--bds-background-secondary);
 }
 /* 128px top and bottom, as the original's nav_footer sets it (tncld#102). This
    was 48/32, and it is the same shortfall the section templates had — it showed
@@ -31,10 +31,10 @@
 }
 .site-footer__blurb {
   margin: 0 0 1rem;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 .site-footer__cta-link {
-  color: var(--text-link);
+  color: var(--bds-text-link);
 }
 
 /* The original's four groups, measured on the rendered export (tncld#129):
@@ -78,7 +78,7 @@
   justify-content: space-between;
   gap: 0 1rem;
   margin-bottom: 0.5rem;
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
 }
 .site-footer__hours-row dd {
   margin: 0;
@@ -109,22 +109,22 @@
 }
 .site-footer__heading {
   margin: 0 0 0.75rem;
-  font-family: var(--font-family-heading);
+  font-family: var(--bds-font-family-heading);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
 }
 .site-footer__col a,
 .site-footer__legal a {
-  color: var(--text-secondary);
+  color: var(--bds-text-secondary);
   text-decoration: none;
 }
 .site-footer__col a:hover,
 .site-footer__legal a:hover {
-  color: var(--text-link);
+  color: var(--bds-text-link);
   text-decoration: underline;
 }
 .site-footer__heading a {
-  color: var(--text-primary);
+  color: var(--bds-text-primary);
   text-decoration: none;
 }
 
@@ -139,14 +139,14 @@
   max-width: 80rem;
   margin: 0 auto;
   padding: 1.5rem;
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid var(--bds-border-primary);
   /* The original sets this row in its `text_body-tiny` style; at body size the
      bar ran ~57px of content against the original's 15px. */
   font-size: var(--bds-body-xs);
 }
 .site-footer__copyright {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--bds-text-muted);
 }
 .site-footer__legal ul {
   flex-direction: row;

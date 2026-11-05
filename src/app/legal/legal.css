@@ -12,8 +12,8 @@
   top: -4rem;
   z-index: 100;
   padding: 0.75rem 1rem;
-  background: var(--background-inverse);
-  color: var(--text-inverse);
+  background: var(--bds-background-inverse);
+  color: var(--bds-text-inverse);
   border-radius: 0 0 4px 0;
   text-decoration: none;
   transition: top 0.15s ease-in-out;
@@ -37,11 +37,11 @@
 
 .legal-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-primary);
+  border-bottom: 1px solid var(--bds-border-primary);
 }
 .legal-home-link {
-  color: var(--text-primary);
-  font-family: var(--font-family-heading);
+  color: var(--bds-text-primary);
+  font-family: var(--bds-font-family-heading);
   font-weight: 600;
   text-decoration: none;
 }
@@ -62,7 +62,7 @@
 }
 
 .legal-footer {
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid var(--bds-border-primary);
   padding: 2rem 1.5rem 3rem;
 }
 .legal-footer nav ul {
@@ -75,5 +75,5 @@
   gap: 0.5rem 1.5rem;
 }
 .legal-footer a {
-  color: var(--text-link);
+  color: var(--bds-text-link);
 }
