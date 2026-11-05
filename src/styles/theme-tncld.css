@@ -148,35 +148,6 @@
    * to the BDS default before `.theme-tncld` is reached. These re-point the old
    * names here, for site CSS that still reads them. Delete with the bridge
    * (brik-bds#2711). */
-  --font-family-display:              var(--bds-font-family-display);
-  --font-family-heading:              var(--bds-font-family-heading);
-  --font-family-subtitle:             var(--bds-font-family-subtitle);
-  --font-family-body:                 var(--bds-font-family-body);
-  --font-family-label:                var(--bds-font-family-label);
-  --background-brand-primary:         var(--bds-background-brand-primary);
-  --background-brand-primary-hover:   var(--bds-background-brand-primary-hover);
-  --background-brand-primary-pressed: var(--bds-background-brand-primary-pressed);
-  --background-brand-secondary:       var(--bds-background-brand-secondary);
-  --background-primary:               var(--bds-background-primary);
-  --background-secondary:             var(--bds-background-secondary);
-  --background-tertiary:              var(--bds-background-tertiary);
-  --background-inverse:               var(--bds-background-inverse);
-  --background-input:                 var(--bds-background-input);
-  --surface-primary:                  var(--bds-surface-primary);
-  --surface-secondary:                var(--bds-surface-secondary);
-  --text-primary:                     var(--bds-text-primary);
-  --text-secondary:                   var(--bds-text-secondary);
-  --text-muted:                       var(--bds-text-muted);
-  --text-inverse:                     var(--bds-text-inverse);
-  --text-brand-primary:               var(--bds-text-brand-primary);
-  --text-on-color-light:              var(--bds-text-on-color-light);
-  --text-link:                        var(--bds-text-link);
-  --text-text-link:                   var(--bds-text-text-link);
-  --border-primary:                   var(--bds-border-primary);
-  --border-brand-primary:             var(--bds-border-brand-primary);
-  --border-input:                     var(--bds-border-input);
-  --page-primary:                     var(--bds-page-primary);
-  --page-accent:                      var(--bds-page-accent);
 }
 
 /* No light-scheme block. The original ships no light scheme and no switcher,
@@ -193,11 +164,11 @@
 .theme-tncld h4,
 .theme-tncld h5,
 .theme-tncld h6 {
-  font-family: var(--font-family-heading);
+  font-family: var(--bds-font-family-heading);
 }
 
 .theme-tncld {
-  font-family: var(--font-family-body);
+  font-family: var(--bds-font-family-body);
 }
 
 /* ── Atmosphere (minimal-clinical) ───────────────────────────────────
