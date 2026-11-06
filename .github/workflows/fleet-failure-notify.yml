@@ -23,6 +23,7 @@ on:
   workflow_run:
     workflows:
       - "Verify live assets"
+      - "Verify no native forms"
     types: [completed]
 
 permissions: {}
