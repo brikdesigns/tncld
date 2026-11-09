@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { StagingDevTools } from '@/components/layout/StagingDevTools';
 import './globals.css';
 
 /**
@@ -68,7 +69,15 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="theme-tncld">{children}</body>
+      <body className="theme-tncld">
+        {children}
+        {process.env.PUBLIC_ENABLE_DEV_TOOLS === 'true' ? (
+          <StagingDevTools
+            token={process.env.PUBLIC_FEEDBACK_TOKEN ?? ''}
+            apiUrl={process.env.PUBLIC_FEEDBACK_API_URL ?? ''}
+          />
+        ) : null}
+      </body>
     </html>
   );
 }
