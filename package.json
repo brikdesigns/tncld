@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "check:content": "node scripts/check-content.mjs",
     "check:bds-binding": "node scripts/check-bds-binding.mjs",
-    "test": "npm run check:content && npm run check:bds-binding && npm run test:frame-title && npm run test:widget-width",
+    "test": "npm run check:content && npm run check:bds-binding && npm run test:frame-title && npm run test:widget-width && npm run test:pair-headings",
     "test:frame-title": "node scripts/test-frame-title.js",
     "test:a11y": "playwright test",
     "test:a11y-routes": "node scripts/assert-a11y-routes.mjs",
@@ -20,7 +20,8 @@
     "test:interactions": "node scripts/test-home-interactions.mjs",
     "test:motion": "node scripts/motion-shot.mjs",
     "deploy:cdn": "bash deploy.sh",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:pair-headings": "node scripts/test-pair-headings.mjs"
   },
   "dependencies": {
     "@brikdesigns/bds": "0.239.0",
