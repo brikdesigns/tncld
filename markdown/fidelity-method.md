@@ -86,14 +86,15 @@ export's `about.html`, anything else gets the route `/about`. All seven routes
 resolve identically on `tncld.webflow.io` (verified 2026-09-01), so no separate
 route table is needed.
 
-> **Band 1 and the last band are wrong on `/about` and `/services` until
-> tncld#169 lands** — on both origins, so this is not a live-origin problem.
-> Headings pair through a text-keyed `Map`, which keeps the last occurrence, and
-> the rebuild's footer group titles are `h2`. `/about`'s band 1 anchors on the
-> footer's `About` (y=4141) rather than the page's (y=320) and reports
-> **−3258px**. Bands 2–4 are correct and the page total is measured
-> independently, which is how it went unnoticed. The other five routes are
-> clean — checked, not assumed.
+> **Heading pairing is in document order (tncld#169).** The rebuild's footer
+> group titles are `h2` and repeat page headings (`About`, `Services`). They used
+> to pair through a text-keyed `Map`, which keeps the last occurrence, so
+> `/about`'s band 1 anchored on the footer's `About` (y=4141) instead of the
+> page's (y=320) and reported **−3258px**. `scripts/lib/pair-headings.mjs` now
+> walks both lists in order, leaves the footer titles as rebuild-only, and
+> `fidelity-shot.mjs` throws on any negative band. Figures taken before #169
+> for `/about` and `/services` band 1 and the last band are not comparable.
+> Regression test: `npm run test:pair-headings`.
 
 `cdnjs.cloudflare.com` (ScrollSmoother) and `www.google-analytics.com` are the
 only failed requests on a live render — the first is the same 404 the export

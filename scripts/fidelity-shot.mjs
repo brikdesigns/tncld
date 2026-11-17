@@ -55,6 +55,7 @@ import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { assertIsRebuild } from './lib/assert-rebuild.mjs';
+import { key, pairHeadings, assertBandsNonNegative } from './lib/pair-headings.mjs';
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -96,9 +97,8 @@ const outDir = arg('out', join('.fidelity', route === '/' ? 'home' : route.slice
 const IMAGE_DECODE_TIMEOUT_MS = Number(arg('image-timeout', 60000));
 const driftPath = arg('drift', join('.fidelity', 'export-drift.json'));
 
-// Same normalisation on both sides of every comparison in this file: heading to
-// heading across the two renders, and heading to drifted string in the manifest.
-const key = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+// `key` (lib/pair-headings.mjs) is the one normalisation on both sides of every
+// comparison in this file: heading to heading, and heading to drifted string.
 
 // Strings check-export-drift found on the live page and not in the export, for
 // THIS route. `null` means no manifest — a different state from "none drifted",
@@ -313,20 +313,18 @@ const a = await capture(`${origin}${origPath}`, 'orig', []);
 const b = await capture(`${rebuildOrigin}${target.rebuild}`, 'rebuild', driftKeys ?? []);
 
 // A band boundary must exist in BOTH renders, else the slices drift apart.
-const bMap = new Map(b.headings.map((h) => [key(h.text), h]));
-const shared = a.headings
-  .filter((h) => bMap.has(key(h.text)))
-  .map((h) => ({ text: h.text, aY: h.y, bY: bMap.get(key(h.text)).y }));
+// Paired in document order (tncld#169): a text-keyed Map kept the LAST repeat, so
+// the rebuild's footer h2 `About` captured the page's own `About` band.
+// Footer/nav chrome is deliberately NOT excluded from banding here — tncld#170
+// needs the footer's own box, and excluding it would hide the deficit it measures.
+const { shared, onlyAHeads, onlyBHeads } = pairHeadings(a.headings, b.headings);
+assertBandsNonNegative(shared, a.height, b.height);
 
-const onlyA = a.headings.filter((h) => !bMap.has(key(h.text))).map((h) => h.text);
-const aKeys = new Set(a.headings.map((h) => key(h.text)));
-const onlyB = b.headings.filter((h) => !aKeys.has(key(h.text))).map((h) => h.text);
-
-// Full heading records for the one-sided ones, so a band can ask which of them
-// fall inside it. `onlyA`/`onlyB` above are the text-only lists the report has
-// always carried.
-const onlyAHeads = a.headings.filter((h) => !bMap.has(key(h.text)));
-const onlyBHeads = b.headings.filter((h) => !aKeys.has(key(h.text)));
+// Text-only lists of the one-sided headings, which the report has always carried.
+// `onlyAHeads`/`onlyBHeads` are the full records, so a band can ask which of them
+// fall inside it.
+const onlyA = onlyAHeads.map((h) => h.text);
+const onlyB = onlyBHeads.map((h) => h.text);
 const driftKeySet = new Set(driftKeys ?? []);
 const overlap = (y, h, from, to) => Math.max(0, Math.min(y + h, to) - Math.max(y, from));
 
