@@ -137,13 +137,10 @@ function renderSection({ section, index }: SectionEntry, images: Record<string, 
 function ActionButton({
   action,
   variant,
-  emphasis,
   label,
 }: {
   action: SectionAction;
   variant?: ComponentProps<typeof Button>['variant'];
-  /** BDS ButtonEmphasis — `on-color` is the one for brand-filled surfaces. */
-  emphasis?: ComponentProps<typeof Button>['emphasis'];
   /**
    * Accessible name, when the visible label repeats across a grid — "Learn
    * More" on three Related Pages cards names three different destinations.
@@ -153,8 +150,8 @@ function ActionButton({
   return (
     <Button
       href={action.href}
-      variant={action.variant ?? variant ?? 'primary'}
-      emphasis={emphasis}
+      // `on-color` is a surface fix, so it outranks the action's own variant.
+      variant={variant === 'on-color' ? variant : (action.variant ?? variant ?? 'primary')}
       // The original's CTA is 64px (`a.button-primary`, padding 16px block),
       // measured against the rendered export at 1440. BDS's ramp stops at
       // `xl` = --bds-size-1400 = 56px, so `xl` gets the type and padding ramp and
@@ -682,7 +679,7 @@ function Cta({
           // fill. `on-color` deliberately does not flip with the theme.
           <ActionButton
             action={section.action}
-            emphasis={section.variant === 'split' ? 'on-color' : undefined}
+            variant={section.variant === 'split' ? 'on-color' : undefined}
           />
         ) : null}
       </div>
