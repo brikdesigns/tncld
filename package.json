@@ -24,7 +24,7 @@
     "test:pair-headings": "node scripts/test-pair-headings.mjs"
   },
   "dependencies": {
-    "@brikdesigns/bds": "0.250.0",
+    "@brikdesigns/bds": "0.251.2",
     "@mux/mux-player-react": "^3.13.2",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.3",
